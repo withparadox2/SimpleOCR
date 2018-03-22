@@ -5,19 +5,20 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import android.media.ExifInterface
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.provider.MediaStore
 import android.view.View
 import android.widget.ImageView
+import com.withparadox2.simpleocr.App
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.permission.PermissionManager
 import com.withparadox2.simpleocr.util.buildUri
+import com.withparadox2.simpleocr.util.compress
 import com.withparadox2.simpleocr.util.getBasePath
 import java.io.File
 
 const val REQUEST_TAKE_PIC = 1
+const val PHOTO_NAME = "prepare_decode.jpg"
 
 class MainActivity : BaseActivity(), View.OnClickListener {
     var mFilePath: String? = null
@@ -38,7 +39,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         when (v.id) {
             R.id.btn_take_pic -> {
                 PermissionManager.getInstance().requestPermission(this, Runnable {
-                    mFilePath = "${getBasePath()}${System.currentTimeMillis()}.jpg"
+                    mFilePath = "${getBasePath()}$PHOTO_NAME"
                     val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, buildUri(this, File(mFilePath), intent))
                     startActivityForResult(intent, REQUEST_TAKE_PIC)
@@ -80,42 +81,29 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
-    private fun showPhoto() {
+    private fun showPhoto() = Thread {
+        compress(mFilePath)
         val bitmap = BitmapFactory.decodeFile(mFilePath)
-        ivPhoto.setImageBitmap(bitmap)
+        App.post(Runnable {
+            ivPhoto.setImageBitmap(bitmap)
 
-        val matrix = Matrix()
-        var scale: Float
-        var dx = 0f
-        var dy = 0f
+            val matrix = Matrix()
+            val scale: Float
+            var dx = 0f
+            var dy = 0f
 
-        val rotation = getRotationOfPhoto()
-        val reverse = rotation == 90 || rotation == 180
+            if ((bitmap.width / bitmap.height.toFloat() > ivPhoto.width / ivPhoto.height.toFloat())) {
+                scale = ivPhoto.width.toFloat() / bitmap.width
+                dy = (ivPhoto.height - bitmap.height * scale) / 2
+            } else {
+                scale = ivPhoto.height.toFloat() / bitmap.height
+                dx = (ivPhoto.width - bitmap.width * scale) / 2
+            }
 
-        if ((bitmap.width / bitmap.height.toFloat() > ivPhoto.width / ivPhoto.height.toFloat()) && !reverse) {
-            scale = ivPhoto.width.toFloat() / bitmap.width
-            dy = (ivPhoto.height - bitmap.height * scale) / 2
+            matrix.setScale(scale, scale)
+            matrix.postTranslate(dx, dy)
 
-        } else {
-            scale = ivPhoto.height.toFloat() / bitmap.height
-            dx = (ivPhoto.width - bitmap.width * scale) / 2
-        }
-
-        matrix.setScale(scale, scale)
-        matrix.postTranslate(dx, dy)
-        matrix.postRotate(getRotationOfPhoto().toFloat(), ivPhoto.width / 2f, ivPhoto.height / 2f)
-
-        ivPhoto.imageMatrix = matrix
-    }
-
-    private fun getRotationOfPhoto(): Int {
-        val exif = ExifInterface(mFilePath)
-        val type = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0)
-        return when (type) {
-            ExifInterface.ORIENTATION_NORMAL -> 0
-            ExifInterface.ORIENTATION_ROTATE_90 -> 90
-            ExifInterface.ORIENTATION_ROTATE_180 -> 180
-            else -> 270
-        }
-    }
+            ivPhoto.imageMatrix = matrix
+        })
+    }.run()
 }
