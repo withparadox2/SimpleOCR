@@ -33,4 +33,4 @@ fun buildUri(context: Context, file: File, intent: Intent?): Uri {
     return uri
 }
 
-fun toast(text: String) = Toast.makeText(App.instance, text, Toast.LENGTH_SHORT).show()
+fun toast(text: String?) = Toast.makeText(App.instance, text, Toast.LENGTH_SHORT).show()

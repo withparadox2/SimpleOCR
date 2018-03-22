@@ -11,10 +11,15 @@ import android.view.View
 import android.widget.ImageView
 import com.withparadox2.simpleocr.App
 import com.withparadox2.simpleocr.R
+import com.withparadox2.simpleocr.support.net.OcrService
 import com.withparadox2.simpleocr.support.permission.PermissionManager
 import com.withparadox2.simpleocr.util.buildUri
 import com.withparadox2.simpleocr.util.compress
 import com.withparadox2.simpleocr.util.getBasePath
+import com.withparadox2.simpleocr.util.toast
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
 
 const val REQUEST_TAKE_PIC = 1
@@ -32,6 +37,15 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         ivPhoto = findViewById(R.id.iv_photo) as ImageView
         mFilePath = savedInstanceState?.getString("key_path")
         showPhotoIfExist()
+        val call: Call<String> = OcrService.instance.getToken()
+        call.enqueue(object : Callback<String> {
+            override fun onFailure(call: Call<String>?, t: Throwable?) {
+            }
+
+            override fun onResponse(call: Call<String>?, response: Response<String>?) {
+                toast(response?.body())
+            }
+        })
     }
 
     override fun onClick(v: View?) {
@@ -106,4 +120,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             ivPhoto.imageMatrix = matrix
         })
     }.run()
+
+
 }
