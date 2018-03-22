@@ -12,6 +12,7 @@ import android.widget.ImageView
 import com.withparadox2.simpleocr.App
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.net.OcrService
+import com.withparadox2.simpleocr.support.net.TokenResult
 import com.withparadox2.simpleocr.support.permission.PermissionManager
 import com.withparadox2.simpleocr.util.buildUri
 import com.withparadox2.simpleocr.util.compress
@@ -37,13 +38,13 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         ivPhoto = findViewById(R.id.iv_photo) as ImageView
         mFilePath = savedInstanceState?.getString("key_path")
         showPhotoIfExist()
-        val call: Call<String> = OcrService.instance.getToken()
-        call.enqueue(object : Callback<String> {
-            override fun onFailure(call: Call<String>?, t: Throwable?) {
+        val call: Call<TokenResult> = OcrService.instance.getToken()
+        call.enqueue(object : Callback<TokenResult> {
+            override fun onFailure(call: Call<TokenResult>?, t: Throwable?) {
             }
 
-            override fun onResponse(call: Call<String>?, response: Response<String>?) {
-                toast(response?.body())
+            override fun onResponse(call: Call<TokenResult>?, response: Response<TokenResult>?) {
+                toast(response?.body()?.accessToken)
             }
         })
     }

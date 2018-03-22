@@ -2,6 +2,7 @@ package com.withparadox2.simpleocr.support.net
 
 import retrofit2.Call
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -16,10 +17,11 @@ interface OcrService {
     @GET("oauth/2.0/token")
     fun getToken(@Query("client_id") clientId: String = OCR_ID,
                  @Query("client_secret") clientSecret: String = OCR_SECRET,
-                 @Query("grant_type") grantType: String = "client_credentials"): Call<String>
+                 @Query("grant_type") grantType: String = "client_credentials"): Call<TokenResult>
     companion object {
         var instance: OcrService = Retrofit.Builder().baseUrl("https://aip.baidubce.com")
                 .addConverterFactory(ScalarsConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(OcrService::class.java)
     }
