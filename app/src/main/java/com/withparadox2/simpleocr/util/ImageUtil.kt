@@ -11,6 +11,9 @@ import java.io.FileOutputStream
 /**
  * Created by withparadox2 on 2018/3/22.
  */
+
+const val MAX_SIZE = 1800
+
 fun compress(srcPath: String?) {
     if (!isFileExists(srcPath)) return
 
@@ -18,22 +21,21 @@ fun compress(srcPath: String?) {
     options.inJustDecodeBounds = true
     decodeFile(srcPath, options)
 
-    val maxSize = 2000
-    if (options.outWidth * options.outHeight < maxSize * maxSize) {
+    if (options.outWidth * options.outHeight < MAX_SIZE * MAX_SIZE) {
         return
     }
 
     options.inJustDecodeBounds = false
-    options.inSampleSize = Math.max(options.outHeight, options.outWidth) / 2000
+    options.inSampleSize = Math.max(options.outHeight, options.outWidth) / MAX_SIZE
 
     var bitmap = decodeFile(srcPath, options)
-    val scale = Math.max(options.outHeight, options.outWidth) / 2000f
+    val scale : Float = Math.max(options.outHeight, options.outWidth) / MAX_SIZE.toFloat()
 
-    bitmap = scaleAndRotate(bitmap, scale > 1, 1 / scale, false, 0, true)
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 75, FileOutputStream(srcPath))
+    bitmap = scaleAndRotate(bitmap, scale > 1, 1 / scale)
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 60, FileOutputStream(srcPath))
 }
 
-fun scaleAndRotate(bitmap: Bitmap, needScale: Boolean, scale: Float, needRotate: Boolean, angle: Int, recycleSrc: Boolean): Bitmap {
+fun scaleAndRotate(bitmap: Bitmap, needScale: Boolean = false, scale: Float = 0f, needRotate: Boolean = false, angle: Int = 0, recycleSrc: Boolean = true): Bitmap {
     val matrix = Matrix()
     if (needScale) {
         matrix.setScale(scale, scale)

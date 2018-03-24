@@ -16,7 +16,8 @@ import retrofit2.http.*
 const val OCR_ID = "mDcZYbQzIZYrsHh4cGXric4c"
 const val OCR_SECRET = "dgIt03inKtFrhCA6tyMjaXSQ4eLfq1Cc"
 
-const val KEY_TOEKN = "access_token"
+const val KEY_TOKEN = "access_token"
+const val KEY_EXPIRES_IN = "expires_in"
 
 interface OcrService {
     @GET("oauth/2.0/token")
@@ -37,16 +38,23 @@ interface OcrService {
 
         fun requestOcr(image: String, call: Callback<OcrResult>) {
             val sp = App.instance.getSharedPreferences(App.instance.packageName, Context.MODE_PRIVATE)
-            val token = sp.getString(KEY_TOEKN, null)
+            var token: String? = sp.getString(KEY_TOKEN, null)
+            val expiresIn = sp.getLong(KEY_EXPIRES_IN, 0)
+            if (System.currentTimeMillis() <= expiresIn) {
+                token = null
+            }
 
-            fun execution() = instance.sendOcr(sp.getString(KEY_TOEKN, null), image).enqueue(call)
+            fun execution() = instance.sendOcr(sp.getString(KEY_TOKEN, null), image).enqueue(call)
 
             if (token == null) {
                 instance.getToken().enqueue(object : Callback<TokenResult> {
                     override fun onResponse(call: Call<TokenResult>?, response: Response<TokenResult>?) {
-                        sp.edit().putString(KEY_TOEKN, response?.body()?.accessToken).apply()
+                        sp.edit().putString(KEY_TOKEN, response?.body()?.accessToken)
+                                .putLong(KEY_EXPIRES_IN, response?.body()?.expiresIn ?: 0 * 1000 + System.currentTimeMillis())
+                                .apply()
                         execution()
                     }
+
                     override fun onFailure(call: Call<TokenResult>?, t: Throwable?) = Unit
                 })
             } else {
