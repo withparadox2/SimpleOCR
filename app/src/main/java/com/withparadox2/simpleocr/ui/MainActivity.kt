@@ -7,12 +7,13 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Base64
 import android.view.View
 import android.widget.ImageView
 import com.withparadox2.simpleocr.App
 import com.withparadox2.simpleocr.R
+import com.withparadox2.simpleocr.support.net.OcrResult
 import com.withparadox2.simpleocr.support.net.OcrService
-import com.withparadox2.simpleocr.support.net.TokenResult
 import com.withparadox2.simpleocr.support.permission.PermissionManager
 import com.withparadox2.simpleocr.util.buildUri
 import com.withparadox2.simpleocr.util.compress
@@ -22,6 +23,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
+import java.io.FileInputStream
+import java.io.InputStream
 
 const val REQUEST_TAKE_PIC = 1
 const val PHOTO_NAME = "prepare_decode.jpg"
@@ -38,15 +41,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         ivPhoto = findViewById(R.id.iv_photo) as ImageView
         mFilePath = savedInstanceState?.getString("key_path")
         showPhotoIfExist()
-        val call: Call<TokenResult> = OcrService.instance.getToken()
-        call.enqueue(object : Callback<TokenResult> {
-            override fun onFailure(call: Call<TokenResult>?, t: Throwable?) {
-            }
-
-            override fun onResponse(call: Call<TokenResult>?, response: Response<TokenResult>?) {
-                toast(response?.body()?.accessToken)
-            }
-        })
     }
 
     override fun onClick(v: View?) {
@@ -119,8 +113,21 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             matrix.postTranslate(dx, dy)
 
             ivPhoto.imageMatrix = matrix
+
+            startOcr()
         })
     }.run()
 
 
+    private fun startOcr() {
+        val image = Base64.encodeToString(File(mFilePath).readBytes(), Base64.DEFAULT)
+        OcrService.requestOcr(image, object: Callback<OcrResult> {
+            override fun onFailure(call: Call<OcrResult>?, t: Throwable?) {
+            }
+
+            override fun onResponse(call: Call<OcrResult>?, response: Response<OcrResult>?) {
+                toast(response?.body().toString())
+            }
+        })
+    }
 }

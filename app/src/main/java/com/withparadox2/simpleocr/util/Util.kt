@@ -9,6 +9,7 @@ import android.support.v4.content.FileProvider
 import android.widget.Toast
 import com.withparadox2.simpleocr.App
 import java.io.File
+import java.io.FileInputStream
 
 /**
  * Created by withparadox2 on 2018/3/15.
@@ -34,3 +35,8 @@ fun buildUri(context: Context, file: File, intent: Intent?): Uri {
 }
 
 fun toast(text: String?) = Toast.makeText(App.instance, text, Toast.LENGTH_SHORT).show()
+
+fun File.readBytes() : ByteArray {
+    val ifs = FileInputStream(this)
+    return ifs.readBytes()
+}
