@@ -31,7 +31,9 @@ fun compress(srcPath: String?) {
     var bitmap = decodeFile(srcPath, options)
     val scale : Float = Math.max(options.outHeight, options.outWidth) / MAX_SIZE.toFloat()
 
-    bitmap = scaleAndRotate(bitmap, scale > 1, 1 / scale)
+    val rotation = getRotationOfPhoto(srcPath)
+
+    bitmap = scaleAndRotate(bitmap, scale > 1, 1 / scale, rotation != 0, rotation)
     bitmap.compress(Bitmap.CompressFormat.JPEG, 60, FileOutputStream(srcPath))
 }
 
