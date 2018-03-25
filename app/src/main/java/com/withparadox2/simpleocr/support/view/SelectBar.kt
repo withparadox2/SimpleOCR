@@ -30,7 +30,7 @@ class SelectBar : View {
     private var toLine = -1
     private val sections: ArrayList<Section> = ArrayList()
 
-    private var preJoinTopLine: Int = 0
+    private var preScrollY: Int = 0
 
     init {
         paint.color = Color.RED
@@ -66,13 +66,13 @@ class SelectBar : View {
 
             sections.forEach { it.fixPosition() }
 
-            scrollToTargetLine(preJoinTopLine)
+            restoreScrollPosition()
         }
     }
 
-    private fun scrollToTargetLine(line: Int) {
+    private fun restoreScrollPosition() {
         post {
-            (parent.parent as ScrollView).smoothScrollTo(0, preJoinTopLine)
+            (parent.parent as ScrollView).smoothScrollTo(0, preScrollY)
         }
 
     }
@@ -100,19 +100,18 @@ class SelectBar : View {
     private fun validToLine(): Int = if (fromLine < toLine) toLine else fromLine
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        val x: Float = event.x
         val y: Float = event.y
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                fromLine = getLineIndex(x, y)
+                fromLine = getLineIndex(y)
                 toLine = fromLine
             }
             MotionEvent.ACTION_MOVE -> {
-                toLine = getLineIndex(x, y)
+                toLine = getLineIndex(y)
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 if (fromLine != -1 && toLine != -1) {
-                    joinLine(findSection(validFromLine()), findSection(validToLine()))
+                    joinLines(findSection(validFromLine()), findSection(validToLine()))
                 } else {
                     resetLines()
                     invalidate()
@@ -136,7 +135,7 @@ class SelectBar : View {
         }
     }
 
-    private fun joinLine(from: Int, to: Int) {
+    private fun joinLines(from: Int, to: Int) {
         if (from == to || from == -1 || to == -1) {
             resetLines()
             invalidate()
@@ -152,7 +151,7 @@ class SelectBar : View {
                     }
                 }
         tvContent.text = sb
-        preJoinTopLine = (parent.parent as ScrollView).scrollY
+        preScrollY = (parent.parent as ScrollView).scrollY
         requestLayout()
         resetLines()
         clearSections()
@@ -163,7 +162,7 @@ class SelectBar : View {
         toLine = -1
     }
 
-    private fun getLineIndex(x: Float, y: Float): Int {
+    private fun getLineIndex(y: Float): Int {
         if (tvContent.layout == null) {
             return -1
         }
