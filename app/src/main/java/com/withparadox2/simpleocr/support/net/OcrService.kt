@@ -60,8 +60,6 @@ interface OcrService {
             } else {
                 execution()
             }
-
         }
     }
 }
-
