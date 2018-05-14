@@ -40,7 +40,7 @@ interface OcrService {
             val sp = App.instance.getSharedPreferences(App.instance.packageName, Context.MODE_PRIVATE)
             var token: String? = sp.getString(KEY_TOKEN, null)
             val expiresIn = sp.getLong(KEY_EXPIRES_IN, 0)
-            if (System.currentTimeMillis() <= expiresIn) {
+            if (System.currentTimeMillis() > expiresIn) {
                 token = null
             }
 
@@ -50,7 +50,7 @@ interface OcrService {
                 instance.getToken().enqueue(object : Callback<TokenResult> {
                     override fun onResponse(call: Call<TokenResult>?, response: Response<TokenResult>?) {
                         sp.edit().putString(KEY_TOKEN, response?.body()?.accessToken)
-                                .putLong(KEY_EXPIRES_IN, response?.body()?.expiresIn ?: 0 * 1000 + System.currentTimeMillis())
+                                .putLong(KEY_EXPIRES_IN, (response?.body()?.expiresIn ?: 0) * 1000 + System.currentTimeMillis())
                                 .apply()
                         execution()
                     }

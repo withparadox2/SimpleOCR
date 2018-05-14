@@ -13,7 +13,7 @@ class OcrResult {
     var resultNum: Int = 0
 
     @SerializedName("words_result")
-    lateinit var resultList: List<Map<String, String>>
+    var resultList: List<Map<String, String>>? = null
 
-    override fun toString(): String = resultList.joinToString(",") { item -> item.toString() }
+    override fun toString(): String = resultList?.joinToString(",") { item -> item.toString() } ?: ""
 }

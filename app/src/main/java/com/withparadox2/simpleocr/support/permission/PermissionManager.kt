@@ -23,7 +23,7 @@ class PermissionManager private constructor() {
         fun getInstance(): PermissionManager = mInstance
     }
 
-    private fun hasPermission(o: Any, vararg permissions: String): Boolean {
+    fun hasPermission(o: Any, vararg permissions: String): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return true
         return !permissions.any {
             ContextCompat.checkSelfPermission(getContext(o), it) != PackageManager.PERMISSION_GRANTED

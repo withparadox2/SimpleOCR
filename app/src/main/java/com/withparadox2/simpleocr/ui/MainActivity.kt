@@ -2,6 +2,7 @@ package com.withparadox2.simpleocr.ui
 
 import android.Manifest
 import android.app.Activity
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -59,15 +60,27 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         when (v.id) {
             R.id.btn_take_pic -> {
                 layoutContent.visibility = View.GONE
-                PermissionManager.getInstance().requestPermission(this, Runnable {
-                    val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, buildUri(this, File(mFilePath), intent))
-                    startActivityForResult(intent, REQUEST_TAKE_PIC)
-                }, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                checkPermission()
             }
             R.id.btn_ocr -> {
                 showPhoto()
             }
+        }
+    }
+
+    fun checkPermission() {
+        val hasPermission = PermissionManager.getInstance().hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        val action = Runnable {
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, buildUri(this, File(mFilePath), intent))
+            startActivityForResult(intent, REQUEST_TAKE_PIC)
+        }
+        if (hasPermission) {
+            action.run()
+        } else {
+            PermissionDialog(DialogInterface.OnClickListener { dialog, which ->
+                PermissionManager.getInstance().requestPermission(this, action, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            })
         }
     }
 
@@ -106,7 +119,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
     private fun showPhoto() = Thread {
         compress(mFilePath)
-        val bitmap = BitmapFactory.decodeFile(mFilePath)
+        val bitmap = BitmapFactory.decodeFile(mFilePath) ?: return@Thread
         App.post(Runnable {
             ivPhoto.setImageBitmap(bitmap)
 
