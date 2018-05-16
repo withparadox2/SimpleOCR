@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.os.Bundle
@@ -17,21 +18,22 @@ import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.net.OcrResult
 import com.withparadox2.simpleocr.support.net.OcrService
 import com.withparadox2.simpleocr.support.permission.PermissionManager
-import com.withparadox2.simpleocr.util.buildUri
-import com.withparadox2.simpleocr.util.compress
-import com.withparadox2.simpleocr.util.getBasePath
-import com.withparadox2.simpleocr.util.readBytes
+import com.withparadox2.simpleocr.support.view.CropImageView
+import com.withparadox2.simpleocr.util.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
+import java.io.FileOutputStream
 
 const val REQUEST_TAKE_PIC = 1
 const val PHOTO_NAME = "prepare_decode.jpg"
+const val PHOTO_OCR_NAME = "prepare_ocr.jpg"
 
 class MainActivity : BaseActivity(), View.OnClickListener {
     private var mFilePath: String? = null
-    lateinit var ivPhoto: ImageView
+    private var mOcrPath: String? = null
+    lateinit var ivPhoto: CropImageView
     lateinit var btnOcr: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,9 +45,10 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         btnOcr = findViewById(R.id.btn_ocr) as Button
         btnOcr.setOnClickListener(this)
 
-        ivPhoto = findViewById(R.id.iv_photo) as ImageView
+        ivPhoto = findViewById(R.id.iv_photo) as CropImageView
 
         mFilePath = "${getBasePath()}$PHOTO_NAME"
+        mOcrPath = "${getBasePath()}$PHOTO_OCR_NAME"
         showPhotoIfExist()
     }
 
@@ -56,6 +59,8 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                 checkPermission()
             }
             R.id.btn_ocr -> {
+                val bitmap = ivPhoto.getCropBitmap()
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 60, FileOutputStream(mOcrPath))
                 startOcr()
             }
         }
@@ -129,21 +134,27 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                 dx = (ivPhoto.width - bitmap.width * scale) / 2
             }
 
+
             matrix.setScale(scale, scale)
             matrix.postTranslate(dx, dy)
 
             ivPhoto.imageMatrix = matrix
+
+            ivPhoto.setBitmapTx(dx)
+            ivPhoto.setBitmapTy(dy)
+            ivPhoto.setBitmapScale(scale)
         })
     }.run()
 
 
     private fun startOcr() {
 
-        val image = Base64.encodeToString(File(mFilePath).readBytes(), Base64.DEFAULT)
+        val image = Base64.encodeToString(File(mOcrPath).readBytes(), Base64.DEFAULT)
         OcrService.requestOcr(image, object : Callback<OcrResult> {
             override fun onFailure(call: Call<OcrResult>?, t: Throwable?) = Unit
 
             override fun onResponse(call: Call<OcrResult>?, response: Response<OcrResult>?) {
+                toast(parseText(response?.body()?.resultList))
 //                tvContent.text = parseText(response?.body()?.resultList)
             }
         })

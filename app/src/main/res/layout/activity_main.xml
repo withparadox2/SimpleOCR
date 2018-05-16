@@ -12,13 +12,15 @@
         android:layout_height="wrap_content">
         <Button
             android:id="@+id/btn_take_pic"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/take_picture" />
         <Button
             android:id="@+id/btn_ocr"
             android:text="@string/ocr"
-            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_width="0dp"
             android:layout_height="wrap_content" />
     </LinearLayout>
 

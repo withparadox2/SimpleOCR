@@ -2,11 +2,11 @@ package com.withparadox2.simpleocr.support.view
 
 import android.content.Context
 import android.graphics.*
+import android.graphics.drawable.BitmapDrawable
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.ImageView
 import com.withparadox2.simpleocr.util.dp2px
-import kotlin.math.min
 
 /**
  * Created by withparadox2 on 2018/5/15.
@@ -20,11 +20,27 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     private var mLastTouchX: Float = 0f
     private var mLastTouchY: Float = 0f
 
+    private var mBitmapScale: Float = 1f
+    private var mBitmapTx: Float = 0f
+    private var mBitmapTy: Float = 0f
+
     init {
         mPaint.color = Color.WHITE
         mPaint.style = Paint.Style.STROKE
         mPaint.strokeWidth = 3f
         mPaint.alpha = 200
+    }
+
+    fun setBitmapScale(scale: Float) {
+        mBitmapScale = scale
+    }
+
+    fun setBitmapTx(tx: Float) {
+        mBitmapTx = tx
+    }
+
+    fun setBitmapTy(ty: Float) {
+        mBitmapTy = ty
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -99,5 +115,17 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         canvas.drawCircle(mRect.left, mRect.bottom, mDotRadius, mPaint)
         canvas.drawCircle(mRect.right, mRect.top, mDotRadius, mPaint)
         canvas.drawCircle(mRect.right, mRect.bottom, mDotRadius, mPaint)
+    }
+
+    fun getCropBitmap(): Bitmap {
+        val offTop = mRect.top - mBitmapTy
+        val offLeft = mRect.left - mBitmapTx
+
+        return Bitmap.createBitmap((drawable as BitmapDrawable).bitmap,
+                (offLeft / mBitmapScale).toInt(),
+                (offTop / mBitmapScale).toInt(),
+                (mRect.width() / mBitmapScale).toInt(),
+                (mRect.height() / mBitmapScale).toInt()
+        )
     }
 }
