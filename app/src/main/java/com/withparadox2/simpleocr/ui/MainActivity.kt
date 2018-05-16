@@ -12,14 +12,15 @@ import android.util.Base64
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.TextView
 import com.withparadox2.simpleocr.App
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.net.OcrResult
 import com.withparadox2.simpleocr.support.net.OcrService
 import com.withparadox2.simpleocr.support.permission.PermissionManager
-import com.withparadox2.simpleocr.support.view.SelectBar
-import com.withparadox2.simpleocr.util.*
+import com.withparadox2.simpleocr.util.buildUri
+import com.withparadox2.simpleocr.util.compress
+import com.withparadox2.simpleocr.util.getBasePath
+import com.withparadox2.simpleocr.util.readBytes
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -29,12 +30,9 @@ const val REQUEST_TAKE_PIC = 1
 const val PHOTO_NAME = "prepare_decode.jpg"
 
 class MainActivity : BaseActivity(), View.OnClickListener {
-    var mFilePath: String? = null
+    private var mFilePath: String? = null
     lateinit var ivPhoto: ImageView
-    lateinit var tvContent: TextView
-    lateinit var layoutContent: View
     lateinit var btnOcr: Button
-    lateinit var selectBar: SelectBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,10 +44,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         btnOcr.setOnClickListener(this)
 
         ivPhoto = findViewById(R.id.iv_photo) as ImageView
-        tvContent = findViewById(R.id.tv_content) as TextView
-        layoutContent = findViewById(R.id.sv_content)
-        selectBar = findViewById(R.id.select_bar) as SelectBar
-        selectBar.setTextView(tvContent)
 
         mFilePath = "${getBasePath()}$PHOTO_NAME"
         showPhotoIfExist()
@@ -59,16 +53,15 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         if (v == null) return
         when (v.id) {
             R.id.btn_take_pic -> {
-                layoutContent.visibility = View.GONE
                 checkPermission()
             }
             R.id.btn_ocr -> {
-                showPhoto()
+                startOcr()
             }
         }
     }
 
-    fun checkPermission() {
+    private fun checkPermission() {
         val hasPermission = PermissionManager.getInstance().hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
         val action = Runnable {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
@@ -78,7 +71,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         if (hasPermission) {
             action.run()
         } else {
-            PermissionDialog(DialogInterface.OnClickListener { dialog, which ->
+            PermissionDialog(DialogInterface.OnClickListener { _, _ ->
                 PermissionManager.getInstance().requestPermission(this, action, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             })
         }
@@ -140,21 +133,18 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             matrix.postTranslate(dx, dy)
 
             ivPhoto.imageMatrix = matrix
-
-            startOcr()
         })
     }.run()
 
 
     private fun startOcr() {
+
         val image = Base64.encodeToString(File(mFilePath).readBytes(), Base64.DEFAULT)
         OcrService.requestOcr(image, object : Callback<OcrResult> {
             override fun onFailure(call: Call<OcrResult>?, t: Throwable?) = Unit
 
             override fun onResponse(call: Call<OcrResult>?, response: Response<OcrResult>?) {
-                layoutContent.visibility = View.VISIBLE
-                selectBar.forceLayout()
-                tvContent.text = parseText(response?.body()?.resultList)
+//                tvContent.text = parseText(response?.body()?.resultList)
             }
         })
     }
