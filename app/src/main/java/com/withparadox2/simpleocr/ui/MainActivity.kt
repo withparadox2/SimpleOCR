@@ -12,7 +12,6 @@ import android.provider.MediaStore
 import android.util.Base64
 import android.view.View
 import android.widget.Button
-import android.widget.ImageView
 import com.withparadox2.simpleocr.App
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.net.OcrResult
