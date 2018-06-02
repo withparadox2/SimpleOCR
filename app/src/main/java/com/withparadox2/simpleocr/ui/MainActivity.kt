@@ -2,8 +2,6 @@ package com.withparadox2.simpleocr.ui
 
 import android.Manifest
 import android.app.Activity
-import android.content.DialogInterface
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -24,6 +22,9 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
+import android.R.attr.label
+import android.content.*
+
 
 const val REQUEST_TAKE_PIC = 1
 const val PHOTO_OCR_NAME = "prepare_ocr.jpg"
@@ -134,8 +135,15 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             override fun onFailure(call: Call<OcrResult>?, t: Throwable?) = Unit
 
             override fun onResponse(call: Call<OcrResult>?, response: Response<OcrResult>?) {
-                toast(parseText(response?.body()?.resultList))
-//                tvContent.text = parseText(response?.body()?.resultList)
+                val text: String? = parseText(response?.body()?.resultList)
+                if (text != null) {
+                    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    val clip = ClipData.newPlainText("simpleocr", text)
+                    clipboard.primaryClip = clip
+                    toast(text)
+                }  else {
+                    toast("fail")
+                }
             }
         })
     }
