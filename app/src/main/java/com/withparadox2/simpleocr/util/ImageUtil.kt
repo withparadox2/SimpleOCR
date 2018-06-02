@@ -29,7 +29,7 @@ fun compress(srcPath: String?) {
     options.inSampleSize = Math.max(options.outHeight, options.outWidth) / MAX_SIZE
 
     var bitmap = decodeFile(srcPath, options)
-    val scale : Float = Math.max(options.outHeight, options.outWidth) / MAX_SIZE.toFloat()
+    val scale: Float = Math.max(options.outHeight, options.outWidth) / MAX_SIZE.toFloat()
 
     val rotation = getRotationOfPhoto(srcPath)
 
@@ -52,12 +52,22 @@ fun scaleAndRotate(bitmap: Bitmap, needScale: Boolean = false, scale: Float = 0f
     return temp
 }
 
+fun getBitmap(filePath: String): Bitmap {
+    var bitmap: Bitmap = BitmapFactory.decodeFile(filePath)
+    val rotation = getRotationOfPhoto((filePath))
+    if (rotation != 0) {
+        bitmap = scaleAndRotate(bitmap, false, 0f, true, rotation)
+    }
+    return bitmap
+}
+
 fun getRotationOfPhoto(filePath: String?): Int {
     if (!isFileExists(filePath)) return 0
     val type = ExifInterface(filePath)
             .getAttributeInt(ExifInterface.TAG_ORIENTATION, 0)
     return when (type) {
         ExifInterface.ORIENTATION_NORMAL -> 0
+        ExifInterface.ORIENTATION_UNDEFINED -> 0
         ExifInterface.ORIENTATION_ROTATE_90 -> 90
         ExifInterface.ORIENTATION_ROTATE_180 -> 180
         else -> 270

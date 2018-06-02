@@ -1,18 +1,23 @@
 package com.withparadox2.simpleocr.ui
 
 import android.app.Activity
-import android.graphics.Point
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.hardware.Camera
+import android.hardware.Camera.Parameters.*
 import android.hardware.Camera.getCameraInfo
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import android.widget.Button
+import com.withparadox2.simpleocr.App
 import com.withparadox2.simpleocr.R
+import com.withparadox2.simpleocr.util.getTempBitmapPath
+import java.io.*
 
 @Suppress("DEPRECATION")
 /**
@@ -42,6 +47,7 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
             }
         })
         mCameraView.holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
+        mBtnShutter.setOnClickListener(this)
     }
 
     private fun setupCamera() {
@@ -56,29 +62,25 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun configCamera() {
-        var info = Camera.CameraInfo()
+        val info = Camera.CameraInfo()
         Camera.getCameraInfo(mCameraId, info)
-        val metrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(metrics)
-        val targetRatio: Float = metrics.heightPixels.toFloat() / metrics.widthPixels
-        var minDiff: Float = Int.MAX_VALUE.toFloat()
 
-        val finalSize = Point()
-        val needReverse = info.orientation == 90 || info.orientation == 270
-
-        val parameters = mCamera.parameters
-        parameters.supportedPreviewSizes.forEach {
-            val ratio = if (!needReverse) it.height.toFloat() / it.width else it.width.toFloat() / it.height
-            val diff = Math.abs(ratio - targetRatio)
-            if (diff < minDiff) {
-                minDiff = diff
-                finalSize.x = it.width
-                finalSize.y = it.height
-            }
+        var targetRatio: Float = getScreenRatio()
+        if (info.orientation == 90 || info.orientation == 270) {
+            targetRatio = 1 / targetRatio
         }
 
-        parameters.setPreviewSize(finalSize.x, finalSize.y)
-        parameters.setPictureSize(finalSize.x, finalSize.y)
+        val parameters = mCamera.parameters
+        val finalSize = getOptimizeSize(parameters.supportedPreviewSizes, targetRatio)
+
+        if (finalSize != null) {
+            parameters.setPreviewSize(finalSize.width, finalSize.height)
+            parameters.setPictureSize(finalSize.width, finalSize.height)
+        }
+        parameters.focusMode = FOCUS_MODE_CONTINUOUS_PICTURE
+        //TODO detect the real rotation
+        parameters.setRotation(90)
+
         mCamera.parameters = parameters
     }
 
@@ -87,14 +89,22 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
         mCamera.release()
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
-
-
     override fun onClick(v: View?) {
         when (v!!.id) {
             R.id.btn_shutter -> {
+                mCamera.takePicture(null, null, Camera.PictureCallback { data, camera ->
+                    var output: OutputStream? = null
+                    try {
+                        output = BufferedOutputStream(FileOutputStream(getTempBitmapPath()))
+                        output.write(data)
+                        output.flush()
+                        startActivity(Intent(this@CameraActivity, MainActivity::class.java))
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    } finally {
+                        output?.close()
+                    }
+                })
             }
         }
     }
@@ -128,10 +138,34 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
         var result: Int
         if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             result = (info.orientation + degrees) % 360
-            result = (360 - result) % 360;  // compensate the mirror
+            result = (360 - result) % 360  // compensate the mirror
         } else {  // back-facing
             result = (info.orientation - degrees + 360) % 360
         }
         camera.setDisplayOrientation(result)
+    }
+
+    private fun getScreenRatio(): Float {
+        val metrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(metrics)
+        return metrics.heightPixels.toFloat() / metrics.widthPixels
+    }
+
+    private fun getOptimizeSize(sizeList: List<Camera.Size>, targetRatio: Float): Camera.Size? {
+        var finalSize: Camera.Size? = null
+        var minDiff: Float = Int.MAX_VALUE.toFloat()
+
+        for (size in sizeList) {
+            val ratio = size.height.toFloat() / size.width
+            val diff = Math.abs(ratio - targetRatio)
+            if (Math.abs(diff - minDiff) < 0.1) {
+                continue
+            }
+            if (diff < minDiff) {
+                minDiff = diff
+                finalSize = size
+            }
+        }
+        return finalSize
     }
 }

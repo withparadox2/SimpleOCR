@@ -21,6 +21,10 @@ fun getBasePath(): String {
     return basePath
 }
 
+fun getTempBitmapPath() : String {
+    return getBasePath() + "temp.jpg"
+}
+
 fun buildUri(context: Context, file: File, intent: Intent?): Uri {
     val uri: Uri
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N/*android 7.0*/) {

@@ -26,7 +26,6 @@ import java.io.File
 import java.io.FileOutputStream
 
 const val REQUEST_TAKE_PIC = 1
-const val PHOTO_NAME = "prepare_decode.jpg"
 const val PHOTO_OCR_NAME = "prepare_ocr.jpg"
 
 class MainActivity : BaseActivity(), View.OnClickListener {
@@ -46,7 +45,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
         ivPhoto = findViewById(R.id.iv_photo) as CropImageView
 
-        mFilePath = "${getBasePath()}$PHOTO_NAME"
+        mFilePath = getTempBitmapPath()
         mOcrPath = "${getBasePath()}$PHOTO_OCR_NAME"
         showPhotoIfExist()
     }
@@ -81,42 +80,24 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
-        outState?.putString("key_path", mFilePath)
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode != Activity.RESULT_OK) return
-        when (requestCode) {
-            REQUEST_TAKE_PIC -> {
-                showPhotoIfExist()
-            }
-        }
-    }
-
     private fun showPhotoIfExist() {
-        if (mFilePath == null) {
+        if (mFilePath == null || !File(mFilePath).exists()) {
             return
         }
-        if (File(mFilePath).exists()) {
-            if (ivPhoto.width == 0 || ivPhoto.height == 0) {
-                ivPhoto.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
-                    override fun onLayoutChange(v: View?, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
-                        showPhoto()
-                        ivPhoto.removeOnLayoutChangeListener(this)
-                    }
-                })
-            } else {
-                showPhoto()
-            }
+        if (ivPhoto.width == 0 || ivPhoto.height == 0) {
+            ivPhoto.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+                override fun onLayoutChange(v: View?, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
+                    showPhoto()
+                    ivPhoto.removeOnLayoutChangeListener(this)
+                }
+            })
+        } else {
+            showPhoto()
         }
     }
 
     private fun showPhoto() = Thread {
-        compress(mFilePath)
-        val bitmap = BitmapFactory.decodeFile(mFilePath) ?: return@Thread
+        val bitmap: Bitmap = getBitmap(mFilePath!!)
         App.post(Runnable {
             ivPhoto.setImageBitmap(bitmap)
 
