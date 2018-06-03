@@ -11,6 +11,9 @@ import com.withparadox2.simpleocr.util.dp2px
 /**
  * Created by withparadox2 on 2018/5/15.
  */
+const val INDEX_INVALID = -1
+const val INDEX_RECT = -2
+
 class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(context, attributeSet) {
     private val mPaint: Paint = Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
     private lateinit var mRect: RectF
@@ -53,7 +56,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
             MotionEvent.ACTION_DOWN -> {
                 val index = getTouchPointIndex(event.x, event.y)
                 mTouchIndex = index
-                if (mTouchIndex != -1) {
+                if (mTouchIndex != INDEX_INVALID) {
                     mRectTemp = RectF(mRect)
                 }
                 mLastTouchX = event.x
@@ -77,31 +80,34 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                     } else {
                         mRect.right = Math.max(mRectTemp.right + moveX, mRect.left + minSize)
                     }
-                } else if (mTouchIndex == -2) {
+                } else if (mTouchIndex == INDEX_RECT) {
                     mRect.set(mRectTemp)
                     mRect.offset(moveX, moveY)
                 }
 
-                if (mRect.left <= mBitmapTx) {
-                    mRect.left = mBitmapTx
-                    mRect.right = Math.max(mRect.right, mRect.left + minSize)
+                if (mTouchIndex != INDEX_INVALID) {
+                    if (mRect.left <= mBitmapTx) {
+                        mRect.left = mBitmapTx
+                        mRect.right = Math.max(mRect.right, mRect.left + minSize)
+                    }
+                    if (mRect.right >= measuredWidth - mBitmapTx) {
+                        mRect.right = measuredWidth - mBitmapTx
+                        mRect.left = Math.min(mRect.left, mRect.right - minSize)
+                    }
+                    if (mRect.top <= mBitmapTy) {
+                        mRect.top = mBitmapTy
+                        mRect.bottom = Math.max(mRect.bottom, mRect.top + minSize)
+                    }
+                    if (mRect.bottom >= measuredHeight - mBitmapTy) {
+                        mRect.bottom = measuredHeight - mBitmapTy
+                        mRect.top = Math.min(mRect.top, mRect.bottom - minSize)
+                    }
                 }
-                if (mRect.right >= measuredWidth - mBitmapTx) {
-                    mRect.right = measuredWidth - mBitmapTx
-                    mRect.left = Math.min(mRect.left, mRect.right - minSize)
-                }
-                if (mRect.top <= mBitmapTy) {
-                    mRect.top = mBitmapTy
-                    mRect.bottom = Math.max(mRect.bottom, mRect.top + minSize)
-                }
-                if (mRect.bottom >= measuredHeight - mBitmapTy) {
-                    mRect.bottom = measuredHeight - mBitmapTy
-                    mRect.top = Math.min(mRect.top, mRect.bottom - minSize)
-                }
+
                 invalidate()
             }
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                mTouchIndex = -1
+                mTouchIndex = INDEX_INVALID
             }
         }
         return true
@@ -114,8 +120,8 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
             distanceSquare(x, y, mRect.right, mRect.top) < slop -> 1
             distanceSquare(x, y, mRect.left, mRect.bottom) < slop -> 2
             distanceSquare(x, y, mRect.right, mRect.bottom) < slop -> 3
-            mRect.contains(x, y) -> -2
-            else -> -1
+            mRect.contains(x, y) -> INDEX_RECT
+            else -> INDEX_INVALID
         }
     }
 
