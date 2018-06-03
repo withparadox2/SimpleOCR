@@ -10,9 +10,10 @@
 
     <Button
         android:id="@+id/btn_shutter"
-        android:layout_width="50dp"
+        android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_gravity="center|bottom"
+        android:text="@string/take_picture"
         android:layout_marginBottom="30dp" />
 
 </FrameLayout>
