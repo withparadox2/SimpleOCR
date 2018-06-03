@@ -62,9 +62,9 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
             MotionEvent.ACTION_MOVE -> {
                 val moveX = event.x - mLastTouchX
                 val moveY = event.y - mLastTouchY
+                val minSize = 4 * mDotRadius
 
                 if (mTouchIndex >= 0) {
-                    val minSize = 4 * mDotRadius
 
                     if (mTouchIndex == 0 || mTouchIndex == 1) {
                         mRect.top = Math.min(mRectTemp.top + moveY, mRect.bottom - minSize)
@@ -80,6 +80,23 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                 } else if (mTouchIndex == -2) {
                     mRect.set(mRectTemp)
                     mRect.offset(moveX, moveY)
+                }
+
+                if (mRect.left <= mBitmapTx) {
+                    mRect.left = mBitmapTx
+                    mRect.right = Math.max(mRect.right, mRect.left + minSize)
+                }
+                if (mRect.right >= measuredWidth - mBitmapTx) {
+                    mRect.right = measuredWidth - mBitmapTx
+                    mRect.left = Math.min(mRect.left, mRect.right - minSize)
+                }
+                if (mRect.top <= mBitmapTy) {
+                    mRect.top = mBitmapTy
+                    mRect.bottom = Math.max(mRect.bottom, mRect.top + minSize)
+                }
+                if (mRect.bottom >= measuredHeight - mBitmapTy) {
+                    mRect.bottom = measuredHeight - mBitmapTy
+                    mRect.top = Math.min(mRect.top, mRect.bottom - minSize)
                 }
                 invalidate()
             }
@@ -108,6 +125,14 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+
+        canvas.drawColor(0x88000000.toInt())
+
+        canvas.save()
+        canvas.clipRect(mRect)
+        super.onDraw(canvas)
+        canvas.restore()
+
         mPaint.style = Paint.Style.STROKE
         canvas.drawRect(mRect, mPaint)
         mPaint.style = Paint.Style.FILL

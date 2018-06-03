@@ -91,7 +91,7 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v!!.id) {
             R.id.btn_shutter -> {
-                mCamera.takePicture(null, null, Camera.PictureCallback { data, camera ->
+                mCamera.takePicture(null, null, Camera.PictureCallback { data, _ ->
                     var output: OutputStream? = null
                     try {
                         output = BufferedOutputStream(FileOutputStream(getTempBitmapPath()))

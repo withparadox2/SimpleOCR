@@ -66,7 +66,7 @@ fun getRotationOfPhoto(filePath: String?): Int {
     val type = ExifInterface(filePath)
             .getAttributeInt(ExifInterface.TAG_ORIENTATION, 0)
     return when (type) {
-        ExifInterface.ORIENTATION_NORMAL -> 0
+        ExifInterface.ORIENTATION_NORMAL,
         ExifInterface.ORIENTATION_UNDEFINED -> 0
         ExifInterface.ORIENTATION_ROTATE_90 -> 90
         ExifInterface.ORIENTATION_ROTATE_180 -> 180

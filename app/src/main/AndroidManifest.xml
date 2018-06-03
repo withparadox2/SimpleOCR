@@ -28,8 +28,10 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name=".ui.MainActivity">
-        </activity>
+        <activity
+            android:name=".ui.MainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.FullScreen" />
         <activity
             android:name=".ui.CameraActivity"
             android:screenOrientation="portrait"
