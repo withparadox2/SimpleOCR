@@ -2,10 +2,8 @@ package com.withparadox2.simpleocr.ui
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.hardware.Camera
-import android.hardware.Camera.Parameters.*
+import android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
 import android.hardware.Camera.getCameraInfo
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -14,10 +12,11 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import android.widget.Button
-import com.withparadox2.simpleocr.App
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.util.getTempBitmapPath
-import java.io.*
+import java.io.BufferedOutputStream
+import java.io.FileOutputStream
+import java.io.OutputStream
 
 @Suppress("DEPRECATION")
 /**

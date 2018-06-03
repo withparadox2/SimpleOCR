@@ -1,9 +1,8 @@
 package com.withparadox2.simpleocr.ui
 
 import android.Manifest
-import android.app.Activity
+import android.content.*
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.os.Bundle
 import android.provider.MediaStore
@@ -22,8 +21,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
-import android.R.attr.label
-import android.content.*
 
 
 const val REQUEST_TAKE_PIC = 1
