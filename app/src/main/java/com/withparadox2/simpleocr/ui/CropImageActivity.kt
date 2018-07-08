@@ -60,6 +60,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         findViewById(R.id.btn_reset).setOnClickListener(this)
         findViewById(R.id.btn_join).setOnClickListener(this)
         findViewById(R.id.btn_copy).setOnClickListener(this)
+        findViewById(R.id.btn_convert).setOnClickListener(this)
 
         mFilePath = getTempBitmapPath()
         mOcrPath = "${getBasePath()}$PHOTO_OCR_NAME"
@@ -87,6 +88,10 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                 val clip = ClipData.newPlainText("simpleocr", mOcrTextTemp)
                 clipboard.primaryClip = clip
                 toast("copy success!")
+            }
+            R.id.btn_convert -> {
+                mOcrTextTemp = mOcrTextTemp!!.replace(",", "，")
+                tvText.text = mOcrTextTemp
             }
         }
     }
