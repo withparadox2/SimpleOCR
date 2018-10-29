@@ -2,11 +2,13 @@ package com.withparadox2.simpleocr.support.camera
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Rect
 import android.hardware.Camera
 import android.util.DisplayMetrics
 import android.view.Surface
 import android.view.TextureView
 import com.withparadox2.simpleocr.App
+import java.util.*
 import kotlin.concurrent.thread
 
 
@@ -97,6 +99,48 @@ class CameraManager private constructor() {
             camera.release()
             mCamera = null
         }
+    }
+
+    fun focusToRect(focusRect: Rect, meteringRect: Rect) {
+        try {
+            val camera = mCamera
+            if (camera != null) {
+                camera.cancelAutoFocus()
+                var parameters: Camera.Parameters? = null
+                try {
+                    parameters = camera.parameters
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+                if (parameters != null) {
+                    parameters.focusMode = Camera.Parameters.FOCUS_MODE_AUTO
+                    var meteringAreas = ArrayList<Camera.Area>()
+                    meteringAreas.add(Camera.Area(focusRect, 1000))
+                    parameters.focusAreas = meteringAreas
+
+                    if (parameters.maxNumMeteringAreas > 0) {
+                        meteringAreas = ArrayList()
+                        meteringAreas.add(Camera.Area(meteringRect, 1000))
+                        parameters.meteringAreas = meteringAreas
+                    }
+
+                    try {
+                        camera.parameters = parameters
+                        camera.autoFocus { success, _ ->
+                            if (success) {
+                            } else {
+                            }
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+           e.printStackTrace()
+        }
+
     }
 
     private fun getCameraId(): Int {

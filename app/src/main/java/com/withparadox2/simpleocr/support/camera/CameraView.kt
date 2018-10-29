@@ -4,12 +4,12 @@ import android.content.Context
 import android.graphics.*
 import android.hardware.Camera
 import android.view.MotionEvent
-import android.view.SurfaceView
 import android.view.TextureView
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.Interpolator
 import android.widget.FrameLayout
 import com.withparadox2.simpleocr.util.dp2px
+
 
 class CameraView(context: Context) : FrameLayout(context), TextureView.SurfaceTextureListener {
     private val textureView: TextureView = TextureView(context)
@@ -89,9 +89,7 @@ class CameraView(context: Context) : FrameLayout(context), TextureView.SurfaceTe
         val focusRect = calculateTapArea(x.toFloat(), y.toFloat(), 1f)
         val meteringRect = calculateTapArea(x.toFloat(), y.toFloat(), 1.5f)
 
-//        if (cameraSession != null) {
-//            cameraSession.focusToRect(focusRect, meteringRect)
-//        }
+        CameraManager.instance.focusToRect(focusRect, meteringRect)
 
         focusProgress = 0.0f
         innerAlpha = 1.0f
@@ -103,24 +101,22 @@ class CameraView(context: Context) : FrameLayout(context), TextureView.SurfaceTe
     }
 
     private fun calculateTapArea(x: Float, y: Float, coefficient: Float): Rect {
-        val areaSize = java.lang.Float.valueOf(focusAreaSize * coefficient).toInt()
+        val areaSize = (focusAreaSize * coefficient).toInt()
+        val centerY = (-x / width * 2000 + 1000).toInt()
+        val centerX = (y / height * 2000 - 1000).toInt()
 
-        val left = clamp(x.toInt() - areaSize / 2, 0, width - areaSize)
-        val top = clamp(y.toInt() - areaSize / 2, 0, height - areaSize)
-
-        val rectF = RectF(left.toFloat(), top.toFloat(), (left + areaSize).toFloat(), (top + areaSize).toFloat())
-        matrix.mapRect(rectF)
-
+        val halfAreaSize = areaSize / 2
+        val rectF = RectF(clamp(centerX - halfAreaSize, -1000, 1000), clamp(centerY - halfAreaSize, -1000, 1000), clamp(centerX + halfAreaSize, -1000, 1000), clamp(centerY + halfAreaSize, -1000, 1000))
         return Rect(Math.round(rectF.left), Math.round(rectF.top), Math.round(rectF.right), Math.round(rectF.bottom))
     }
 
-    private fun clamp(x: Int, min: Int, max: Int): Int {
+    private fun clamp(x: Int, min: Int, max: Int): Float {
         if (x > max) {
-            return max
+            return max.toFloat()
         }
         return if (x < min) {
-            min
-        } else x
+            min.toFloat()
+        } else x.toFloat()
     }
 
     override fun draw(canvas: Canvas) {
