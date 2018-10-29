@@ -5,7 +5,7 @@ import android.content.Context
 import android.hardware.Camera
 import android.util.DisplayMetrics
 import android.view.Surface
-import android.view.SurfaceView
+import android.view.TextureView
 import com.withparadox2.simpleocr.App
 import kotlin.concurrent.thread
 
@@ -13,7 +13,7 @@ import kotlin.concurrent.thread
 class CameraManager private constructor() {
     private var mCamera: Camera? = null
 
-    fun openCamera(surfaceView: SurfaceView, callback: Callback) {
+    fun openCamera(textureView: TextureView, callback: Callback) {
         val cameraId = getCameraId()
         if (cameraId < 0) {
             callback.onOpenFailed()
@@ -26,9 +26,8 @@ class CameraManager private constructor() {
             var camera: Camera? = null
             try {
                 camera = Camera.open(cameraId)
-                configCamera(camera, cameraId, surfaceView.context)
-                //TODO make creation of camera and surface in parallel
-                camera.setPreviewDisplay(surfaceView.holder)
+                configCamera(camera, cameraId, textureView.context)
+                camera.setPreviewTexture(textureView.surfaceTexture)
                 camera.startPreview()
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -90,6 +89,7 @@ class CameraManager private constructor() {
         val camera = mCamera
         if (camera != null) {
             try {
+                camera.setPreviewCallbackWithBuffer(null)
                 camera.stopPreview()
             } catch (e: Exception) {
                 e.printStackTrace()
