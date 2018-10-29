@@ -3,11 +3,18 @@
     android:id="@+id/layout_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <com.withparadox2.simpleocr.support.view.ShutterButton
         android:id="@+id/btn_shutter"
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:layout_gravity="center|bottom"
-        android:layout_marginBottom="30dp" />
+        android:layout_marginBottom="36dp" />
+
+    <com.withparadox2.simpleocr.support.view.FlashSwitch
+        android:layout_gravity="center|bottom"
+        android:layout_marginRight="96dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </FrameLayout>
