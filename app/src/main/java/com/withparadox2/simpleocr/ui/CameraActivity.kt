@@ -9,6 +9,7 @@ import android.widget.Button
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.camera.CameraManager
 import com.withparadox2.simpleocr.support.camera.CameraView
+import com.withparadox2.simpleocr.support.view.ShutterButton
 import com.withparadox2.simpleocr.util.getTempBitmapPath
 import com.withparadox2.simpleocr.util.writeToFile
 
@@ -17,7 +18,7 @@ import com.withparadox2.simpleocr.util.writeToFile
  */
 class CameraActivity : BaseActivity(), View.OnClickListener {
 
-    private lateinit var mBtnShutter: Button
+    private lateinit var mBtnShutter: ShutterButton
     private lateinit var mCameraView: CameraView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,7 +28,7 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
         mCameraView = CameraView(this)
         container.addView(mCameraView, 0)
 
-        mBtnShutter = findViewById(R.id.btn_shutter) as Button
+        mBtnShutter = findViewById(R.id.btn_shutter) as ShutterButton
 
         mBtnShutter.setOnClickListener(this)
     }
@@ -43,7 +44,6 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
             }
         }
     }
-
 
     override fun onPause() {
         super.onPause()

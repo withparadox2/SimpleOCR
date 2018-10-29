@@ -100,6 +100,7 @@ class CameraView(context: Context) : FrameLayout(context), TextureView.SurfaceTe
         invalidate()
     }
 
+    //TODO figure out why this method is so complicated
     private fun calculateTapArea(x: Float, y: Float, coefficient: Float): Rect {
         val areaSize = (focusAreaSize * coefficient).toInt()
         val centerY = (-x / width * 2000 + 1000).toInt()
