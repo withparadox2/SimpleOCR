@@ -9,6 +9,7 @@ import android.view.Surface
 import android.view.TextureView
 import com.withparadox2.simpleocr.App
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
 
@@ -42,7 +43,9 @@ class CameraController private constructor() {
                     }
 
                     App.post(Runnable {
-                        callback.onOpenSuccess(camera)
+                        synchronized(this) {
+                            mCamera?.apply { callback.onOpenSuccess(camera) }
+                        }
                     })
                 } else {
                     App.post(Runnable {
@@ -53,7 +56,7 @@ class CameraController private constructor() {
         }
     }
 
-    private fun configCamera(camera: Camera, cameraId : Int, context : Context) {
+    private fun configCamera(camera: Camera, cameraId: Int, context: Context) {
         setCameraDisplayOrientation(context as Activity, cameraId, camera)
 
         val info = Camera.CameraInfo()
@@ -77,12 +80,12 @@ class CameraController private constructor() {
 
         try {
             camera.parameters = parameters
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    fun getCamera() : Camera? {
+    fun getCamera(): Camera? {
         return mCamera
     }
 
@@ -138,9 +141,31 @@ class CameraController private constructor() {
                 }
             }
         } catch (e: Exception) {
-           e.printStackTrace()
+            e.printStackTrace()
         }
 
+    }
+
+    fun getFlashModes(): List<String> {
+        val rawFlashModes = mCamera?.parameters?.supportedFlashModes
+        if (rawFlashModes != null) {
+            return rawFlashModes.filter {
+                it == Camera.Parameters.FLASH_MODE_AUTO || it == Camera.Parameters.FLASH_MODE_ON || it == Camera.Parameters.FLASH_MODE_OFF
+            }
+        }
+        return ArrayList()
+    }
+
+    fun setFlashMode(flashMode: String) {
+        setParameters(mCamera, mCamera?.parameters?.apply { this.flashMode = flashMode })
+    }
+
+    private fun setParameters(camera: Camera?, parameters: Camera.Parameters?) {
+        try {
+            if (parameters != null) camera?.parameters = parameters
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun getCameraId(): Int {
@@ -155,7 +180,7 @@ class CameraController private constructor() {
         return -1
     }
 
-    private fun getScreenRatio(activity : Activity): Float {
+    private fun getScreenRatio(activity: Activity): Float {
         val metrics = DisplayMetrics()
         activity.windowManager.defaultDisplay.getMetrics(metrics)
         return metrics.heightPixels.toFloat() / metrics.widthPixels

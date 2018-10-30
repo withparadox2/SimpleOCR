@@ -13,6 +13,7 @@ import com.withparadox2.simpleocr.util.dp2px
 
 class CameraView(context: Context) : FrameLayout(context), TextureView.SurfaceTextureListener {
     private val textureView: TextureView = TextureView(context)
+    private var cameraCallback : CameraController.Callback? = null
 
     // tap circle
     private var focusAreaSize = dp2px(96)
@@ -37,6 +38,10 @@ class CameraView(context: Context) : FrameLayout(context), TextureView.SurfaceTe
         innerPaint.color = 0x7fffffff
     }
 
+    fun setCameraCallback(callback : CameraController.Callback) {
+        cameraCallback = callback
+    }
+
     override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture?, width: Int, height: Int) {
     }
 
@@ -54,9 +59,11 @@ class CameraView(context: Context) : FrameLayout(context), TextureView.SurfaceTe
 
         CameraController.instance.openCamera(textureView, object : CameraController.Callback {
             override fun onOpenSuccess(camera: Camera) {
+                cameraCallback?.onOpenSuccess(camera)
             }
 
             override fun onOpenFailed() {
+                cameraCallback?.onOpenFailed()
             }
         })
     }

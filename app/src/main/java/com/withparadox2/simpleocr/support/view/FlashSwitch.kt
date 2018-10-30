@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.hardware.Camera
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
@@ -15,15 +16,16 @@ import com.withparadox2.simpleocr.support.camera.CameraController
 import com.withparadox2.simpleocr.util.dp2px
 
 class FlashSwitch(context: Context, attr: AttributeSet) : FrameLayout(context, attr) {
-    private val mViewList: Array<ImageView> = Array(2) { _ ->
+    private val mViewList: Array<ImageView> = Array(2) {
         ImageView(context)
     }
     private val mImageSize = dp2px(48)
-    private var mAnimating : Boolean = false
+    private var mAnimating: Boolean = false
+
+    private val mFlashModeList = ArrayList<String>()
+    private var mCurrentFlashMode : String? = null
 
     init {
-        mViewList[0].setImageResource(R.drawable.flash_auto)
-        mViewList[1].setImageResource(R.drawable.flash_off)
         mViewList.forEach { view ->
             view.scaleType = ImageView.ScaleType.CENTER
             view.visibility = View.INVISIBLE
@@ -40,7 +42,13 @@ class FlashSwitch(context: Context, attr: AttributeSet) : FrameLayout(context, a
                     mViewList[0]
                 }
 
-                nextImage.visibility = View.VISIBLE
+
+                val nextMode = getNextFlashMode()
+                if (mCurrentFlashMode == nextMode || nextMode == null) {
+                    return@setOnClickListener
+                }
+                setFlashMode(nextMode, nextImage)
+
                 val animatorSet = AnimatorSet()
                 animatorSet.playTogether(
                         ObjectAnimator.ofFloat(currentImage, "translationY", 0.0f, mImageSize.toFloat()),
@@ -58,7 +66,42 @@ class FlashSwitch(context: Context, attr: AttributeSet) : FrameLayout(context, a
                 mAnimating = true
             }
         }
-        mViewList[0].visibility = View.VISIBLE
+    }
+
+    fun setFlashModeList(flashModes: List<String>) {
+        if (mFlashModeList.size == 0) {
+            mFlashModeList.addAll(flashModes)
+            if (mFlashModeList.size > 0) {
+                setFlashMode(mFlashModeList[0], mViewList[0])
+            }
+        } else {
+            setFlashMode(mCurrentFlashMode!!, mViewList[0])
+        }
+    }
+
+    private fun setFlashMode(mode : String, imageView: ImageView) {
+        imageView.setImageResource(getImageRes(mode))
+        imageView.visibility = View.VISIBLE
+        CameraController.instance.setFlashMode(mode)
+        mCurrentFlashMode = mode
+    }
+
+    private fun getNextFlashMode() : String? {
+        if (mFlashModeList.size == 0) return null
+        // we have set this var once after getting flash mode list
+        assert(mCurrentFlashMode != null)
+
+        val index = mFlashModeList.indexOf(mCurrentFlashMode)
+        val nextIndex = if (index == mFlashModeList.size - 1) 0 else index + 1
+        return mFlashModeList[nextIndex]
+    }
+
+    private fun getImageRes(mode: String): Int {
+        return when (mode) {
+            Camera.Parameters.FLASH_MODE_OFF -> R.drawable.flash_off
+            Camera.Parameters.FLASH_MODE_ON -> R.drawable.flash_on
+            else -> R.drawable.flash_auto
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

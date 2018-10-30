@@ -12,6 +12,7 @@
         android:layout_marginBottom="36dp" />
 
     <com.withparadox2.simpleocr.support.view.FlashSwitch
+        android:id="@+id/btn_flash_switch"
         android:layout_gravity="center|bottom"
         android:layout_marginRight="96dp"
         android:layout_width="wrap_content"
