@@ -68,6 +68,10 @@ class CameraView(context: Context) : FrameLayout(context), TextureView.SurfaceTe
         })
     }
 
+    fun onPermissionGranted() {
+        onResume()
+    }
+
     fun onPause() {
         CameraController.instance.closeCamera()
     }

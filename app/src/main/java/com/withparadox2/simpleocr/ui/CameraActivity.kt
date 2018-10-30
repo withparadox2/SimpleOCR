@@ -1,5 +1,7 @@
 package com.withparadox2.simpleocr.ui
 
+import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.hardware.Camera
 import android.os.Bundle
@@ -8,9 +10,11 @@ import android.view.ViewGroup
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.camera.CameraController
 import com.withparadox2.simpleocr.support.camera.CameraView
+import com.withparadox2.simpleocr.support.permission.PermissionManager
 import com.withparadox2.simpleocr.support.view.FlashSwitch
 import com.withparadox2.simpleocr.support.view.ShutterButton
 import com.withparadox2.simpleocr.util.getTempBitmapPath
+import com.withparadox2.simpleocr.util.toast
 import com.withparadox2.simpleocr.util.writeToFile
 
 /**
@@ -35,12 +39,24 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
             }
 
             override fun onOpenFailed() {
+                toast("Failed to open camera")
             }
         })
 
         val container = findViewById(R.id.layout_container) as ViewGroup
         container.addView(mCameraView, 0)
         mBtnShutter.setOnClickListener(this)
+
+        PermissionManager.instance.requestPermission(this, object : PermissionManager.PermissionCallback{
+            override fun onDenied() {
+                toast("SimpleOCR can not work without relevant permissions")
+            }
+
+            override fun onGranted() {
+                mCameraView.onPermissionGranted()
+            }
+
+        }, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
     }
 
     override fun onClick(v: View?) {

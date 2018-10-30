@@ -15,12 +15,11 @@ import java.util.concurrent.atomic.AtomicInteger
  * Created by withparadox2 on 2018/3/13.
  */
 class PermissionManager private constructor() {
-    private val sIdToAction = SparseArray<Runnable>()
+    private val sIdToAction = SparseArray<PermissionCallback>()
     private val sIdGenerator = AtomicInteger(0)
 
     companion object Single {
-        private val mInstance: PermissionManager = PermissionManager()
-        fun getInstance(): PermissionManager = mInstance
+        val instance = PermissionManager()
     }
 
     fun hasPermission(o: Any, vararg permissions: String): Boolean {
@@ -37,10 +36,11 @@ class PermissionManager private constructor() {
         else -> throw IllegalArgumentException("Can not get context from object o.")
     }
 
-    fun requestPermission(o: Any, action: Runnable?, vararg permissions: String) {
+    fun requestPermission(o: Any, action: PermissionCallback?, vararg permissions: String) {
         val deniedArr = permissions.filter { !hasPermission(o, it) }
-        if (deniedArr.isEmpty()) action?.run()
-        else {
+        if (deniedArr.isEmpty()) {
+            action?.onGranted()
+        } else {
             val requestCode = newRequestCode()
             if (action != null) {
                 sIdToAction.put(requestCode, action)
@@ -53,7 +53,7 @@ class PermissionManager private constructor() {
 
     private fun newRequestCode() = sIdGenerator.getAndIncrement()
 
-    private fun getAndRemoveAction(requestCode: Int): Runnable? {
+    private fun getAndRemoveAction(requestCode: Int): PermissionCallback? {
         val action = sIdToAction.get(requestCode)
         if (action != null) sIdToAction.delete(requestCode)
         return action
@@ -69,10 +69,15 @@ class PermissionManager private constructor() {
         }
     }
 
-    fun handlePermissionResult(requestCode : Int, permissions : Array<out String>, grantResults : IntArray) {
+    fun handlePermissionResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         val allGranted = (0 until permissions.size).none { grantResults[it] != PackageManager.PERMISSION_GRANTED }
-        if (allGranted) {
-            getAndRemoveAction (requestCode)?.run()
+        getAndRemoveAction(requestCode)?.apply {
+            if (allGranted) this.onGranted() else this.onDenied()
         }
+    }
+
+    interface PermissionCallback {
+        fun onGranted()
+        fun onDenied()
     }
 }
