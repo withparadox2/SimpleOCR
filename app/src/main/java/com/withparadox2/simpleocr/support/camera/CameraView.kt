@@ -44,7 +44,7 @@ class CameraView(context: Context) : FrameLayout(context), TextureView.SurfaceTe
     }
 
     override fun onSurfaceTextureDestroyed(surface: SurfaceTexture?): Boolean {
-        CameraManager.instance.closeCamera()
+        CameraController.instance.closeCamera()
         return true
     }
 
@@ -52,7 +52,7 @@ class CameraView(context: Context) : FrameLayout(context), TextureView.SurfaceTe
         val surfaceTexture = textureView.surfaceTexture
         surfaceTexture.setDefaultBufferSize(width, height)
 
-        CameraManager.instance.openCamera(textureView, object : CameraManager.Callback {
+        CameraController.instance.openCamera(textureView, object : CameraController.Callback {
             override fun onOpenSuccess(camera: Camera) {
             }
 
@@ -62,7 +62,7 @@ class CameraView(context: Context) : FrameLayout(context), TextureView.SurfaceTe
     }
 
     fun onPause() {
-        CameraManager.instance.closeCamera()
+        CameraController.instance.closeCamera()
     }
 
     fun onResume() {
@@ -89,7 +89,7 @@ class CameraView(context: Context) : FrameLayout(context), TextureView.SurfaceTe
         val focusRect = calculateTapArea(x.toFloat(), y.toFloat(), 1f)
         val meteringRect = calculateTapArea(x.toFloat(), y.toFloat(), 1.5f)
 
-        CameraManager.instance.focusToRect(focusRect, meteringRect)
+        CameraController.instance.focusToRect(focusRect, meteringRect)
 
         focusProgress = 0.0f
         innerAlpha = 1.0f

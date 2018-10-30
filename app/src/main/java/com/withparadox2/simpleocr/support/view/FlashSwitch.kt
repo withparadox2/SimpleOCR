@@ -11,7 +11,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import com.withparadox2.simpleocr.R
-import com.withparadox2.simpleocr.support.camera.CameraManager
+import com.withparadox2.simpleocr.support.camera.CameraController
 import com.withparadox2.simpleocr.util.dp2px
 
 class FlashSwitch(context: Context, attr: AttributeSet) : FrameLayout(context, attr) {
@@ -29,7 +29,7 @@ class FlashSwitch(context: Context, attr: AttributeSet) : FrameLayout(context, a
             view.visibility = View.INVISIBLE
             addView(view, FrameLayout.LayoutParams(mImageSize, mImageSize, Gravity.CENTER_VERTICAL))
             view.setOnClickListener { currentImage ->
-                if (CameraManager.instance.getCamera() == null || mAnimating) {
+                if (CameraController.instance.getCamera() == null || mAnimating) {
                     //TODO check grammar
                     return@setOnClickListener
                 }

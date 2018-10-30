@@ -12,7 +12,7 @@ import java.util.*
 import kotlin.concurrent.thread
 
 
-class CameraManager private constructor() {
+class CameraController private constructor() {
     private var mCamera: Camera? = null
 
     fun openCamera(textureView: TextureView, callback: Callback) {
@@ -205,7 +205,7 @@ class CameraManager private constructor() {
     }
 
     companion object {
-        val instance = CameraManager()
+        val instance = CameraController()
     }
 
     interface Callback {

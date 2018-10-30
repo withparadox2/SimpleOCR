@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import com.withparadox2.simpleocr.R
-import com.withparadox2.simpleocr.support.camera.CameraManager
+import com.withparadox2.simpleocr.support.camera.CameraController
 import com.withparadox2.simpleocr.support.camera.CameraView
 import com.withparadox2.simpleocr.support.view.ShutterButton
 import com.withparadox2.simpleocr.util.getTempBitmapPath
@@ -35,7 +35,7 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v!!.id) {
             R.id.btn_shutter -> {
-                CameraManager.instance.getCamera()?.takePicture(null, null, Camera.PictureCallback { data, _ ->
+                CameraController.instance.getCamera()?.takePicture(null, null, Camera.PictureCallback { data, _ ->
                     if (writeToFile(data, getTempBitmapPath())) {
                         startActivity(Intent(this@CameraActivity, MainActivity::class.java))
                     }
