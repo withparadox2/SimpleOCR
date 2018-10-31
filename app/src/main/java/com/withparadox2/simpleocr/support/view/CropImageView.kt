@@ -26,7 +26,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     private val mCropRect = RectF()
     private var mRectTemp = RectF()
     private val mDotRadius: Float = dp2px(10, context).toFloat()
-    private var mTouchIndex = -1
+    private var mTouchIndex = BAR_UNDEFINED
     private var mLastTouchX: Float = 0f
     private var mLastTouchY: Float = 0f
 
@@ -38,6 +38,8 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     private var mAnimateLineRatio = 0.0f
     private var mAnimateLineIndex = BAR_UNDEFINED
     private val mLineAnimator = ObjectAnimator.ofFloat(this, "animateLineRatio", 1.0f, 0.0f).setDuration(500)
+
+    private var mAnimateGridRatio = 0.0f
 
     init {
         mPaint.color = Color.WHITE
@@ -79,6 +81,11 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
 
     private fun setAnimateLineRatio(value: Float) {
         mAnimateLineRatio = value
+        invalidate()
+    }
+
+    private fun setAnimateGridRatio(value: Float) {
+        mAnimateGridRatio = value
         invalidate()
     }
 
@@ -142,6 +149,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
             }
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
                 mTouchIndex = BAR_UNDEFINED
+                ObjectAnimator.ofFloat(this, "animateGridRatio", 1.0f, 0.0f).setDuration(200).start()
             }
         }
         return true
@@ -188,14 +196,33 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         super.onDraw(canvas)
         canvas.restore()
 
-        val outlineWidth = dp2px(1).toFloat() * 2.5f
+        val outlineWidth = dp2px(1).toFloat() * 2.0f
         val handleWidth = dp2px(3).toFloat()
 
         mPaint.alpha = 120
         mPaint.strokeWidth = outlineWidth
         canvas.drawRect(mCropRect, mPaint)
 
+        // we are moving, draw grids
+        if (mTouchIndex != BAR_UNDEFINED || mAnimateGridRatio != 0.0f) {
+            mPaint.strokeWidth = dp2px(1).toFloat()
+
+            // during cancel animation
+            if (mTouchIndex == BAR_UNDEFINED) {
+                mPaint.alpha = (120 * mAnimateGridRatio).toInt()
+            }
+
+            val gridSizeX = mCropRect.width() / 3.0f
+            val gridSizeY = mCropRect.height() / 3.0f
+            for (i in 1..2) {
+                canvas.drawLine(mCropRect.left, mCropRect.top + gridSizeY * i, mCropRect.right, mCropRect.top + gridSizeY * i, mPaint)
+                canvas.drawLine(mCropRect.left + gridSizeX * i, mCropRect.top, mCropRect.left + gridSizeX * i, mCropRect.bottom, mPaint)
+            }
+        }
+
         if (mAnimateLineRatio != 0.0f) {
+            mPaint.strokeWidth = outlineWidth
+
             // before set alpha
             mPaint.color = resources.getColor(R.color.colorAccent)
             mPaint.alpha = (255 * mAnimateLineRatio).toInt()
