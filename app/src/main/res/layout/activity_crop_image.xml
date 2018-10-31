@@ -1,22 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/black">
 
-
-    <com.withparadox2.simpleocr.support.view.CropImageView
-        android:id="@+id/iv_photo"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="matrix" />
+        android:layout_height="match_parent">
+        <com.withparadox2.simpleocr.support.view.CropImageView
+            android:id="@+id/iv_photo"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="10dp"
 
-    <Button
-        android:id="@+id/btn_ocr"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_gravity="center|bottom"
-        android:layout_marginBottom="30dp"
-        android:text="@string/ocr" />
+            android:scaleType="matrix" />
+        <FrameLayout
+            android:layout_gravity="bottom"
+            android:layout_width="match_parent"
+            android:layout_height="50dp">
+            <TextView
+                android:id="@+id/btn_cancel"
+                android:textColor="@color/white"
+                android:layout_width="wrap_content"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:minWidth="60dp"
+                android:gravity="center"
+                android:layout_height="match_parent"
+                android:layout_gravity="left"
+                android:text="@string/cancel" />
+            <TextView
+                android:id="@+id/btn_ocr"
+                android:textColor="@color/colorAccent"
+                android:layout_width="wrap_content"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:minWidth="60dp"
+                android:gravity="center"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/ocr" />
+        </FrameLayout>
+    </LinearLayout>
+
     <ProgressBar
         android:id="@+id/progressbar"
         android:layout_width="wrap_content"
@@ -26,9 +54,9 @@
 
     <FrameLayout
         android:id="@+id/layout_text"
-        android:layout_gravity="center|bottom"
         android:layout_width="match_parent"
         android:layout_height="400dp"
+        android:layout_gravity="center|bottom"
         android:visibility="gone">
 
         <TextView
@@ -37,10 +65,10 @@
             android:layout_height="400dp"
             android:layout_gravity="bottom"
             android:background="@android:color/white"
-            android:paddingBottom="40dp"
             android:paddingLeft="10dp"
-            android:paddingRight="10dp"
             android:paddingTop="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="40dp"
             android:textSize="15sp" />
 
         <LinearLayout
@@ -71,10 +99,10 @@
 
             <Button
                 android:id="@+id/btn_convert"
-                android:text="，"
-                android:layout_weight="1"
                 android:layout_width="0dp"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="，" />
         </LinearLayout>
     </FrameLayout>
 </FrameLayout>

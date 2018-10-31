@@ -7,7 +7,6 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Bundle
 import android.util.Base64
-import android.view.MotionEvent
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -46,15 +45,13 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         btnOcr = findViewById(R.id.btn_ocr)
         btnOcr.setOnClickListener(this)
 
+        findViewById(R.id.btn_cancel).setOnClickListener(this)
+
         ivPhoto = findViewById(R.id.iv_photo) as CropImageView
         progressBar = findViewById(R.id.progressbar) as ProgressBar
 
         layoutBottom = findViewById(R.id.layout_text)
-        layoutBottom.setOnTouchListener(object : View.OnTouchListener {
-            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-                return true
-            }
-        })
+        layoutBottom.setOnTouchListener { _, _ -> true }
         tvText = findViewById(R.id.tv_result) as TextView
 
         findViewById(R.id.btn_reset).setOnClickListener(this)
@@ -93,6 +90,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                 mOcrTextTemp = mOcrTextTemp!!.replace(",", "，")
                 tvText.text = mOcrTextTemp
             }
+            R.id.btn_cancel-> finish()
         }
     }
 
@@ -116,29 +114,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         val bitmap: Bitmap = getBitmap(mFilePath!!)
         App.post(Runnable {
             ivPhoto.setImageBitmap(bitmap)
-
-            val matrix = Matrix()
-            val scale: Float
-            var dx = 0f
-            var dy = 0f
-
-            if ((bitmap.width / bitmap.height.toFloat() > ivPhoto.width / ivPhoto.height.toFloat())) {
-                scale = ivPhoto.width.toFloat() / bitmap.width
-                dy = (ivPhoto.height - bitmap.height * scale) / 2
-            } else {
-                scale = ivPhoto.height.toFloat() / bitmap.height
-                dx = (ivPhoto.width - bitmap.width * scale) / 2
-            }
-
-
-            matrix.setScale(scale, scale)
-            matrix.postTranslate(dx, dy)
-
-            ivPhoto.imageMatrix = matrix
-
-            ivPhoto.setBitmapTx(dx)
-            ivPhoto.setBitmapTy(dy)
-            ivPhoto.setBitmapScale(scale)
         })
     }.run()
 

@@ -1,7 +1,6 @@
 package com.withparadox2.simpleocr.ui
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.hardware.Camera
 import android.os.Bundle

@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">SimpleOCR</string>
     <string name="take_picture">拍照</string>
-    <string name="ocr">识别</string>
+    <string name="ocr">TEXT</string>
+    <string name="cancel">CANCEL</string>
     <string name="tip_title">提示</string>
     <string name="permission_request_msg">为保证正常使用，请同意相机、存储、网络等权限的申请</string>
 </resources>

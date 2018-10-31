@@ -11,44 +11,57 @@ import com.withparadox2.simpleocr.util.dp2px
 /**
  * Created by withparadox2 on 2018/5/15.
  */
-const val INDEX_INVALID = -1
-const val INDEX_RECT = -2
+const val BAR_UNDEFINED = 0
+const val BAR_TOP = 1 shl 0
+const val BAR_RIGHT = 1 shl 1
+const val BAR_BOTTOM = 1 shl 2
+const val BAR_LEFT = 1 shl 3
 
 class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(context, attributeSet) {
-    private val mPaint: Paint = Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
-    private lateinit var mRect: RectF
-    private lateinit var mRectTemp: RectF
+    private val mPaint: Paint = Paint()
+    private val mCropRect = RectF()
+    private var mRectTemp = RectF()
     private val mDotRadius: Float = dp2px(10, context).toFloat()
     private var mTouchIndex = -1
     private var mLastTouchX: Float = 0f
     private var mLastTouchY: Float = 0f
 
     private var mBitmapScale: Float = 1f
-    private var mBitmapTx: Float = 0f
-    private var mBitmapTy: Float = 0f
+
+    private var mBitmapRect = RectF()
+    private val mRectHandle = RectF()
 
     init {
         mPaint.color = Color.WHITE
         mPaint.style = Paint.Style.STROKE
-        mPaint.strokeWidth = 3f
-        mPaint.alpha = 200
     }
 
-    fun setBitmapScale(scale: Float) {
+    override fun setImageBitmap(bitmap: Bitmap) {
+        super.setImageBitmap(bitmap)
+
+        val matrix = Matrix()
+        val scale: Float
+        var tx = 0.0f
+        var ty = 0.0f
+
+        val width = measuredWidth - paddingLeft - paddingRight
+        val height = measuredHeight - paddingTop - paddingBottom
+        if ((bitmap.width / bitmap.height.toFloat() > width / height.toFloat())) {
+            scale = width.toFloat() / bitmap.width
+            ty = (height - bitmap.height * scale) / 2
+        } else {
+            scale = height.toFloat() / bitmap.height
+            tx = (width - bitmap.width * scale) / 2
+        }
+
+        matrix.setScale(scale, scale)
+        matrix.postTranslate(tx, ty)
+
+        imageMatrix = matrix
+
         mBitmapScale = scale
-    }
-
-    fun setBitmapTx(tx: Float) {
-        mBitmapTx = tx
-    }
-
-    fun setBitmapTy(ty: Float) {
-        mBitmapTy = ty
-    }
-
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-        mRect = RectF(w * 0.25f, h * 0.25f, w * 0.75f, h * 0.75f)
+        mBitmapRect.set(tx + paddingLeft, ty + paddingTop, tx + paddingLeft + bitmap.width * scale, ty + paddingTop + bitmap.height * scale)
+        mCropRect.set(mBitmapRect)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -56,58 +69,54 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
             MotionEvent.ACTION_DOWN -> {
                 val index = getTouchPointIndex(event.x, event.y)
                 mTouchIndex = index
-                if (mTouchIndex != INDEX_INVALID) {
-                    mRectTemp = RectF(mRect)
-                }
+                mRectTemp.set(mCropRect)
+
                 mLastTouchX = event.x
                 mLastTouchY = event.y
             }
             MotionEvent.ACTION_MOVE -> {
                 val moveX = event.x - mLastTouchX
                 val moveY = event.y - mLastTouchY
+                var localIndex = mTouchIndex
+
                 val minSize = 4 * mDotRadius
 
-                if (mTouchIndex >= 0) {
-
-                    if (mTouchIndex == 0 || mTouchIndex == 1) {
-                        mRect.top = Math.min(mRectTemp.top + moveY, mRect.bottom - minSize)
-                    } else {
-                        mRect.bottom = Math.max(mRectTemp.bottom + moveY, mRect.top + minSize)
-                    }
-
-                    if (mTouchIndex == 0 || mTouchIndex == 2) {
-                        mRect.left = Math.min(mRectTemp.left + moveX, mRect.right - minSize)
-                    } else {
-                        mRect.right = Math.max(mRectTemp.right + moveX, mRect.left + minSize)
-                    }
-                } else if (mTouchIndex == INDEX_RECT) {
-                    mRect.set(mRectTemp)
-                    mRect.offset(moveX, moveY)
+                if (localIndex and BAR_TOP != 0) {
+                    mCropRect.top = Math.min(mRectTemp.top + moveY, mCropRect.bottom - minSize)
+                }
+                if (localIndex and BAR_BOTTOM != 0) {
+                    mCropRect.bottom = Math.max(mRectTemp.bottom + moveY, mCropRect.top + minSize)
                 }
 
-                if (mTouchIndex != INDEX_INVALID) {
-                    if (mRect.left <= mBitmapTx) {
-                        mRect.left = mBitmapTx
-                        mRect.right = Math.max(mRect.right, mRect.left + minSize)
-                    }
-                    if (mRect.right >= measuredWidth - mBitmapTx) {
-                        mRect.right = measuredWidth - mBitmapTx
-                        mRect.left = Math.min(mRect.left, mRect.right - minSize)
-                    }
-                    if (mRect.top <= mBitmapTy) {
-                        mRect.top = mBitmapTy
-                        mRect.bottom = Math.max(mRect.bottom, mRect.top + minSize)
-                    }
-                    if (mRect.bottom >= measuredHeight - mBitmapTy) {
-                        mRect.bottom = measuredHeight - mBitmapTy
-                        mRect.top = Math.min(mRect.top, mRect.bottom - minSize)
-                    }
+                if (localIndex and BAR_LEFT != 0) {
+                    mCropRect.left = Math.min(mRectTemp.left + moveX, mCropRect.right - minSize)
+                }
+
+                if (localIndex and BAR_RIGHT != 0) {
+                    mCropRect.right = Math.max(mRectTemp.right + moveX, mCropRect.left + minSize)
+                }
+
+                if (mCropRect.left <= mBitmapRect.left) {
+                    mCropRect.left = mBitmapRect.left
+                    mCropRect.right = Math.max(mCropRect.right, mCropRect.left + minSize)
+                }
+                if (mCropRect.right >= mBitmapRect.right) {
+                    mCropRect.right = mBitmapRect.right
+                    mCropRect.left = Math.min(mCropRect.left, mCropRect.right - minSize)
+                }
+                if (mCropRect.top <= mBitmapRect.top) {
+                    mCropRect.top = mBitmapRect.top
+                    mCropRect.bottom = Math.max(mCropRect.bottom, mCropRect.top + minSize)
+                }
+                if (mCropRect.bottom >= mBitmapRect.bottom) {
+                    mCropRect.bottom = mBitmapRect.bottom
+                    mCropRect.top = Math.min(mCropRect.top, mCropRect.bottom - minSize)
                 }
 
                 invalidate()
             }
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                mTouchIndex = INDEX_INVALID
+                mTouchIndex = BAR_UNDEFINED
             }
         }
         return true
@@ -115,13 +124,28 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
 
     private fun getTouchPointIndex(x: Float, y: Float): Int {
         val slop = 4 * mDotRadius * mDotRadius
+        val distLeft = Math.abs(x - mCropRect.left)
+        val distRight = Math.abs(x - mCropRect.right)
+        val distTop = Math.abs(y - mCropRect.top)
+        val distBottom = Math.abs(y - mCropRect.bottom)
+        val minimum = Math.min(Math.min(distLeft, distRight), Math.min(distBottom, distTop))
+
+        val inY = mCropRect.top < y && y < mCropRect.bottom
+        val inX = mCropRect.left < x && x < mCropRect.right
         return when {
-            distanceSquare(x, y, mRect.left, mRect.top) < slop -> 0
-            distanceSquare(x, y, mRect.right, mRect.top) < slop -> 1
-            distanceSquare(x, y, mRect.left, mRect.bottom) < slop -> 2
-            distanceSquare(x, y, mRect.right, mRect.bottom) < slop -> 3
-            mRect.contains(x, y) -> INDEX_RECT
-            else -> INDEX_INVALID
+            distanceSquare(x, y, mCropRect.left, mCropRect.top) < slop -> BAR_TOP or BAR_LEFT
+            distanceSquare(x, y, mCropRect.right, mCropRect.top) < slop -> BAR_TOP or BAR_RIGHT
+            distanceSquare(x, y, mCropRect.left, mCropRect.bottom) < slop -> BAR_LEFT or BAR_BOTTOM
+            distanceSquare(x, y, mCropRect.right, mCropRect.bottom) < slop -> BAR_RIGHT or BAR_BOTTOM
+            x < mCropRect.left && inY -> BAR_LEFT
+            x > mCropRect.right && inY -> BAR_RIGHT
+            y < mCropRect.top && inX -> BAR_TOP
+            y > mCropRect.bottom && inX -> BAR_BOTTOM
+            minimum == distLeft -> BAR_LEFT
+            minimum == distRight -> BAR_RIGHT
+            minimum == distTop -> BAR_TOP
+            minimum == distBottom -> BAR_BOTTOM
+            else -> BAR_UNDEFINED
         }
     }
 
@@ -132,31 +156,53 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        canvas.drawColor(0x88000000.toInt())
+        canvas.drawColor(0xAA000000.toInt())
 
         canvas.save()
-        canvas.clipRect(mRect)
+        canvas.clipRect(mCropRect)
         super.onDraw(canvas)
         canvas.restore()
 
-        mPaint.style = Paint.Style.STROKE
-        canvas.drawRect(mRect, mPaint)
-        mPaint.style = Paint.Style.FILL
-        canvas.drawCircle(mRect.left, mRect.top, mDotRadius, mPaint)
-        canvas.drawCircle(mRect.left, mRect.bottom, mDotRadius, mPaint)
-        canvas.drawCircle(mRect.right, mRect.top, mDotRadius, mPaint)
-        canvas.drawCircle(mRect.right, mRect.bottom, mDotRadius, mPaint)
+        val outlineWidth = dp2px(1).toFloat() * 2.5f
+        val handleWidth = dp2px(3).toFloat()
+
+        mPaint.alpha = 120
+        mPaint.strokeWidth = outlineWidth
+        canvas.drawRect(mCropRect, mPaint)
+
+        mPaint.alpha = 255
+        mPaint.strokeWidth = handleWidth
+        mRectHandle.set(mCropRect)
+        mRectHandle.inset(outlineWidth / 2 - handleWidth / 2, outlineWidth / 2 - handleWidth / 2)
+        drawHandles(canvas, mRectHandle, handleWidth / 2)
     }
 
+    private fun drawHandles(canvas: Canvas, rect: RectF, halfWidth: Float) {
+        val handleLength = dp2px(15)
+
+        canvas.drawLine(rect.left - halfWidth, rect.top, rect.left + handleLength, rect.top, mPaint)
+        canvas.drawLine(rect.left - halfWidth, rect.bottom, rect.left + handleLength, rect.bottom, mPaint)
+
+        canvas.drawLine(rect.right + halfWidth, rect.top, rect.right - handleLength, rect.top, mPaint)
+        canvas.drawLine(rect.right + halfWidth, rect.bottom, rect.right - handleLength, rect.bottom, mPaint)
+
+        canvas.drawLine(rect.left, rect.top - halfWidth, rect.left, rect.top + handleLength, mPaint)
+        canvas.drawLine(rect.right, rect.top - halfWidth, rect.right, rect.top + handleLength, mPaint)
+
+        canvas.drawLine(rect.left, rect.bottom + halfWidth, rect.left, rect.bottom - handleLength, mPaint)
+        canvas.drawLine(rect.right, rect.bottom + halfWidth, rect.right, rect.bottom - handleLength, mPaint)
+    }
+
+
     fun getCropBitmap(): Bitmap {
-        val offTop = mRect.top - mBitmapTy
-        val offLeft = mRect.left - mBitmapTx
+        val offTop = mCropRect.top - mBitmapRect.top
+        val offLeft = mCropRect.left - mBitmapRect.left
 
         return Bitmap.createBitmap((drawable as BitmapDrawable).bitmap,
                 (offLeft / mBitmapScale).toInt(),
                 (offTop / mBitmapScale).toInt(),
-                (mRect.width() / mBitmapScale).toInt(),
-                (mRect.height() / mBitmapScale).toInt()
+                (mCropRect.width() / mBitmapScale).toInt(),
+                (mCropRect.height() / mBitmapScale).toInt()
         )
     }
 }
