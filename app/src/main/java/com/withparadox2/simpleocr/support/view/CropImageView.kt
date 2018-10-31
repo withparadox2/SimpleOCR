@@ -1,11 +1,15 @@
 package com.withparadox2.simpleocr.support.view
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.ImageView
+import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.util.dp2px
 
 /**
@@ -31,9 +35,18 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     private var mBitmapRect = RectF()
     private val mRectHandle = RectF()
 
+    private var mAnimateLineRatio = 0.0f
+    private var mAnimateLineIndex = BAR_UNDEFINED
+    private val mLineAnimator = ObjectAnimator.ofFloat(this, "animateLineRatio", 1.0f, 0.0f).setDuration(500)
+
     init {
         mPaint.color = Color.WHITE
         mPaint.style = Paint.Style.STROKE
+        mLineAnimator.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator?) {
+                mAnimateLineIndex = BAR_UNDEFINED
+            }
+        })
     }
 
     override fun setImageBitmap(bitmap: Bitmap) {
@@ -64,20 +77,32 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         mCropRect.set(mBitmapRect)
     }
 
+    private fun setAnimateLineRatio(value: Float) {
+        mAnimateLineRatio = value
+        invalidate()
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                val index = getTouchPointIndex(event.x, event.y)
-                mTouchIndex = index
+                mTouchIndex = getTouchPointIndex(event.x, event.y)
                 mRectTemp.set(mCropRect)
 
                 mLastTouchX = event.x
                 mLastTouchY = event.y
+
+                if (mTouchIndex != 0) {
+                    mAnimateLineIndex = mTouchIndex
+                    if(mLineAnimator.isRunning) {
+                        mLineAnimator.cancel()
+                    }
+                    mLineAnimator.start()
+                }
             }
             MotionEvent.ACTION_MOVE -> {
                 val moveX = event.x - mLastTouchX
                 val moveY = event.y - mLastTouchY
-                var localIndex = mTouchIndex
+                val localIndex = mTouchIndex
 
                 val minSize = 4 * mDotRadius
 
@@ -170,7 +195,27 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         mPaint.strokeWidth = outlineWidth
         canvas.drawRect(mCropRect, mPaint)
 
+        if (mAnimateLineRatio != 0.0f) {
+            // before set alpha
+            mPaint.color = resources.getColor(R.color.colorAccent)
+            mPaint.alpha = (255 * mAnimateLineRatio).toInt()
+            if (BAR_BOTTOM and mAnimateLineIndex != 0) {
+                canvas.drawLine(mCropRect.left, mCropRect.bottom, mCropRect.right, mCropRect.bottom, mPaint)
+            }
+            if (BAR_TOP and mAnimateLineIndex != 0) {
+                canvas.drawLine(mCropRect.left, mCropRect.top, mCropRect.right, mCropRect.top, mPaint)
+            }
+            if (BAR_LEFT and mAnimateLineIndex != 0) {
+                canvas.drawLine(mCropRect.left, mCropRect.top, mCropRect.left, mCropRect.bottom, mPaint)
+            }
+            if (BAR_RIGHT and mAnimateLineIndex != 0) {
+                canvas.drawLine(mCropRect.right, mCropRect.top, mCropRect.right, mCropRect.bottom, mPaint)
+            }
+            invalidate()
+        }
+
         mPaint.alpha = 255
+        mPaint.color = Color.WHITE
         mPaint.strokeWidth = handleWidth
         mRectHandle.set(mCropRect)
         mRectHandle.inset(outlineWidth / 2 - handleWidth / 2, outlineWidth / 2 - handleWidth / 2)
@@ -192,7 +237,6 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         canvas.drawLine(rect.left, rect.bottom + halfWidth, rect.left, rect.bottom - handleLength, mPaint)
         canvas.drawLine(rect.right, rect.bottom + halfWidth, rect.right, rect.bottom - handleLength, mPaint)
     }
-
 
     fun getCropBitmap(): Bitmap {
         val offTop = mCropRect.top - mBitmapRect.top
