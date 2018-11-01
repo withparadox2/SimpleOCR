@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@color/white"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:background="#FFF7F7"
+        android:paddingTop="40dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="40dp"
+        android:id="@+id/layout_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:text="背影"
+            android:id="@+id/tv_title"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/edit_main"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/tv_author"
+            android:layout_below="@id/tv_title"
+            android:textSize="14sp"
+            android:layout_marginTop="10dp"
+            android:text="朱自清"
+            android:textColor="#E66D19"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tv_left_quotation"
+            android:text="“"
+            android:textColor="@color/edit_main"
+            android:textSize="30sp"
+            android:layout_marginTop="20dp"
+            android:layout_below="@id/tv_author"
+            android:layout_width="wrap_content"
+            android:layout_marginBottom="-10dp"
+            android:layout_height="wrap_content" />
+        <EditText
+            android:id="@+id/tv_content"
+            android:textSize="15sp"
+            android:layout_marginTop="10dp"
+            android:lineSpacingMultiplier="1.2"
+            android:background="#00000000"
+            android:textColor="@color/edit_main"
+            android:text="我与父亲不相见已二年余了，我最不能忘记的是他的背影。\n\n那年冬天，祖母死了，父亲的差使1也交卸了，正是祸不单行的日子。我从北京到徐州，打算跟着父亲奔丧2回家。到徐州见着父亲，看见满院狼藉3的东西，又想起祖母，不禁簌簌地流下眼泪。父亲说：“事已如此，不必难过，好在天无绝人之路！”"
+            android:layout_below="@id/tv_left_quotation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/tv_right_quotation"
+            android:text="”"
+            android:textSize="30sp"
+            android:textColor="@color/edit_main"
+            android:layout_marginTop="10dp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/tv_content"
+            android:layout_width="wrap_content"
+            android:lineSpacingMultiplier="21.5"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/tv_date"
+            android:textColor="@color/edit_main"
+            android:layout_below="@id/tv_right_quotation"
+            android:layout_marginTop="10dp"
+            android:textSize="14sp"
+            android:text="2018-11-01"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+</FrameLayout>

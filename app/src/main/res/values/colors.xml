@@ -5,4 +5,6 @@
     <color name="colorAccent">#FF4081</color>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+    <color name="edit_main">#422D31</color>
+    <color name="edit_brown">#E66D19</color>
 </resources>

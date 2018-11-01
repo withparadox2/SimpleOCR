@@ -3,6 +3,7 @@ package com.withparadox2.simpleocr.ui
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Bundle
@@ -15,6 +16,7 @@ import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.net.OcrResult
 import com.withparadox2.simpleocr.support.net.OcrService
 import com.withparadox2.simpleocr.support.view.CropImageView
+import com.withparadox2.simpleocr.ui.edit.EditActivity
 import com.withparadox2.simpleocr.util.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -68,9 +70,10 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         if (v == null) return
         when (v.id) {
             R.id.btn_ocr -> {
-                val bitmap = ivPhoto.getCropBitmap()
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 60, FileOutputStream(mOcrPath))
-                startOcr()
+//                val bitmap = ivPhoto.getCropBitmap()
+//                bitmap.compress(Bitmap.CompressFormat.JPEG, 60, FileOutputStream(mOcrPath))
+//                startOcr()
+                startActivity(Intent(this, EditActivity::class.java))
             }
             R.id.btn_join -> {
                 mOcrTextTemp = mOcrTextTemp!!.split("\n").joinToString("")

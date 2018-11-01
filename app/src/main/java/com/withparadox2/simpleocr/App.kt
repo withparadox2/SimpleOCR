@@ -16,5 +16,6 @@ class App : Application() {
         lateinit var instance: Application
         private val handler: Handler = Handler()
         fun post(action: Runnable) = handler.post(action)
+        fun postDelayed(action: Runnable, millis : Long) = handler.postDelayed(action, millis)
     }
 }
