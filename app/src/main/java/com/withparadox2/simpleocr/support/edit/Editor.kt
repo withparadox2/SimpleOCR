@@ -1,5 +1,11 @@
 package com.withparadox2.simpleocr.support.edit
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import com.withparadox2.simpleocr.App
+import com.withparadox2.simpleocr.util.toast
+
 /**
  * Created by withparadox2 on 2018/11/3.
  */
@@ -47,6 +53,13 @@ class Editor constructor(val content: String, var callback: Callback?) {
                 .replace("！", "!")
 
         onContentChange(true)
+    }
+
+    fun copy() {
+        val clipboard = App.instance.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("simpleocr", newContent)
+        clipboard.primaryClip = clip
+        toast("copy success!")
     }
 
     fun updateContent(content: String) {

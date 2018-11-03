@@ -158,6 +158,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 2 -> mContentEditor.toChinese()
                 3 -> mContentEditor.toEnglish()
                 4 -> mContentEditor.lastStep()
+                5 -> mContentEditor.copy()
             }
         }.show()
     }
