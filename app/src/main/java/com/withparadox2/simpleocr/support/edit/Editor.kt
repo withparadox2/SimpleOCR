@@ -44,7 +44,7 @@ class Editor constructor(val content: String, var callback: Callback?) {
                 .replace("（", "(")
                 .replace("）", ")")
                 .replace("？", "?")
-                .replace("!", "！")
+                .replace("！", "!")
 
         onContentChange(true)
     }

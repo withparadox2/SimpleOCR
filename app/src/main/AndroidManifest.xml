@@ -45,6 +45,7 @@
             </intent-filter>
         </activity>
         <activity
+            android:windowSoftInputMode="adjustResize"
             android:name=".ui.edit.EditActivity"
             android:screenOrientation="portrait"
             android:label="Edit" />

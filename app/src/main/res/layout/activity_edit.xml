@@ -4,87 +4,91 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <RelativeLayout
-        android:id="@+id/layout_container"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#FFF7F7"
-        android:paddingBottom="40dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingTop="40dp">
-
-        <EditText
-            android:id="@+id/tv_title"
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:id="@+id/layout_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@null"
-            android:hint="@string/edit_hint_title"
-            android:textColor="@color/edit_main"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+            android:background="#FFF7F7"
+            android:paddingBottom="40dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="40dp">
 
-        <EditText
-            android:id="@+id/tv_author"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tv_title"
-            android:layout_marginTop="10dp"
-            android:background="@null"
-            android:hint="@string/edit_hint_author"
-            android:textColor="#E66D19"
-            android:textSize="14sp" />
+            <EditText
+                android:id="@+id/tv_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:hint="@string/edit_hint_title"
+                android:textColor="@color/edit_main"
+                android:textSize="22sp"
+                android:textStyle="bold" />
 
-        <ImageView
-            android:id="@+id/tv_left_quotation"
-            android:layout_width="wrap_content"
-            android:layout_height="8dp"
-            android:layout_below="@id/tv_author"
-            android:layout_marginTop="20dp"
-            android:src="@drawable/quotation_begin" />
+            <EditText
+                android:id="@+id/tv_author"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tv_title"
+                android:layout_marginTop="10dp"
+                android:background="@null"
+                android:hint="@string/edit_hint_author"
+                android:textColor="#E66D19"
+                android:textSize="14sp" />
 
-        <EditText
-            android:id="@+id/et_content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tv_left_quotation"
-            android:layout_marginTop="15dp"
-            android:background="#00000000"
-            android:hint="@string/edit_hint_content"
-            android:lineSpacingMultiplier="1.2"
-            android:textColor="@color/edit_main"
-            android:textSize="15sp" />
+            <ImageView
+                android:id="@+id/tv_left_quote"
+                android:layout_width="wrap_content"
+                android:layout_height="8dp"
+                android:layout_below="@id/tv_author"
+                android:layout_marginTop="20dp"
+                android:src="@drawable/quote_begin" />
 
-        <ImageView
-            android:id="@+id/tv_right_quotation"
-            android:layout_width="wrap_content"
-            android:layout_height="8dp"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/et_content"
-            android:layout_marginTop="10dp"
-            android:src="@drawable/quotation_end" />
+            <EditText
+                android:id="@+id/et_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tv_left_quote"
+                android:layout_marginTop="15dp"
+                android:background="#00000000"
+                android:hint="@string/edit_hint_content"
+                android:lineSpacingMultiplier="1.2"
+                android:textColor="@color/edit_main"
+                android:textSize="15sp" />
 
-        <TextView
-            android:id="@+id/tv_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/tv_right_quotation"
-            android:layout_marginTop="20dp"
-            android:textColor="@color/edit_light"
-            android:textSize="12sp" />
+            <ImageView
+                android:id="@+id/tv_right_quote"
+                android:layout_width="wrap_content"
+                android:layout_height="8dp"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@id/et_content"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/quotation_end" />
 
-        <TextView
-            android:id="@+id/btn_edit_content"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignRight="@id/et_content"
-            android:layout_alignTop="@id/et_content"
-            android:layout_marginTop="-40dp"
-            android:gravity="center"
-            android:text="Aa"
-            android:textColor="#88aaaaaa"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/tv_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@id/tv_right_quote"
+                android:layout_marginTop="20dp"
+                android:textColor="@color/edit_light"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/btn_edit_content"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignEnd="@id/et_content"
+                android:layout_alignTop="@id/et_content"
+                android:layout_marginTop="-40dp"
+                android:gravity="end|center_vertical"
+                android:text="Aa"
+                android:textColor="@color/edit_light"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+    </ScrollView>
 </FrameLayout>

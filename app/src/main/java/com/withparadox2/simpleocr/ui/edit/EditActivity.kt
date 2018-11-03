@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Path
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.text.Editable
@@ -13,7 +14,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
-import com.withparadox2.simpleocr.App
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.edit.Editor
 import com.withparadox2.simpleocr.ui.BaseActivity
@@ -43,7 +43,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         btnEdit.setOnClickListener(this)
 
         val rawContent = intent.getStringExtra("content")
-        etContent.setText(intent.getStringExtra("content"))
+        etContent.setText(rawContent)
 
         tvDate.text = getDateStr()
         tvAuthor.text = getLastAuthor()
@@ -117,6 +117,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             val view = findViewById(R.id.layout_container)
             bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
+            canvas.clipPath(createRoundedPath(view.width.toFloat(), view.height.toFloat(), dp2px(8).toFloat()))
             view.draw(canvas)
 
             outputStream = FileOutputStream(filePath)
@@ -128,6 +129,12 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             bitmap?.recycle()
         }
         return File(filePath).exists()
+    }
+
+    private fun createRoundedPath(width: Float, height: Float, radius: Float): Path {
+        val path = Path()
+        path.addRoundRect(0f, 0f, width, height, radius, radius, Path.Direction.CCW)
+        return path
     }
 
     private fun showEditDialog() {
