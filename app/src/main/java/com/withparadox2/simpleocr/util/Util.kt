@@ -2,6 +2,7 @@ package com.withparadox2.simpleocr.util
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
@@ -55,11 +56,14 @@ fun executeAsync(action : Runnable) {
     AsyncTask.THREAD_POOL_EXECUTOR.execute(action)
 }
 
+fun getSp() : SharedPreferences {
+    return App.instance.getSharedPreferences(App.instance.packageName, Context.MODE_PRIVATE)
+}
 
 fun saveSpString(key: String, value: String) {
-    App.instance.getSharedPreferences(App.instance.packageName, Context.MODE_PRIVATE).edit().putString(key, value).apply()
+    getSp().edit().putString(key, value).apply()
 }
 
 fun getSpString(key: String, defaultValue: String): String {
-    return App.instance.getSharedPreferences(App.instance.packageName, Context.MODE_PRIVATE).getString(key, defaultValue)
+    return getSp().getString(key, defaultValue)
 }

@@ -1,5 +1,6 @@
 package com.withparadox2.simpleocr.ui.edit
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -8,10 +9,10 @@ import android.graphics.Path
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.text.Editable
+import android.text.TextUtils
 import android.text.TextWatcher
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
+import android.widget.BaseAdapter
 import android.widget.EditText
 import android.widget.TextView
 import com.withparadox2.simpleocr.R
@@ -30,6 +31,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     private lateinit var tvDate: TextView
     private lateinit var mContentEditor: Editor
     private lateinit var btnEdit: View
+    private lateinit var btnTitleHistory: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,13 +43,21 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
         btnEdit = findViewById(R.id.btn_edit_content)
         btnEdit.setOnClickListener(this)
+        btnTitleHistory = findViewById(R.id.btn_edit_title)
+        btnTitleHistory.setOnClickListener(this)
 
         val rawContent = intent.getStringExtra("content")
         etContent.setText(rawContent)
 
         tvDate.text = getDateStr()
-        tvAuthor.text = getLastAuthor()
-        tvTitle.text = getLastBookName()
+
+        val list = getBookInfoList()
+        if (list.isNotEmpty()) {
+            tvAuthor.text = list[0]?.second
+            tvTitle.text = list[0]?.first
+        } else {
+            btnTitleHistory.visibility = View.INVISIBLE
+        }
 
         mContentEditor = Editor(rawContent, object : Editor.Callback {
             override fun onContentChange(content: String) {
@@ -85,12 +95,13 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     override fun onStop() {
         super.onStop()
-        saveAuthor(tvAuthor.text.toString())
-        saveBookName(tvTitle.text.toString())
+        addBookInfo(tvTitle.text.toString(), tvAuthor.text.toString())
     }
 
     private fun share() {
         btnEdit.visibility = View.INVISIBLE
+        val titleHistoryVisiblity = btnTitleHistory.visibility
+        btnTitleHistory.visibility = View.INVISIBLE
         tvTitle.isCursorVisible = false
         tvAuthor.isCursorVisible = false
         etContent.isCursorVisible = false
@@ -105,6 +116,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             toast("Export png failed")
         }
         btnEdit.visibility = View.VISIBLE
+        btnTitleHistory.visibility = titleHistoryVisiblity
         tvTitle.isCursorVisible = true
         tvAuthor.isCursorVisible = true
         etContent.isCursorVisible = true
@@ -152,29 +164,72 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.tv_title, R.id.tv_author -> showSetBookInfoDialog()
             R.id.btn_edit_content -> showEditDialog()
+            R.id.btn_edit_title -> showBookInfoDialog()
         }
     }
 
-    private fun showSetBookInfoDialog() {
+    private fun showBookInfoDialog() {
+        val list = getBookInfoList()
+        AlertDialog.Builder(this).setAdapter(object : BaseAdapter() {
+            @SuppressLint("SetTextI18n")
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+                val cv = convertView
+                        ?: LayoutInflater.from(this@EditActivity).inflate(R.layout.item_book_info, parent, false)
+                val pair = list.get(position)
+                (cv.findViewById(R.id.tv_title) as TextView).text = "Title : " + pair?.first
+                (cv.findViewById(R.id.tv_author) as TextView).text = "Author: " + pair?.second
+                cv.findViewById(R.id.btn_edit).setOnClickListener({
+
+                })
+                cv.findViewById(R.id.btn_del).setOnClickListener({
+                    list.removeAt(position)
+                    saveBookInfo(list)
+                    notifyDataSetChanged()
+                })
+                return cv
+            }
+
+            override fun getItem(position: Int): Pair<String, String> {
+                return list[position]!!
+            }
+
+            override fun getItemId(position: Int): Long {
+                return position.toLong()
+            }
+
+            override fun getCount(): Int {
+                return list.size
+            }
+        }) { dialog, which ->
+            tvTitle.text = list[which]?.first
+            tvAuthor.text = list[which]?.second
+        }.show()
     }
 
-
-    private fun saveBookName(name: String) {
-        saveSpString("last_book_name", name)
+    private fun addBookInfo(title: String, author: String) {
+        val list = getBookInfoList()
+        if (!TextUtils.isEmpty(title) && !list.any { it?.first.equals(title) }) {
+            list.add(0, Pair(title, author))
+            saveBookInfo(list)
+        }
     }
 
-    private fun saveAuthor(name: String) {
-        saveSpString("last_author", name)
+    private fun saveBookInfo(list: List<Pair<String, String>?>) {
+        saveSpString("book_info_list", list.joinToString("+&") { it?.first + "-&" + it?.second })
     }
 
-    private fun getLastBookName(): String {
-        return getSpString("last_book_name", "")
-    }
-
-    private fun getLastAuthor(): String {
-        return getSpString("last_author", "")
+    private fun getBookInfoList(): MutableList<Pair<String, String>?> {
+        return getSpString("book_info_list", "").split("+&").map {
+            val info = it.split("-&")
+            if (info.size == 2) {
+                return@map Pair(info[0], info[1])
+            } else {
+                return@map null
+            }
+        }.filter {
+            it != null
+        }.toMutableList()
     }
 }
 
