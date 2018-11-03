@@ -154,6 +154,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     private fun showEditDialog() {
         val items: Array<String> = resources.getStringArray(R.array.items_edit_content)
+        items[4] = "${items[4]}(${mContentEditor.getBackStepCount()})"
         AlertDialog.Builder(this).setItems(items) { _, which ->
             when (which) {
                 0 -> mContentEditor.reset()
@@ -181,7 +182,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 val cv = convertView
                         ?: LayoutInflater.from(this@EditActivity).inflate(R.layout.item_book_info, parent, false)
                 val pair = list[position]
-                (cv.findViewById(R.id.tv_title) as TextView).text = "Title : " + pair?.first
+                (cv.findViewById(R.id.tv_title) as TextView).text = "Title: " + pair?.first
                 (cv.findViewById(R.id.tv_author) as TextView).text = "Author: " + pair?.second
                 cv.findViewById(R.id.btn_edit).setOnClickListener({
 

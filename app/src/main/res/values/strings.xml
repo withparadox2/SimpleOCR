@@ -12,8 +12,8 @@
     <string-array name="items_edit_content">
         <item>Reset</item>
         <item>Join Lines</item>
-        <item>中文</item>
-        <item>English</item>
+        <item>→中文</item>
+        <item>→English</item>
         <item>Last Step</item>
         <item>Copy</item>
     </string-array>

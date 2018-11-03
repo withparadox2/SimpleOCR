@@ -20,15 +20,17 @@ class Editor constructor(val content: String, var callback: Callback?) {
     fun reset() {
         stepBackup.clear()
         newContent = String(content.toCharArray())
-        onContentChange(false)
+        onContentChange()
     }
 
     fun joinLines() {
+        cacheBeforeChange(false)
         newContent = newContent.split("\n").joinToString("")
-        onContentChange(true)
+        onContentChange()
     }
 
     fun toChinese() {
+        cacheBeforeChange(false)
         newContent = newContent.replace(",", "，")
                 .replace(".", "。")
                 .replace(Regex("\"(.*?)\""), "“$1”")
@@ -38,10 +40,12 @@ class Editor constructor(val content: String, var callback: Callback?) {
                 .replace(")", "）")
                 .replace("?", "？")
                 .replace("!", "！")
-        onContentChange(true)
+        onContentChange()
+        joinLines()
     }
 
     fun toEnglish() {
+        cacheBeforeChange(false)
         newContent = newContent.replace("，", ",")
                 .replace("。", ",")
                 .replace(Regex("“(.*?)”"), "\"$1\"")
@@ -52,7 +56,8 @@ class Editor constructor(val content: String, var callback: Callback?) {
                 .replace("？", "?")
                 .replace("！", "!")
 
-        onContentChange(true)
+        onContentChange()
+        joinLines()
     }
 
     fun copy() {
@@ -66,19 +71,27 @@ class Editor constructor(val content: String, var callback: Callback?) {
         newContent = content
     }
 
-    private fun onContentChange(backup: Boolean) {
-        if (backup) {
-            stepBackup.add(newContent)
-            newContent = String(newContent.toCharArray())
-        }
+    private fun onContentChange() {
         callback?.onContentChange(newContent)
+    }
+
+    private fun cacheBeforeChange(alloc: Boolean) {
+        var text = newContent
+        if (alloc) {
+            text = String(newContent.toCharArray())
+        }
+        stepBackup.add(text)
     }
 
     fun lastStep() {
         if (hasLastStep()) {
             newContent = stepBackup.removeAt(stepBackup.size - 1)
-            onContentChange(false)
+            onContentChange()
         }
+    }
+
+    fun getBackStepCount(): Int {
+        return stepBackup.size
     }
 
     fun hasLastStep(): Boolean {
