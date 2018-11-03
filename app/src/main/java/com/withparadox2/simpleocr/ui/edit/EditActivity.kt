@@ -13,6 +13,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import com.withparadox2.simpleocr.App
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.edit.Editor
 import com.withparadox2.simpleocr.ui.BaseActivity
@@ -89,10 +90,10 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun share() {
-        btnEdit.visibility = View.GONE
-        tvTitle.isFocusableInTouchMode = false
-        tvAuthor.isFocusableInTouchMode = false
-        etContent.isFocusableInTouchMode = false
+        btnEdit.visibility = View.INVISIBLE
+        tvTitle.isCursorVisible = false
+        tvAuthor.isCursorVisible = false
+        etContent.isCursorVisible = false
         val filePath = getBasePath() + "share_${System.currentTimeMillis()}.png"
         if (doExport(filePath)) {
             val intent = Intent()
@@ -104,9 +105,9 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             toast("Export png failed")
         }
         btnEdit.visibility = View.VISIBLE
-        tvTitle.isFocusableInTouchMode = true
-        tvAuthor.isFocusableInTouchMode = true
-        etContent.isFocusableInTouchMode = true
+        tvTitle.isCursorVisible = true
+        tvAuthor.isCursorVisible = true
+        etContent.isCursorVisible = true
     }
 
     private fun doExport(filePath: String): Boolean {

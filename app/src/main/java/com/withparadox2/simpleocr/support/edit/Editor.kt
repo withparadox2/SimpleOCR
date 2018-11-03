@@ -26,6 +26,12 @@ class Editor constructor(val content: String, var callback: Callback?) {
         newContent = newContent.replace(",", "，")
                 .replace(".", "。")
                 .replace(Regex("\"(.*?)\""), "“$1”")
+                .replace(":", "：")
+                .replace(";", "；")
+                .replace("(", "（")
+                .replace(")", "）")
+                .replace("?", "？")
+                .replace("!", "！")
         onContentChange(true)
     }
 
@@ -33,6 +39,13 @@ class Editor constructor(val content: String, var callback: Callback?) {
         newContent = newContent.replace("，", ",")
                 .replace("。", ",")
                 .replace(Regex("“(.*?)”"), "\"$1\"")
+                .replace("：", ":")
+                .replace("；", ";")
+                .replace("（", "(")
+                .replace("）", ")")
+                .replace("？", "?")
+                .replace("!", "！")
+
         onContentChange(true)
     }
 
