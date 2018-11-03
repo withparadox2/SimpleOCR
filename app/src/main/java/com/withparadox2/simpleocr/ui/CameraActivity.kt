@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.withparadox2.simpleocr.ui
 
 import android.Manifest

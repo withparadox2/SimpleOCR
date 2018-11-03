@@ -100,7 +100,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     private fun share() {
         btnEdit.visibility = View.INVISIBLE
-        val titleHistoryVisiblity = btnTitleHistory.visibility
+        val titleHistoryVisibility = btnTitleHistory.visibility
         btnTitleHistory.visibility = View.INVISIBLE
         tvTitle.isCursorVisible = false
         tvAuthor.isCursorVisible = false
@@ -116,7 +116,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             toast("Export png failed")
         }
         btnEdit.visibility = View.VISIBLE
-        btnTitleHistory.visibility = titleHistoryVisiblity
+        btnTitleHistory.visibility = titleHistoryVisibility
         tvTitle.isCursorVisible = true
         tvAuthor.isCursorVisible = true
         etContent.isCursorVisible = true
@@ -151,7 +151,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     private fun showEditDialog() {
         val items: Array<String> = resources.getStringArray(R.array.items_edit_content)
-        AlertDialog.Builder(this).setItems(items) { dialog, which ->
+        AlertDialog.Builder(this).setItems(items) { _, which ->
             when (which) {
                 0 -> mContentEditor.reset()
                 1 -> mContentEditor.joinLines()
@@ -177,7 +177,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
                 val cv = convertView
                         ?: LayoutInflater.from(this@EditActivity).inflate(R.layout.item_book_info, parent, false)
-                val pair = list.get(position)
+                val pair = list[position]
                 (cv.findViewById(R.id.tv_title) as TextView).text = "Title : " + pair?.first
                 (cv.findViewById(R.id.tv_author) as TextView).text = "Author: " + pair?.second
                 cv.findViewById(R.id.btn_edit).setOnClickListener({
@@ -202,7 +202,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             override fun getCount(): Int {
                 return list.size
             }
-        }) { dialog, which ->
+        }) { _, which ->
             tvTitle.text = list[which]?.first
             tvAuthor.text = list[which]?.second
         }.show()
