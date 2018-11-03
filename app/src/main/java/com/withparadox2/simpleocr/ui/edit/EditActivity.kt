@@ -182,8 +182,8 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 val cv = convertView
                         ?: LayoutInflater.from(this@EditActivity).inflate(R.layout.item_book_info, parent, false)
                 val pair = list[position]
-                (cv.findViewById(R.id.tv_title) as TextView).text = "Title: " + pair?.first
-                (cv.findViewById(R.id.tv_author) as TextView).text = "Author: " + pair?.second
+                (cv.findViewById(R.id.tv_title) as TextView).text = pair?.first
+                (cv.findViewById(R.id.tv_author) as TextView).text = pair?.second
                 cv.findViewById(R.id.btn_edit).setOnClickListener({
 
                 })

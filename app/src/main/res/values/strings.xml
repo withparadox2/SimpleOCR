@@ -9,6 +9,10 @@
     <string name="edit_hint_content">Input text</string>
     <string name="edit_hint_author">Author</string>
     <string name="edit_hint_title">Book Name</string>
+    <string name="edit_his_label_title">Title</string>
+    <string name="edit_his_label_author">Author</string>
+    <string name="short_delete">Del</string>
+    <string name="edit">Edit</string>
     <string-array name="items_edit_content">
         <item>Reset</item>
         <item>Join Lines</item>
