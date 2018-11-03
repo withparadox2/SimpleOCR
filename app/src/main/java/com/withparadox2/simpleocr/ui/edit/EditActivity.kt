@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Path
+import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.text.Editable
@@ -107,6 +108,8 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         etContent.isCursorVisible = false
         val filePath = getBasePath() + "share_${System.currentTimeMillis()}.png"
         if (doExport(filePath)) {
+            sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(File(filePath))))
+
             val intent = Intent()
             intent.action = Intent.ACTION_SEND
             intent.type = "image/*"
