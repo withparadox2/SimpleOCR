@@ -42,7 +42,7 @@
             android:src="@drawable/quotation_begin" />
 
         <EditText
-            android:id="@+id/tv_content"
+            android:id="@+id/et_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_left_quotation"
@@ -58,7 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="8dp"
             android:layout_alignParentRight="true"
-            android:layout_below="@id/tv_content"
+            android:layout_below="@id/et_content"
             android:layout_marginTop="10dp"
             android:src="@drawable/quotation_end" />
 
@@ -72,5 +72,18 @@
             android:text="2018.11.01"
             android:textColor="@color/edit_main"
             android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/btn_edit_content"
+            android:text="Aa"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textColor="#88aaaaaa"
+            android:layout_alignTop="@id/et_content"
+            android:layout_alignRight="@id/et_content"
+            android:layout_marginTop="-40dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
     </RelativeLayout>
 </FrameLayout>

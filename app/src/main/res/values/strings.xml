@@ -5,4 +5,11 @@
     <string name="cancel">CANCEL</string>
     <string name="tip_title">提示</string>
     <string name="permission_request_msg">为保证正常使用，请同意相机、存储、网络等权限的申请</string>
+    <string-array name="items_edit_content">
+        <item>Reset</item>
+        <item>Join Lines</item>
+        <item>中文</item>
+        <item>English</item>
+        <item>Last Step</item>
+    </string-array>
 </resources>

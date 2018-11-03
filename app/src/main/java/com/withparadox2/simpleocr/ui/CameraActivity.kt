@@ -63,7 +63,7 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
             R.id.btn_shutter -> {
                 CameraController.instance.getCamera()?.takePicture(null, null, Camera.PictureCallback { data, _ ->
                     if (writeToFile(data, getTempBitmapPath())) {
-                        startActivity(Intent(this@CameraActivity, MainActivity::class.java))
+                        startActivity(Intent(this@CameraActivity, CropImageActivity::class.java))
                     }
                 })
             }
