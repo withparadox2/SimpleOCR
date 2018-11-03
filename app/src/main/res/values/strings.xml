@@ -5,6 +5,10 @@
     <string name="cancel">CANCEL</string>
     <string name="tip_title">提示</string>
     <string name="permission_request_msg">为保证正常使用，请同意相机、存储、网络等权限的申请</string>
+    <string name="share">Share</string>
+    <string name="edit_hint_content">Input text</string>
+    <string name="edit_hint_author">Author</string>
+    <string name="edit_hint_title">Book Name</string>
     <string-array name="items_edit_content">
         <item>Reset</item>
         <item>Join Lines</item>

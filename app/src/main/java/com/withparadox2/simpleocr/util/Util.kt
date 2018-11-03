@@ -54,3 +54,12 @@ fun dp2px(dip: Int, context: Context = App.instance): Int {
 fun executeAsync(action : Runnable) {
     AsyncTask.THREAD_POOL_EXECUTOR.execute(action)
 }
+
+
+fun saveSpString(key: String, value: String) {
+    App.instance.getSharedPreferences(App.instance.packageName, Context.MODE_PRIVATE).edit().putString(key, value).apply()
+}
+
+fun getSpString(key: String, defaultValue: String): String {
+    return App.instance.getSharedPreferences(App.instance.packageName, Context.MODE_PRIVATE).getString(key, defaultValue)
+}

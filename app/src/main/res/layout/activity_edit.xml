@@ -14,22 +14,24 @@
         android:paddingRight="20dp"
         android:paddingTop="40dp">
 
-        <TextView
+        <EditText
             android:id="@+id/tv_title"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="背影"
+            android:background="@null"
+            android:hint="@string/edit_hint_title"
             android:textColor="@color/edit_main"
             android:textSize="22sp"
             android:textStyle="bold" />
 
-        <TextView
+        <EditText
             android:id="@+id/tv_author"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_title"
             android:layout_marginTop="10dp"
-            android:text="朱自清"
+            android:background="@null"
+            android:hint="@string/edit_hint_author"
             android:textColor="#E66D19"
             android:textSize="14sp" />
 
@@ -48,8 +50,8 @@
             android:layout_below="@id/tv_left_quotation"
             android:layout_marginTop="15dp"
             android:background="#00000000"
+            android:hint="@string/edit_hint_content"
             android:lineSpacingMultiplier="1.2"
-            android:text="我与父亲不相见已二年余了，我最不能忘记的是他的背影。\n\n那年冬天，祖母死了，父亲的差使1也交卸了，正是祸不单行的日子。我从北京到徐州，打算跟着父亲奔丧2回家。到徐州见着父亲，看见满院狼藉3的东西，又想起祖母，不禁簌簌地流下眼泪。父亲说：“事已如此，不必难过，好在天无绝人之路！”"
             android:textColor="@color/edit_main"
             android:textSize="15sp" />
 
@@ -75,15 +77,15 @@
 
         <TextView
             android:id="@+id/btn_edit_content"
-            android:text="Aa"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:textColor="#88aaaaaa"
-            android:layout_alignTop="@id/et_content"
-            android:layout_alignRight="@id/et_content"
-            android:layout_marginTop="-40dp"
             android:layout_width="40dp"
-            android:layout_height="40dp" />
+            android:layout_height="40dp"
+            android:layout_alignRight="@id/et_content"
+            android:layout_alignTop="@id/et_content"
+            android:layout_marginTop="-40dp"
+            android:gravity="center"
+            android:text="Aa"
+            android:textColor="#88aaaaaa"
+            android:textSize="18sp"
+            android:textStyle="bold" />
     </RelativeLayout>
 </FrameLayout>
