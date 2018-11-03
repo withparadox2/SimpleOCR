@@ -234,9 +234,19 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 }
 
+//https://www.cbsd.org/cms/lib/PA01916442/Centricity/Domain/2295/time.pdf.pdf
 fun getDateStr(): String {
     val format = SimpleDateFormat("yyyy.MM.dd", Locale.CHINA)
-    return format.format(Date())
+    return format.format(Date()) + " " + when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
+        in 1..4 -> "凌晨"
+        in 5..7 -> "清晨"
+        in 8..10 -> "上午"
+        in 11..13 -> "中午"
+        in 14..16 -> "下午"
+        in 17..18 -> "傍晚"
+        in 19..21 -> "晚上"
+        else -> "深夜"
+    }
 }
 
 fun getIntent(context: Context, content: String): Intent {
