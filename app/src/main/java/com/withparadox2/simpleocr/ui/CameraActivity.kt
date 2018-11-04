@@ -19,7 +19,6 @@ import com.withparadox2.simpleocr.util.launchUI
 import com.withparadox2.simpleocr.util.toast
 import com.withparadox2.simpleocr.util.writeToFile
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 /**
  * Created by withparadox2 on 2018/5/20.
@@ -47,7 +46,7 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
             }
         })
 
-        val container = findViewById(R.id.layout_container) as ViewGroup
+        val container = findViewById<ViewGroup>(R.id.layout_container)
         container.addView(mCameraView, 0)
         mBtnShutter.setOnClickListener(this)
 

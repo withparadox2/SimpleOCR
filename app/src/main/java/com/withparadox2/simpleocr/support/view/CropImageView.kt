@@ -9,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.ImageView
+import androidx.core.animation.doOnEnd
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.util.dp2px
 
@@ -44,11 +45,9 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     init {
         mPaint.color = Color.WHITE
         mPaint.style = Paint.Style.STROKE
-        mLineAnimator.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
-                mAnimateLineIndex = BAR_UNDEFINED
-            }
-        })
+        mLineAnimator.doOnEnd {
+            mAnimateLineIndex = BAR_UNDEFINED
+        }
     }
 
     override fun setImageBitmap(bitmap: Bitmap) {

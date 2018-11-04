@@ -11,6 +11,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.core.animation.doOnEnd
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.camera.CameraController
 import com.withparadox2.simpleocr.util.dp2px
@@ -32,7 +33,6 @@ class FlashSwitch(context: Context, attr: AttributeSet) : FrameLayout(context, a
             addView(view, FrameLayout.LayoutParams(mImageSize, mImageSize, Gravity.CENTER_VERTICAL))
             view.setOnClickListener { currentImage ->
                 if (CameraController.instance.getCamera() == null || mAnimating) {
-                    //TODO check grammar
                     return@setOnClickListener
                 }
 
@@ -56,12 +56,10 @@ class FlashSwitch(context: Context, attr: AttributeSet) : FrameLayout(context, a
                         ObjectAnimator.ofFloat(currentImage, "alpha", 1.0f, 0.0f),
                         ObjectAnimator.ofFloat(nextImage, "alpha", 0.0f, 1.0f))
                 animatorSet.duration = 200
-                animatorSet.addListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animator: Animator) {
-                        currentImage.visibility = View.INVISIBLE
-                        mAnimating = false
-                    }
-                })
+                animatorSet.doOnEnd {
+                    currentImage.visibility = View.INVISIBLE
+                    mAnimating = false
+                }
                 animatorSet.start()
                 mAnimating = true
             }
@@ -88,7 +86,8 @@ class FlashSwitch(context: Context, attr: AttributeSet) : FrameLayout(context, a
 
     private fun getNextFlashMode() : String? {
         if (mFlashModeList.size == 0) return null
-        // we have set this var once after getting flash mode list
+        // we have set mCurrentFlashMode once after getting flash mode list
+        // @see setFlashModeList
         assert(mCurrentFlashMode != null)
 
         val index = mFlashModeList.indexOf(mCurrentFlashMode)

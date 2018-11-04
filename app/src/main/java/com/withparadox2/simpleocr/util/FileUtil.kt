@@ -17,7 +17,7 @@ suspend fun writeToFile(data : ByteArray, path : String) : Boolean {
             output.flush()
         } catch (e: Exception) {
             e.printStackTrace()
-            false
+            return@async false
         } finally {
             closeQuietly(output)
         }

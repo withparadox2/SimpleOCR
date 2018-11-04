@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Base64
 import android.view.View
 import android.widget.ProgressBar
+import androidx.core.view.doOnNextLayout
 import com.withparadox2.simpleocr.App
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.net.OcrResult
@@ -54,7 +55,7 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 60, FileOutputStream(mOcrPath))
                 startOcr()
             }
-            R.id.btn_cancel-> finish()
+            R.id.btn_cancel -> finish()
         }
     }
 
@@ -63,12 +64,7 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
             return
         }
         if (ivPhoto.width == 0 || ivPhoto.height == 0) {
-            ivPhoto.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
-                override fun onLayoutChange(v: View?, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
-                    showPhoto()
-                    ivPhoto.removeOnLayoutChangeListener(this)
-                }
-            })
+            ivPhoto.doOnNextLayout { showPhoto() }
         } else {
             showPhoto()
         }

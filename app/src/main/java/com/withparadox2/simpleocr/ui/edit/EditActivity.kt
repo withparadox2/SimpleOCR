@@ -16,6 +16,7 @@ import android.view.*
 import android.widget.BaseAdapter
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.graphics.applyCanvas
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.edit.Editor
 import com.withparadox2.simpleocr.ui.BaseActivity
@@ -137,9 +138,10 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             try {
                 val view: View = findViewById(R.id.layout_container)
                 bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-                val canvas = Canvas(bitmap!!)
-                canvas.clipPath(createRoundedPath(view.width.toFloat(), view.height.toFloat(), dp2px(8).toFloat()))
-                view.draw(canvas)
+                bitmap.applyCanvas {
+                    clipPath(createRoundedPath(view.width.toFloat(), view.height.toFloat(), dp2px(8).toFloat()))
+                    view.draw(this)
+                }
 
                 outputStream = FileOutputStream(filePath)
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
