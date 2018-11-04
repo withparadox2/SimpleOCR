@@ -20,6 +20,9 @@ import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.edit.Editor
 import com.withparadox2.simpleocr.ui.BaseActivity
 import com.withparadox2.simpleocr.util.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -87,7 +90,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.share) {
-            share()
+            GlobalScope.launchUI { share() }
         } else if (item.itemId == android.R.id.home) {
             finish()
         }
@@ -99,7 +102,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         addBookInfo(tvTitle.text.toString(), tvAuthor.text.toString())
     }
 
-    private fun share() {
+    private suspend fun share() {
         btnEdit.visibility = View.INVISIBLE
         val titleHistoryVisibility = btnTitleHistory.visibility
         btnTitleHistory.visibility = View.INVISIBLE
@@ -107,6 +110,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         tvAuthor.isCursorVisible = false
         etContent.isCursorVisible = false
         val filePath = getBasePath() + "share_${System.currentTimeMillis()}.png"
+
         if (doExport(filePath)) {
             sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(File(filePath))))
 
@@ -118,6 +122,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         } else {
             toast("Export png failed")
         }
+
         btnEdit.visibility = View.VISIBLE
         btnTitleHistory.visibility = titleHistoryVisibility
         tvTitle.isCursorVisible = true
@@ -125,25 +130,27 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         etContent.isCursorVisible = true
     }
 
-    private fun doExport(filePath: String): Boolean {
-        var bitmap: Bitmap? = null
-        var outputStream: FileOutputStream? = null
-        try {
-            val view: View = findViewById(R.id.layout_container)
-            bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bitmap!!)
-            canvas.clipPath(createRoundedPath(view.width.toFloat(), view.height.toFloat(), dp2px(8).toFloat()))
-            view.draw(canvas)
+    private suspend fun doExport(filePath: String): Boolean {
+        return GlobalScope.async(Dispatchers.IO) {
+            var bitmap: Bitmap? = null
+            var outputStream: FileOutputStream? = null
+            try {
+                val view: View = findViewById(R.id.layout_container)
+                bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(bitmap!!)
+                canvas.clipPath(createRoundedPath(view.width.toFloat(), view.height.toFloat(), dp2px(8).toFloat()))
+                view.draw(canvas)
 
-            outputStream = FileOutputStream(filePath)
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            closeQuietly(outputStream)
-            bitmap?.recycle()
-        }
-        return File(filePath).exists()
+                outputStream = FileOutputStream(filePath)
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                closeQuietly(outputStream)
+                bitmap?.recycle()
+            }
+            File(filePath).exists()
+        }.await()
     }
 
     private fun createRoundedPath(width: Float, height: Float, radius: Float): Path {

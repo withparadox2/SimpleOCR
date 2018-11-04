@@ -10,6 +10,10 @@ import android.os.Environment
 import androidx.core.content.FileProvider
 import android.widget.Toast
 import com.withparadox2.simpleocr.App
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
 
@@ -22,7 +26,7 @@ fun getBasePath(): String {
     return basePath
 }
 
-fun getTempBitmapPath() : String {
+fun getTempBitmapPath(): String {
     return getBasePath() + "temp.jpg"
 }
 
@@ -52,11 +56,11 @@ fun dp2px(dip: Int, context: Context = App.instance): Int {
     return (dip * scale + 0.5f).toInt()
 }
 
-fun executeAsync(action : Runnable) {
+fun executeAsync(action: Runnable) {
     AsyncTask.THREAD_POOL_EXECUTOR.execute(action)
 }
 
-fun getSp() : SharedPreferences {
+fun getSp(): SharedPreferences {
     return App.instance.getSharedPreferences(App.instance.packageName, Context.MODE_PRIVATE)
 }
 
@@ -65,5 +69,7 @@ fun saveSpString(key: String, value: String) {
 }
 
 fun getSpString(key: String, defaultValue: String): String {
-    return getSp().getString(key, defaultValue)
+    return getSp().getString(key, defaultValue) ?: ""
 }
+
+fun CoroutineScope.launchUI(blockParam: suspend CoroutineScope.() -> Unit) = GlobalScope.launch(Dispatchers.Main, block = blockParam)

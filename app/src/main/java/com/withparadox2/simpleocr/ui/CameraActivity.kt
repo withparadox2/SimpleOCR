@@ -15,8 +15,11 @@ import com.withparadox2.simpleocr.support.permission.PermissionManager
 import com.withparadox2.simpleocr.support.view.FlashSwitch
 import com.withparadox2.simpleocr.support.view.ShutterButton
 import com.withparadox2.simpleocr.util.getTempBitmapPath
+import com.withparadox2.simpleocr.util.launchUI
 import com.withparadox2.simpleocr.util.toast
 import com.withparadox2.simpleocr.util.writeToFile
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * Created by withparadox2 on 2018/5/20.
@@ -30,8 +33,8 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
-        mBtnFlash = findViewById(R.id.btn_flash_switch) as FlashSwitch
-        mBtnShutter = findViewById(R.id.btn_shutter) as ShutterButton
+        mBtnFlash = findViewById(R.id.btn_flash_switch)
+        mBtnShutter = findViewById(R.id.btn_shutter)
 
         mCameraView = CameraView(this)
         mCameraView.setCameraCallback(object : CameraController.Callback {
@@ -64,8 +67,10 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
         when (v!!.id) {
             R.id.btn_shutter -> {
                 CameraController.instance.getCamera()?.takePicture(null, null, Camera.PictureCallback { data, _ ->
-                    if (writeToFile(data, getTempBitmapPath())) {
-                        startActivity(Intent(this@CameraActivity, CropImageActivity::class.java))
+                    GlobalScope.launchUI {
+                        if (writeToFile(data, getTempBitmapPath())) {
+                            startActivity(Intent(this@CameraActivity, CropImageActivity::class.java))
+                        }
                     }
                 })
             }
