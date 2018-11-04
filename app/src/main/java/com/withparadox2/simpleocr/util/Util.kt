@@ -7,7 +7,7 @@ import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Environment
-import android.support.v4.content.FileProvider
+import androidx.core.content.FileProvider
 import android.widget.Toast
 import com.withparadox2.simpleocr.App
 import java.io.File

@@ -8,7 +8,7 @@ import android.graphics.Canvas
 import android.graphics.Path
 import android.net.Uri
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
@@ -37,10 +37,10 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit)
-        tvTitle = findViewById(R.id.tv_title) as TextView
-        tvAuthor = findViewById(R.id.tv_author) as TextView
-        etContent = findViewById(R.id.et_content) as EditText
-        tvDate = findViewById(R.id.tv_date) as TextView
+        tvTitle = findViewById(R.id.tv_title)
+        tvAuthor = findViewById(R.id.tv_author)
+        etContent = findViewById(R.id.et_content)
+        tvDate = findViewById(R.id.tv_date)
 
         btnEdit = findViewById(R.id.btn_edit_content)
         btnEdit.setOnClickListener(this)
@@ -129,9 +129,9 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         var bitmap: Bitmap? = null
         var outputStream: FileOutputStream? = null
         try {
-            val view = findViewById(R.id.layout_container)
+            val view: View = findViewById(R.id.layout_container)
             bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bitmap)
+            val canvas = Canvas(bitmap!!)
             canvas.clipPath(createRoundedPath(view.width.toFloat(), view.height.toFloat(), dp2px(8).toFloat()))
             view.draw(canvas)
 
@@ -184,14 +184,14 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 val pair = list[position]
                 (cv.findViewById(R.id.tv_title) as TextView).text = pair?.first
                 (cv.findViewById(R.id.tv_author) as TextView).text = pair?.second
-                cv.findViewById(R.id.btn_edit).setOnClickListener({
+                cv.findViewById<View>(R.id.btn_edit).setOnClickListener {
 
-                })
-                cv.findViewById(R.id.btn_del).setOnClickListener({
+                }
+                cv.findViewById<View>(R.id.btn_del).setOnClickListener {
                     list.removeAt(position)
                     saveBookInfo(list)
                     notifyDataSetChanged()
-                })
+                }
                 return cv
             }
 

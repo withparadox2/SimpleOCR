@@ -36,10 +36,10 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
         btnOcr = findViewById(R.id.btn_ocr)
         btnOcr.setOnClickListener(this)
 
-        findViewById(R.id.btn_cancel).setOnClickListener(this)
+        findViewById<View>(R.id.btn_cancel).setOnClickListener(this)
 
-        ivPhoto = findViewById(R.id.iv_photo) as CropImageView
-        progressBar = findViewById(R.id.progressbar) as ProgressBar
+        ivPhoto = findViewById(R.id.iv_photo)
+        progressBar = findViewById(R.id.progressbar)
 
         mFilePath = getTempBitmapPath()
         mOcrPath = "${getBasePath()}$PHOTO_OCR_NAME"

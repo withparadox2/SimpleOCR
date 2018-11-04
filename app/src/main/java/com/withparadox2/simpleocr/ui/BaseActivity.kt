@@ -1,7 +1,7 @@
 package com.withparadox2.simpleocr.ui
 
 import android.annotation.SuppressLint
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import com.withparadox2.simpleocr.support.permission.PermissionManager
 
 @SuppressLint("Registered")

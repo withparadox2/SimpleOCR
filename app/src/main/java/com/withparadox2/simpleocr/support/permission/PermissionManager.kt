@@ -5,9 +5,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
+import androidx.core.content.ContextCompat
 import android.util.SparseArray
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -31,7 +31,7 @@ class PermissionManager private constructor() {
 
     private fun getContext(o: Any): Context = when (o) {
         is Activity -> o
-        is Fragment -> o.activity
+        is Fragment -> o.activity!!
         is android.app.Fragment -> o.activity
         else -> throw IllegalArgumentException("Can not get context from object o.")
     }
