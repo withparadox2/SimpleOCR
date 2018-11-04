@@ -147,24 +147,28 @@ class CameraView(context: Context) : FrameLayout(context), TextureView.SurfaceTe
             canvas.drawCircle(cx.toFloat(), cy.toFloat(), baseRad + baseRad * (1.0f - interpolated), outerPaint)
             canvas.drawCircle(cx.toFloat(), cy.toFloat(), baseRad * interpolated, innerPaint)
 
-            if (focusProgress < 1) {
-                focusProgress += dt / 200.0f
-                if (focusProgress > 1) {
-                    focusProgress = 1f
+            when {
+                focusProgress < 1 -> {
+                    focusProgress += dt / 200.0f
+                    if (focusProgress > 1) {
+                        focusProgress = 1f
+                    }
+                    invalidate()
                 }
-                invalidate()
-            } else if (innerAlpha != 0f) {
-                innerAlpha -= dt / 150.0f
-                if (innerAlpha < 0) {
-                    innerAlpha = 0f
+                innerAlpha != 0f -> {
+                    innerAlpha -= dt / 150.0f
+                    if (innerAlpha < 0) {
+                        innerAlpha = 0f
+                    }
+                    invalidate()
                 }
-                invalidate()
-            } else if (outerAlpha != 0f) {
-                outerAlpha -= dt / 150.0f
-                if (outerAlpha < 0) {
-                    outerAlpha = 0f
+                outerAlpha != 0f -> {
+                    outerAlpha -= dt / 150.0f
+                    if (outerAlpha < 0) {
+                        outerAlpha = 0f
+                    }
+                    invalidate()
                 }
-                invalidate()
             }
         }
     }

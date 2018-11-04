@@ -1,7 +1,5 @@
 package com.withparadox2.simpleocr.support.view
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.*

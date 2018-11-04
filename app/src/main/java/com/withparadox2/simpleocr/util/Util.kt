@@ -69,7 +69,7 @@ fun saveSpString(key: String, value: String) {
 }
 
 fun getSpString(key: String, defaultValue: String): String {
-    return getSp().getString(key, defaultValue) ?: ""
+    return getSp().getString(key, defaultValue)!!
 }
 
 fun CoroutineScope.launchUI(blockParam: suspend CoroutineScope.() -> Unit) = GlobalScope.launch(Dispatchers.Main, block = blockParam)

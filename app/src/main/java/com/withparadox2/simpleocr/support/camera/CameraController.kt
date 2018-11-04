@@ -8,8 +8,6 @@ import android.util.DisplayMetrics
 import android.view.Surface
 import android.view.TextureView
 import com.withparadox2.simpleocr.App
-import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
 

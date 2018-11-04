@@ -1,7 +1,9 @@
 package com.withparadox2.simpleocr.support.net
 
 import android.content.Context
+import android.text.TextUtils
 import com.withparadox2.simpleocr.App
+import com.withparadox2.simpleocr.util.getSpString
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -38,15 +40,15 @@ interface OcrService {
 
         fun requestOcr(image: String, call: Callback<OcrResult>) {
             val sp = App.instance.getSharedPreferences(App.instance.packageName, Context.MODE_PRIVATE)
-            var token: String? = sp.getString(KEY_TOKEN, null)
+            var token: String? = getSpString(KEY_TOKEN, "")
             val expiresIn = sp.getLong(KEY_EXPIRES_IN, 0)
             if (System.currentTimeMillis() > expiresIn) {
                 token = null
             }
 
-            fun execution() = instance.sendOcr(sp.getString(KEY_TOKEN, null), image).enqueue(call)
+            fun execution() = instance.sendOcr(getSpString(KEY_TOKEN, ""), image).enqueue(call)
 
-            if (token == null) {
+            if (TextUtils.isEmpty(token)) {
                 instance.getToken().enqueue(object : Callback<TokenResult> {
                     override fun onResponse(call: Call<TokenResult>?, response: Response<TokenResult>?) {
                         sp.edit().putString(KEY_TOKEN, response?.body()?.accessToken)
