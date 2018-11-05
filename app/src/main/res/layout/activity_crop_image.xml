@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/black">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:orientation="vertical"
@@ -14,9 +13,10 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:padding="10dp"
-
+            android:background="@color/black"
             android:scaleType="matrix" />
         <FrameLayout
+            android:background="@color/black"
             android:layout_gravity="bottom"
             android:layout_width="match_parent"
             android:layout_height="50dp">
@@ -29,7 +29,8 @@
                 android:minWidth="60dp"
                 android:gravity="center"
                 android:layout_height="match_parent"
-                android:layout_gravity="left"
+                android:background="@drawable/bg_btn_bar_dark"
+                android:layout_gravity="start"
                 android:text="@string/cancel" />
             <TextView
                 android:id="@+id/btn_ocr"
@@ -37,9 +38,10 @@
                 android:layout_width="wrap_content"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:minWidth="60dp"
+                android:minWidth="100dp"
                 android:gravity="center"
                 android:layout_height="match_parent"
+                android:background="@drawable/bg_btn_bar_dark"
                 android:layout_gravity="center_horizontal"
                 android:text="@string/ocr" />
         </FrameLayout>
