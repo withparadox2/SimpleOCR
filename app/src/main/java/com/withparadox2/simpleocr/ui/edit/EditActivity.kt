@@ -4,26 +4,26 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Path
 import android.net.Uri
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import android.text.Editable
-import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.*
 import android.widget.BaseAdapter
 import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.graphics.applyCanvas
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.edit.Editor
+import com.withparadox2.simpleocr.support.store.AppDatabase
+import com.withparadox2.simpleocr.support.store.BookInfo
 import com.withparadox2.simpleocr.ui.BaseActivity
 import com.withparadox2.simpleocr.util.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.*
+import kotlinx.coroutines.async
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -58,8 +58,8 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
         val list = getBookInfoList()
         if (list.isNotEmpty()) {
-            tvAuthor.text = list[0]?.second
-            tvTitle.text = list[0]?.first
+            tvAuthor.text = list[0].author
+            tvTitle.text = list[0].title
         } else {
             btnTitleHistory.visibility = View.INVISIBLE
         }
@@ -184,28 +184,28 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun showBookInfoDialog() {
-        val list = getBookInfoList()
+        var list = getBookInfoList()
         AlertDialog.Builder(this).setAdapter(object : BaseAdapter() {
             @SuppressLint("SetTextI18n")
             override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
                 val cv = convertView
                         ?: LayoutInflater.from(this@EditActivity).inflate(R.layout.item_book_info, parent, false)
                 val pair = list[position]
-                (cv.findViewById(R.id.tv_title) as TextView).text = pair?.first
-                (cv.findViewById(R.id.tv_author) as TextView).text = pair?.second
+                (cv.findViewById(R.id.tv_title) as TextView).text = list[position].title
+                (cv.findViewById(R.id.tv_author) as TextView).text = list[position].author
                 cv.findViewById<View>(R.id.btn_edit).setOnClickListener {
 
                 }
                 cv.findViewById<View>(R.id.btn_del).setOnClickListener {
-                    list.removeAt(position)
-                    saveBookInfo(list)
+                    AppDatabase.getInstance().bookInfoDao().delete(list[position])
+                    list = getBookInfoList()
                     notifyDataSetChanged()
                 }
                 return cv
             }
 
-            override fun getItem(position: Int): Pair<String, String> {
-                return list[position]!!
+            override fun getItem(position: Int): BookInfo {
+                return list[position]
             }
 
             override fun getItemId(position: Int): Long {
@@ -216,35 +216,16 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 return list.size
             }
         }) { _, which ->
-            tvTitle.text = list[which]?.first
-            tvAuthor.text = list[which]?.second
+            tvTitle.text = list[which].title
+            tvAuthor.text = list[which].author
         }.show()
     }
 
     private fun addBookInfo(title: String, author: String) {
-        val list = getBookInfoList()
-        if (!TextUtils.isEmpty(title) && !list.any { it?.first.equals(title) }) {
-            list.add(0, Pair(title, author))
-            saveBookInfo(list)
-        }
+        AppDatabase.getInstance().bookInfoDao().insert(BookInfo(null, title, author))
     }
 
-    private fun saveBookInfo(list: List<Pair<String, String>?>) {
-        saveSpString("book_info_list", list.joinToString("+&") { it?.first + "-&" + it?.second })
-    }
-
-    private fun getBookInfoList(): MutableList<Pair<String, String>?> {
-        return getSpString("book_info_list", "").split("+&").map {
-            val info = it.split("-&")
-            if (info.size == 2) {
-                return@map Pair(info[0], info[1])
-            } else {
-                return@map null
-            }
-        }.filter {
-            it != null
-        }.toMutableList()
-    }
+    private fun getBookInfoList(): List<BookInfo> = AppDatabase.getInstance().bookInfoDao().getAll()
 }
 
 //https://www.cbsd.org/cms/lib/PA01916442/Centricity/Domain/2295/time.pdf.pdf
