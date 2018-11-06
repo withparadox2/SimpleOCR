@@ -1,10 +1,7 @@
 package com.withparadox2.simpleocr.support.store
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
+import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
-import androidx.room.Query
 
 /**
  * Created by withparadox2 on 2018/11/5.
@@ -17,6 +14,9 @@ interface BookInfoDao {
 
     @Insert(onConflict = REPLACE)
     fun insert(bookInfo: BookInfo)
+
+    @Update
+    fun update(bookInfo: BookInfo)
 
     @Delete
     fun delete(bookInfo: BookInfo)

@@ -21,4 +21,6 @@
         <item>Last Step</item>
         <item>Copy</item>
     </string-array>
+    <string name="dialog_confirm">OK</string>
+    <string name="dialog_cancel">Cancel</string>
 </resources>

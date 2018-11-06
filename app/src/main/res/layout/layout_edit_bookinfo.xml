@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/tv_title_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@id/tv_author_label"
+        android:layout_marginTop="10dp"
+        android:text="@string/edit_his_label_title"
+        android:textColor="@color/edit_light"
+        android:textSize="14sp" />
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/et_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/tv_title_label"
+        android:layout_marginStart="10dp"
+        android:layout_toEndOf="@id/tv_title_label"
+        android:background="@null"
+        android:textColor="@color/edit_main"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tv_author_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_title_label"
+        android:layout_marginTop="20dp"
+        android:text="@string/edit_his_label_author"
+        android:textColor="@color/edit_light"
+        android:textSize="14sp" />
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/et_author"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/tv_author_label"
+        android:layout_marginStart="10dp"
+        android:layout_toEndOf="@id/tv_author_label"
+        android:background="@null"
+        android:textColor="@color/edit_main"
+        android:textSize="14sp" />
+</RelativeLayout>

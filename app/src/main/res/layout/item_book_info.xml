@@ -58,8 +58,7 @@
         android:gravity="center"
         android:text="@string/edit"
         android:textColor="@color/colorAccent"
-        android:textSize="12sp"
-        android:visibility="gone" />
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/btn_del"

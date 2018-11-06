@@ -37,6 +37,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     private lateinit var mContentEditor: Editor
     private lateinit var btnEdit: View
     private lateinit var btnTitleHistory: View
+    private var mBookInfo: BookInfo? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,10 +59,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
         val list = getBookInfoList()
         if (list.isNotEmpty()) {
-            tvAuthor.text = list[0].author
-            tvTitle.text = list[0].title
-        } else {
-            btnTitleHistory.visibility = View.INVISIBLE
+            setBookInfoView(list[0])
         }
 
         mContentEditor = Editor(rawContent, object : Editor.Callback {
@@ -100,7 +98,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     override fun onStop() {
         super.onStop()
-        addBookInfo(tvTitle.text.toString(), tvAuthor.text.toString())
+        updateBookInfo()
     }
 
     private suspend fun share() {
@@ -190,11 +188,13 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
                 val cv = convertView
                         ?: LayoutInflater.from(this@EditActivity).inflate(R.layout.item_book_info, parent, false)
-                val pair = list[position]
                 (cv.findViewById(R.id.tv_title) as TextView).text = list[position].title
                 (cv.findViewById(R.id.tv_author) as TextView).text = list[position].author
                 cv.findViewById<View>(R.id.btn_edit).setOnClickListener {
-
+                    showEditBookInfoDialog(list[position]) {
+                        AppDatabase.getInstance().bookInfoDao().update(it)
+                        notifyDataSetChanged()
+                    }
                 }
                 cv.findViewById<View>(R.id.btn_del).setOnClickListener {
                     AppDatabase.getInstance().bookInfoDao().delete(list[position])
@@ -221,8 +221,27 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         }.show()
     }
 
-    private fun addBookInfo(title: String, author: String) {
-        AppDatabase.getInstance().bookInfoDao().insert(BookInfo(null, title, author))
+    private fun showEditBookInfoDialog(info: BookInfo, callback: (BookInfo) -> Unit) {
+        val layout = LayoutInflater.from(this).inflate(R.layout.layout_edit_bookinfo, null)
+        val etTitle = layout.findViewById<EditText>(R.id.et_title)
+        val etAuthor = layout.findViewById<EditText>(R.id.et_author)
+        etTitle.setText(info.title)
+        etAuthor.setText(info.author)
+        AlertDialog.Builder(this).setTitle("Edit Book Info").setView(layout).setPositiveButton(R.string.dialog_confirm) { _, _ ->
+            info.author = etAuthor.text.toString()
+            info.title = etTitle.text.toString()
+            callback(info)
+        }.setNegativeButton(R.string.dialog_cancel) { _, _ -> }.show()
+    }
+
+    private fun updateBookInfo() {
+        mBookInfo ?: AppDatabase.getInstance().bookInfoDao().update(mBookInfo!!)
+    }
+
+    private fun setBookInfoView(info: BookInfo) {
+        tvAuthor.text = info.author
+        tvTitle.text = info.title
+        mBookInfo = info
     }
 
     private fun getBookInfoList(): List<BookInfo> = AppDatabase.getInstance().bookInfoDao().getAll()
