@@ -20,6 +20,7 @@ import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.edit.Editor
 import com.withparadox2.simpleocr.support.store.AppDatabase
 import com.withparadox2.simpleocr.support.store.BookInfo
+import com.withparadox2.simpleocr.support.store.BookInfoDao
 import com.withparadox2.simpleocr.ui.BaseActivity
 import com.withparadox2.simpleocr.util.*
 import kotlinx.coroutines.Dispatchers
@@ -58,9 +59,8 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
         tvDate.text = getDateStr()
 
-        val list = getBookInfoList()
-        if (list.isNotEmpty()) {
-            setBookInfoView(list[0])
+        getLastBookInfo()?.apply {
+            setBookInfoView(this)
         }
 
         mContentEditor = Editor(rawContent, object : Editor.Callback {
@@ -95,6 +95,11 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             finish()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        setLastBookInfoId(mBookInfo?.id)
     }
 
     private suspend fun share() {
@@ -266,11 +271,30 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         mBookInfo = info
     }
 
-    private fun getBookInfoList(): List<BookInfo> = AppDatabase.getInstance().bookInfoDao().getAll()
+    private fun getBookInfoDao(): BookInfoDao = AppDatabase.getInstance().bookInfoDao()
+    private fun getBookInfoList(): List<BookInfo> = getBookInfoDao().getAll()
+    private fun getLastBookInfo(): BookInfo? {
+        var info = getBookInfoDao().getBookInfoById(getLastBookInfoId())
+        if (info == null) {
+            val list = getBookInfoList()
+            if (list.isNotEmpty()) {
+                info = list[0]
+            }
+        }
+        return info
+    }
+
+    private fun getLastBookInfoId(): Long {
+        return getSp().getLong("last_book_id", 0)
+    }
+
+    private fun setLastBookInfoId(id: Long?) {
+        getSp().edit().putLong("last_book_id", id ?: 0).apply()
+    }
 }
 
 //https://www.cbsd.org/cms/lib/PA01916442/Centricity/Domain/2295/time.pdf.pdf
-fun getDateStr(): String {
+private fun getDateStr(): String {
     val format = SimpleDateFormat("yyyy.MM.dd", Locale.CHINA)
     return format.format(Date()) + " " + when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
         in 1..4 -> "凌晨"

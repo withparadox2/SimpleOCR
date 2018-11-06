@@ -20,4 +20,7 @@ interface BookInfoDao {
 
     @Delete
     fun delete(bookInfo: BookInfo)
+
+    @Query("select * from BookInfo where id = :id")
+    fun getBookInfoById(id: Long?): BookInfo?
 }
