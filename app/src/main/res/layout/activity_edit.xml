@@ -18,7 +18,7 @@
             android:paddingRight="20dp"
             android:paddingTop="40dp">
 
-            <EditText
+            <TextView
                 android:id="@+id/tv_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
-            <EditText
+            <TextView
                 android:id="@+id/tv_author"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -87,19 +87,6 @@
                 android:layout_marginTop="-40dp"
                 android:gravity="end|center_vertical"
                 android:text="Aa"
-                android:textColor="@color/edit_light"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/btn_edit_title"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_alignEnd="@id/tv_title"
-                android:layout_alignTop="@id/tv_title"
-                android:gravity="end|top"
-                android:minWidth="40dp"
-                android:text="History"
                 android:textColor="@color/edit_light"
                 android:textSize="18sp"
                 android:textStyle="bold" />

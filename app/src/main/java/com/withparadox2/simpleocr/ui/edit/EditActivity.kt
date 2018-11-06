@@ -12,6 +12,7 @@ import android.text.TextWatcher
 import android.view.*
 import android.widget.BaseAdapter
 import android.widget.EditText
+import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.graphics.applyCanvas
@@ -36,7 +37,6 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     private lateinit var tvDate: TextView
     private lateinit var mContentEditor: Editor
     private lateinit var btnEdit: View
-    private lateinit var btnTitleHistory: View
     private var mBookInfo: BookInfo? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,8 +49,9 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
         btnEdit = findViewById(R.id.btn_edit_content)
         btnEdit.setOnClickListener(this)
-        btnTitleHistory = findViewById(R.id.btn_edit_title)
-        btnTitleHistory.setOnClickListener(this)
+
+        tvTitle.setOnClickListener(this)
+        tvAuthor.setOnClickListener(this)
 
         val rawContent = intent.getStringExtra("content")
         etContent.setText(rawContent)
@@ -96,17 +97,8 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onStop() {
-        super.onStop()
-        updateBookInfo()
-    }
-
     private suspend fun share() {
         btnEdit.visibility = View.INVISIBLE
-        val titleHistoryVisibility = btnTitleHistory.visibility
-        btnTitleHistory.visibility = View.INVISIBLE
-        tvTitle.isCursorVisible = false
-        tvAuthor.isCursorVisible = false
         etContent.isCursorVisible = false
         val filePath = getBasePath() + "share_${System.currentTimeMillis()}.png"
 
@@ -123,9 +115,6 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         }
 
         btnEdit.visibility = View.VISIBLE
-        btnTitleHistory.visibility = titleHistoryVisibility
-        tvTitle.isCursorVisible = true
-        tvAuthor.isCursorVisible = true
         etContent.isCursorVisible = true
     }
 
@@ -177,13 +166,18 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     override fun onClick(v: View) {
         when (v.id) {
             R.id.btn_edit_content -> showEditDialog()
-            R.id.btn_edit_title -> showBookInfoDialog()
+            R.id.tv_title, R.id.tv_author -> showBookInfoDialog()
         }
     }
 
     private fun showBookInfoDialog() {
         var list = getBookInfoList()
-        AlertDialog.Builder(this).setAdapter(object : BaseAdapter() {
+        val layout = LayoutInflater.from(this).inflate(R.layout.layout_bookinfo_list, null)
+
+        var updateListAction: Runnable? = null
+        var dismissDialogAction: Runnable? = null
+
+        val adapter = object : BaseAdapter() {
             @SuppressLint("SetTextI18n")
             override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
                 val cv = convertView
@@ -191,15 +185,18 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 (cv.findViewById(R.id.tv_title) as TextView).text = list[position].title
                 (cv.findViewById(R.id.tv_author) as TextView).text = list[position].author
                 cv.findViewById<View>(R.id.btn_edit).setOnClickListener {
-                    showEditBookInfoDialog(list[position]) {
-                        AppDatabase.getInstance().bookInfoDao().update(it)
-                        notifyDataSetChanged()
+                    showEditBookInfoDialog(list[position]) { bookInfo ->
+                        AppDatabase.getInstance().bookInfoDao().update(bookInfo)
+                        updateListAction?.run()
                     }
                 }
                 cv.findViewById<View>(R.id.btn_del).setOnClickListener {
+                    val bookInfo = mBookInfo
+                    if (bookInfo?.id == list[position].id) {
+                        bookInfo?.id = null
+                    }
                     AppDatabase.getInstance().bookInfoDao().delete(list[position])
-                    list = getBookInfoList()
-                    notifyDataSetChanged()
+                    updateListAction?.run()
                 }
                 return cv
             }
@@ -215,27 +212,52 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             override fun getCount(): Int {
                 return list.size
             }
-        }) { _, which ->
-            tvTitle.text = list[which].title
-            tvAuthor.text = list[which].author
-        }.show()
+        }
+
+        updateListAction = Runnable {
+            list = getBookInfoList()
+            adapter.notifyDataSetChanged()
+        }
+
+        layout.findViewById<View>(R.id.btn_add).setOnClickListener {
+            showEditBookInfoDialog(null) { bookInfo ->
+                AppDatabase.getInstance().bookInfoDao().insert(bookInfo)
+                updateListAction.run()
+            }
+        }
+        val listView = layout.findViewById<ListView>(R.id.lv_bookinfo)
+        listView.setOnItemClickListener { adapterView, view, i, l ->
+            setBookInfoView(list[i])
+            dismissDialogAction?.run()
+        }
+        listView.adapter = adapter
+
+        val dialog = AlertDialog.Builder(this).setView(layout).show()
+
+        dismissDialogAction = Runnable {
+            if (dialog.isShowing) dialog.dismiss()
+        }
     }
 
-    private fun showEditBookInfoDialog(info: BookInfo, callback: (BookInfo) -> Unit) {
+    private fun showEditBookInfoDialog(info: BookInfo?, callback: (BookInfo) -> Unit) {
         val layout = LayoutInflater.from(this).inflate(R.layout.layout_edit_bookinfo, null)
         val etTitle = layout.findViewById<EditText>(R.id.et_title)
         val etAuthor = layout.findViewById<EditText>(R.id.et_author)
-        etTitle.setText(info.title)
-        etAuthor.setText(info.author)
-        AlertDialog.Builder(this).setTitle("Edit Book Info").setView(layout).setPositiveButton(R.string.dialog_confirm) { _, _ ->
-            info.author = etAuthor.text.toString()
-            info.title = etTitle.text.toString()
-            callback(info)
+        if (info != null) {
+            etTitle.setText(info.title)
+            etAuthor.setText(info.author)
+        }
+        AlertDialog.Builder(this).setTitle("${if (info == null) "Add" else "Edit"} Book Info").setView(layout).setPositiveButton(R.string.dialog_confirm) { _, _ ->
+            val title = etTitle.text.toString()
+            val author = etAuthor.text.toString()
+            if (info != null) {
+                info.author = author
+                info.title = title
+                callback(info)
+            } else {
+                callback(BookInfo(null, title, author))
+            }
         }.setNegativeButton(R.string.dialog_cancel) { _, _ -> }.show()
-    }
-
-    private fun updateBookInfo() {
-        mBookInfo ?: AppDatabase.getInstance().bookInfoDao().update(mBookInfo!!)
     }
 
     private fun setBookInfoView(info: BookInfo) {
