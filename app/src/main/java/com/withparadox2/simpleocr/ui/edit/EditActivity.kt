@@ -240,16 +240,16 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         val layout: View = inflate(R.layout.layout_edit_bookinfo)
         val etTitle = layout.findViewById<EditText>(R.id.et_title)
         val etAuthor = layout.findViewById<EditText>(R.id.et_author)
-        info?.apply {
-            etTitle.setText(this.title)
-            etAuthor.setText(this.author)
+        info?.also {
+            etTitle.setText(it.title)
+            etAuthor.setText(it.author)
         }
         AlertDialog.Builder(this).setTitle("${if (info == null) "Add" else "Edit"} Book Info").setView(layout).setPositiveButton(R.string.dialog_confirm) { _, _ ->
             val title = etTitle.text.toString()
             val author = etAuthor.text.toString()
             callback(info?.also {
-                info.author = author
-                info.title = title
+                it.author = author
+                it.title = title
             } ?: BookInfo(null, title, author))
         }.setNegativeButton(R.string.dialog_cancel) { _, _ -> }.show()
     }
