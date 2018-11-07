@@ -32,23 +32,18 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class EditActivity : BaseActivity(), View.OnClickListener {
-    private lateinit var tvTitle: TextView
-    private lateinit var tvAuthor: TextView
-    private lateinit var etContent: EditText
-    private lateinit var tvDate: TextView
+    private val tvTitle : TextView by bind(R.id.tv_title)
+    private val tvAuthor: TextView by bind(R.id.tv_author)
+    private val etContent: EditText by bind(R.id.et_content)
+    private val tvDate: TextView by bind(R.id.tv_date)
+    private val btnEdit: View by bind(R.id.btn_edit_content)
+
     private lateinit var mContentEditor: Editor
-    private lateinit var btnEdit: View
     private var mBookInfo: BookInfo? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit)
-        tvTitle = findViewById(R.id.tv_title)
-        tvAuthor = findViewById(R.id.tv_author)
-        etContent = findViewById(R.id.et_content)
-        tvDate = findViewById(R.id.tv_date)
-
-        btnEdit = findViewById(R.id.btn_edit_content)
         btnEdit.setOnClickListener(this)
 
         tvTitle.setOnClickListener(this)

@@ -24,9 +24,9 @@ const val PHOTO_OCR_NAME = "prepare_ocr.jpg"
 class CropImageActivity : BaseActivity(), View.OnClickListener {
     private var mFilePath: String? = null
     private var mOcrPath: String? = null
-    private lateinit var ivPhoto: CropImageView
-    private lateinit var progressBar: ProgressBar
-    private lateinit var btnOcr: View
+    private val ivPhoto: CropImageView by bind(R.id.iv_photo)
+    private val progressBar: ProgressBar by bind(R.id.progressbar)
+    private val btnOcr: View by bind(R.id.btn_ocr)
 
     private var mOcrText: String? = null
 
@@ -34,13 +34,8 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_crop_image)
 
-        btnOcr = findViewById(R.id.btn_ocr)
         btnOcr.setOnClickListener(this)
-
         findViewById<View>(R.id.btn_cancel).setOnClickListener(this)
-
-        ivPhoto = findViewById(R.id.iv_photo)
-        progressBar = findViewById(R.id.progressbar)
 
         mFilePath = getTempBitmapPath()
         mOcrPath = "${getBasePath()}$PHOTO_OCR_NAME"
