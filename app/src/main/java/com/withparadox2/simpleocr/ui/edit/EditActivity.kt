@@ -15,6 +15,7 @@ import android.widget.EditText
 import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.edit
 import androidx.core.graphics.applyCanvas
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.edit.Editor
@@ -54,8 +55,8 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
         tvDate.text = getDateStr()
 
-        getLastBookInfo()?.apply {
-            setBookInfoView(this)
+        getLastBookInfo()?.also {
+            setBookInfoView(it)
         }
 
         mContentEditor = Editor(rawContent, object : Editor.Callback {
@@ -104,12 +105,11 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
         if (doExport(filePath)) {
             sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(File(filePath))))
-
-            val intent = Intent()
-            intent.action = Intent.ACTION_SEND
-            intent.type = "image/*"
-            intent.putExtra(Intent.EXTRA_STREAM, buildUri(this, File(filePath), intent))
-            startActivity(Intent.createChooser(intent, "Share"))
+            startActivity(Intent.createChooser(
+                    Intent(Intent.ACTION_SEND).also {
+                        it.type = "image/*"
+                        it.putExtra(Intent.EXTRA_STREAM, buildUri(this, File(filePath), it))
+                    }, "Share"))
         } else {
             toast("Export png failed")
         }
@@ -191,9 +191,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 }
                 cv.findViewById<View>(R.id.btn_del).setOnClickListener {
                     val bookInfo = mBookInfo
-                    if (bookInfo?.id == list[position].id) {
-                        bookInfo?.id = null
-                    }
+                    bookInfo?.takeIf { it.id == list[position].id }?.also { it.id = null }
                     getBookInfoDao().delete(list[position])
                     updateListAction?.invoke()
                 }
@@ -242,20 +240,17 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         val layout: View = inflate(R.layout.layout_edit_bookinfo)
         val etTitle = layout.findViewById<EditText>(R.id.et_title)
         val etAuthor = layout.findViewById<EditText>(R.id.et_author)
-        if (info != null) {
-            etTitle.setText(info.title)
-            etAuthor.setText(info.author)
+        info?.apply {
+            etTitle.setText(this.title)
+            etAuthor.setText(this.author)
         }
         AlertDialog.Builder(this).setTitle("${if (info == null) "Add" else "Edit"} Book Info").setView(layout).setPositiveButton(R.string.dialog_confirm) { _, _ ->
             val title = etTitle.text.toString()
             val author = etAuthor.text.toString()
-            if (info != null) {
+            callback(info?.also {
                 info.author = author
                 info.title = title
-                callback(info)
-            } else {
-                callback(BookInfo(null, title, author))
-            }
+            } ?: BookInfo(null, title, author))
         }.setNegativeButton(R.string.dialog_cancel) { _, _ -> }.show()
     }
 
@@ -268,14 +263,8 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     private fun getBookInfoDao(): BookInfoDao = AppDatabase.getInstance().bookInfoDao()
     private fun getBookInfoList(): List<BookInfo> = getBookInfoDao().getAll()
     private fun getLastBookInfo(): BookInfo? {
-        var info = getBookInfoDao().getBookInfoById(getLastBookInfoId())
-        if (info == null) {
-            val list = getBookInfoList()
-            if (list.isNotEmpty()) {
-                info = list[0]
-            }
-        }
-        return info
+        return getBookInfoDao().getBookInfoById(getLastBookInfoId())
+                ?: getBookInfoList().elementAtOrNull(0)
     }
 
     private fun getLastBookInfoId(): Long {
@@ -283,7 +272,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun setLastBookInfoId(id: Long?) {
-        getSp().edit().putLong("last_book_id", id ?: 0).apply()
+        getSp().edit { putLong("last_book_id", id ?: 0) }
     }
 }
 
@@ -303,7 +292,5 @@ private fun getDateStr(): String {
 }
 
 fun getIntent(context: Context, content: String): Intent {
-    val intent = Intent(context, EditActivity::class.java)
-    intent.putExtra("content", content)
-    return intent
+    return Intent(context, EditActivity::class.java).apply { this.putExtra("content", content) }
 }

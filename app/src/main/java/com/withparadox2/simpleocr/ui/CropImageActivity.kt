@@ -82,12 +82,10 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
 
             override fun onResponse(call: Call<OcrResult>?, response: Response<OcrResult>?) {
                 progressBar.visibility = View.GONE
-                val text: String? = parseText(response?.body()?.resultList)
-                if (text != null) {
-                    mOcrText = text
-                    startActivity(com.withparadox2.simpleocr.ui.edit.getIntent(this@CropImageActivity, text))
-                } else {
-                    toast("fail")
+
+                parseText(response?.body()?.resultList).also {
+                    mOcrText = it
+                    startActivity(com.withparadox2.simpleocr.ui.edit.getIntent(this@CropImageActivity, it))
                 }
             }
         })
