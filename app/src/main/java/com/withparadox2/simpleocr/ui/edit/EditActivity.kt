@@ -237,7 +237,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         }
         listView.adapter = adapter
 
-        val dialog = AlertDialog.Builder(this).setView(layout).show()
+        val dialog = AlertDialog.Builder(this).setTitle("Manage Book").setView(layout).show()
 
         dismissDialogAction = Runnable {
             if (dialog.isShowing) dialog.dismiss()

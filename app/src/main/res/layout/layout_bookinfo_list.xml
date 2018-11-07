@@ -12,8 +12,8 @@
     </ListView>
     <Button
         android:id="@+id/btn_add"
-        android:text="ADD"
-        android:background="@drawable/bg_btn_bar_dark"
+        android:text="@string/add_new_book"
+        android:background="@drawable/bg_btn_bar_light"
         android:minHeight="40dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
