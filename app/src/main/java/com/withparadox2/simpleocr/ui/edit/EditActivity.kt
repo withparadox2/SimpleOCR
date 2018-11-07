@@ -174,8 +174,8 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         var list = getBookInfoList()
         val layout = LayoutInflater.from(this).inflate(R.layout.layout_bookinfo_list, null)
 
-        var updateListAction: Runnable? = null
-        var dismissDialogAction: Runnable? = null
+        var updateListAction: (() -> Unit)? = null
+        var dismissDialogAction: (() -> Unit)? = null
 
         val adapter = object : BaseAdapter() {
             @SuppressLint("SetTextI18n")
@@ -186,7 +186,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 cv.findViewById<View>(R.id.btn_edit).setOnClickListener {
                     showEditBookInfoDialog(list[position]) { bookInfo ->
                         getBookInfoDao().update(bookInfo)
-                        updateListAction?.run()
+                        updateListAction?.invoke()
                     }
                 }
                 cv.findViewById<View>(R.id.btn_del).setOnClickListener {
@@ -195,7 +195,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                         bookInfo?.id = null
                     }
                     getBookInfoDao().delete(list[position])
-                    updateListAction?.run()
+                    updateListAction?.invoke()
                 }
                 return cv
             }
@@ -213,7 +213,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             }
         }
 
-        updateListAction = Runnable {
+        updateListAction = {
             list = getBookInfoList()
             adapter.notifyDataSetChanged()
         }
@@ -221,19 +221,19 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         layout.findViewById<View>(R.id.btn_add).setOnClickListener {
             showEditBookInfoDialog(null) { bookInfo ->
                 getBookInfoDao().insert(bookInfo)
-                updateListAction.run()
+                updateListAction.invoke()
             }
         }
         val listView = layout.findViewById<ListView>(R.id.lv_bookinfo)
         listView.setOnItemClickListener { adapterView, view, i, l ->
             setBookInfoView(list[i])
-            dismissDialogAction?.run()
+            dismissDialogAction?.invoke()
         }
         listView.adapter = adapter
 
         val dialog = AlertDialog.Builder(this).setTitle("Manage Book").setView(layout).show()
 
-        dismissDialogAction = Runnable {
+        dismissDialogAction = {
             if (dialog.isShowing) dialog.dismiss()
         }
     }
