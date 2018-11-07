@@ -10,12 +10,7 @@ import android.os.Environment
 import androidx.core.content.FileProvider
 import android.widget.Toast
 import com.withparadox2.simpleocr.App
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileInputStream
 
 /**
  * Created by withparadox2 on 2018/3/15.
@@ -46,11 +41,6 @@ fun buildUri(context: Context, file: File, intent: Intent?): Uri {
 
 fun toast(text: String?) = Toast.makeText(App.instance, text, Toast.LENGTH_SHORT).show()
 
-fun File.readBytes(): ByteArray {
-    val ifs = FileInputStream(this)
-    return ifs.readBytes()
-}
-
 fun dp2px(dip: Int, context: Context = App.instance): Int {
     val scale = context.resources.displayMetrics.density
     return (dip * scale + 0.5f).toInt()
@@ -71,5 +61,3 @@ fun saveSpString(key: String, value: String) {
 fun getSpString(key: String, defaultValue: String): String {
     return getSp().getString(key, defaultValue)!!
 }
-
-fun CoroutineScope.launchUI(blockParam: suspend CoroutineScope.() -> Unit) = GlobalScope.launch(Dispatchers.Main, block = blockParam)
