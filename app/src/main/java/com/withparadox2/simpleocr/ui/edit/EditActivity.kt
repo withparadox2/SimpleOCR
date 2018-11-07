@@ -32,7 +32,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class EditActivity : BaseActivity(), View.OnClickListener {
-    private val tvTitle : TextView by bind(R.id.tv_title)
+    private val tvTitle: TextView by bind(R.id.tv_title)
     private val tvAuthor: TextView by bind(R.id.tv_author)
     private val etContent: EditText by bind(R.id.et_content)
     private val tvDate: TextView by bind(R.id.tv_date)
@@ -180,13 +180,12 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         val adapter = object : BaseAdapter() {
             @SuppressLint("SetTextI18n")
             override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-                val cv = convertView
-                        ?: LayoutInflater.from(this@EditActivity).inflate(R.layout.item_book_info, parent, false)
+                val cv = convertView ?: inflate(R.layout.item_book_info, parent)
                 (cv.findViewById(R.id.tv_title) as TextView).text = list[position].title
                 (cv.findViewById(R.id.tv_author) as TextView).text = list[position].author
                 cv.findViewById<View>(R.id.btn_edit).setOnClickListener {
                     showEditBookInfoDialog(list[position]) { bookInfo ->
-                        AppDatabase.getInstance().bookInfoDao().update(bookInfo)
+                        getBookInfoDao().update(bookInfo)
                         updateListAction?.run()
                     }
                 }
@@ -195,7 +194,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                     if (bookInfo?.id == list[position].id) {
                         bookInfo?.id = null
                     }
-                    AppDatabase.getInstance().bookInfoDao().delete(list[position])
+                    getBookInfoDao().delete(list[position])
                     updateListAction?.run()
                 }
                 return cv
@@ -221,7 +220,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
         layout.findViewById<View>(R.id.btn_add).setOnClickListener {
             showEditBookInfoDialog(null) { bookInfo ->
-                AppDatabase.getInstance().bookInfoDao().insert(bookInfo)
+                getBookInfoDao().insert(bookInfo)
                 updateListAction.run()
             }
         }
@@ -240,7 +239,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun showEditBookInfoDialog(info: BookInfo?, callback: (BookInfo) -> Unit) {
-        val layout = LayoutInflater.from(this).inflate(R.layout.layout_edit_bookinfo, null)
+        val layout: View = inflate(R.layout.layout_edit_bookinfo)
         val etTitle = layout.findViewById<EditText>(R.id.et_title)
         val etAuthor = layout.findViewById<EditText>(R.id.et_author)
         if (info != null) {

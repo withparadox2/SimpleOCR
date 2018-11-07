@@ -1,7 +1,9 @@
 package com.withparadox2.simpleocr.util
 
 import android.app.Activity
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -29,4 +31,9 @@ fun <T : View> View.bind(id: Int): Lazy<T> {
 
 fun <T> unsafeLazy(init: () -> T): Lazy<T> {
     return lazy(LazyThreadSafetyMode.NONE, init)
+}
+
+fun <T : View> Activity.inflate(id: Int, parent: ViewGroup? = null): T {
+    @Suppress("UNCHECKED_CAST")
+    return LayoutInflater.from(this).inflate(id, parent, false) as T
 }
