@@ -78,6 +78,7 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
         OcrService.requestOcr(image, object : Callback<OcrResult> {
             override fun onFailure(call: Call<OcrResult>?, t: Throwable?) {
                 progressBar.visibility = View.GONE
+                toast("Ocr error")
             }
 
             override fun onResponse(call: Call<OcrResult>?, response: Response<OcrResult>?) {
