@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Camera
 import android.graphics.Path
 import android.net.Uri
 import android.os.Bundle
@@ -25,7 +24,6 @@ import com.withparadox2.simpleocr.support.store.AppDatabase
 import com.withparadox2.simpleocr.support.store.BookInfo
 import com.withparadox2.simpleocr.support.store.BookInfoDao
 import com.withparadox2.simpleocr.ui.BaseActivity
-import com.withparadox2.simpleocr.ui.CameraActivity
 import com.withparadox2.simpleocr.ui.getCameraIntent
 import com.withparadox2.simpleocr.util.*
 import kotlinx.coroutines.Dispatchers
@@ -37,7 +35,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 private const val REQUEST_MORE_TEXT = 1
+private const val KEY_INTENT_CONTENT = "content"
 
+@SuppressLint("SetTextI18n")
 class EditActivity : BaseActivity(), View.OnClickListener {
     private val tvTitle: TextView by bind(R.id.tv_title)
     private val tvAuthor: TextView by bind(R.id.tv_author)
@@ -57,7 +57,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         tvTitle.setOnClickListener(this)
         tvAuthor.setOnClickListener(this)
 
-        val rawContent = intent.getStringExtra("content")
+        val rawContent = intent.getStringExtra(KEY_INTENT_CONTENT)
         etContent.setText(rawContent)
 
         tvDate.text = getDateStr()
@@ -152,9 +152,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun createRoundedPath(width: Float, height: Float, radius: Float): Path {
-        val path = Path()
-        path.addRoundRect(0f, 0f, width, height, radius, radius, Path.Direction.CCW)
-        return path
+        return Path().apply { addRoundRect(0f, 0f, width, height, radius, radius, Path.Direction.CCW) }
     }
 
     private fun showEditDialog() {
@@ -287,14 +285,29 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         getSp().edit { putLong("last_book_id", id ?: 0) }
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_MORE_TEXT && resultCode == Activity.RESULT_OK) {
             val text = data?.getStringExtra("data") ?: ""
-            etContent.setText(etContent.text.toString() + text)
+            showInsertDialog(text)
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
+    }
+
+    private fun showInsertDialog(text: String) {
+        AlertDialog.Builder(this).setTitle("Insert where?").setItems(arrayOf("Begin", "Cursor", "End")) { _, i ->
+            when (i) {
+                0 -> etContent.setText(text + etContent.text)
+                1 -> {
+                    val selection = etContent.selectionStart
+                    etContent.setText(etContent.text.toString().let {
+                        it.subSequence(0, selection).toString() + text + it.subSequence(selection, it.length - 1)
+                    })
+                    etContent.setSelection(selection)
+                }
+                2 -> etContent.setText(etContent.text.toString() + text)
+            }
+        }.show()
     }
 }
 
@@ -314,5 +327,5 @@ private fun getDateStr(): String {
 }
 
 fun getIntent(context: Context, content: String): Intent {
-    return Intent(context, EditActivity::class.java).apply { this.putExtra("content", content) }
+    return Intent(context, EditActivity::class.java).apply { putExtra(KEY_INTENT_CONTENT, content) }
 }
