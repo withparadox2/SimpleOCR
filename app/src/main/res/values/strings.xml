@@ -24,4 +24,6 @@
     <string name="dialog_confirm">OK</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="add_new_book">Add new book</string>
+    <string name="btn_edit_content">Aa</string>
+    <string name="btn_edit_more">More</string>
 </resources>

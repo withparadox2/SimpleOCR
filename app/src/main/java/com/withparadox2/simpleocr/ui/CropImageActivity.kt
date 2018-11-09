@@ -1,5 +1,7 @@
 package com.withparadox2.simpleocr.ui
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Base64
@@ -85,8 +87,8 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
                 progressBar.visibility = View.GONE
 
                 parseText(response?.body()?.resultList).also {
-                    mOcrText = it
-                    startActivity(com.withparadox2.simpleocr.ui.edit.getIntent(this@CropImageActivity, it))
+                    setResult(Activity.RESULT_OK, Intent().putExtra("data", it))
+                    finish()
                 }
             }
         })

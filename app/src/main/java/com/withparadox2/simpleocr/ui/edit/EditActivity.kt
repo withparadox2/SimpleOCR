@@ -1,9 +1,11 @@
 package com.withparadox2.simpleocr.ui.edit
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Camera
 import android.graphics.Path
 import android.net.Uri
 import android.os.Bundle
@@ -23,6 +25,8 @@ import com.withparadox2.simpleocr.support.store.AppDatabase
 import com.withparadox2.simpleocr.support.store.BookInfo
 import com.withparadox2.simpleocr.support.store.BookInfoDao
 import com.withparadox2.simpleocr.ui.BaseActivity
+import com.withparadox2.simpleocr.ui.CameraActivity
+import com.withparadox2.simpleocr.ui.getCameraIntent
 import com.withparadox2.simpleocr.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -32,12 +36,15 @@ import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
+private const val REQUEST_MORE_TEXT = 1
+
 class EditActivity : BaseActivity(), View.OnClickListener {
     private val tvTitle: TextView by bind(R.id.tv_title)
     private val tvAuthor: TextView by bind(R.id.tv_author)
     private val etContent: EditText by bind(R.id.et_content)
     private val tvDate: TextView by bind(R.id.tv_date)
     private val btnEdit: View by bind(R.id.btn_edit_content)
+    private val btnMore: View by bind(R.id.btn_edit_more)
 
     private lateinit var mContentEditor: Editor
     private var mBookInfo: BookInfo? = null
@@ -46,7 +53,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit)
         btnEdit.setOnClickListener(this)
-
+        btnMore.setOnClickListener(this)
         tvTitle.setOnClickListener(this)
         tvAuthor.setOnClickListener(this)
 
@@ -100,6 +107,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     private suspend fun share() {
         btnEdit.visibility = View.INVISIBLE
+        btnMore.visibility = View.INVISIBLE
         etContent.isCursorVisible = false
         val filePath = getBasePath() + "share_${System.currentTimeMillis()}.png"
 
@@ -115,6 +123,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         }
 
         btnEdit.visibility = View.VISIBLE
+        btnMore.visibility = View.VISIBLE
         etContent.isCursorVisible = true
     }
 
@@ -167,6 +176,9 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         when (v.id) {
             R.id.btn_edit_content -> showEditDialog()
             R.id.tv_title, R.id.tv_author -> showBookInfoDialog()
+            R.id.btn_edit_more -> {
+                startActivityForResult(getCameraIntent(this), REQUEST_MORE_TEXT)
+            }
         }
     }
 
@@ -273,6 +285,16 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     private fun setLastBookInfoId(id: Long?) {
         getSp().edit { putLong("last_book_id", id ?: 0) }
+    }
+
+    @SuppressLint("SetTextI18n")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_MORE_TEXT && resultCode == Activity.RESULT_OK) {
+            val text = data?.getStringExtra("data") ?: ""
+            etContent.setText(etContent.text.toString() + text)
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
     }
 }
 

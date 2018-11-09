@@ -86,7 +86,21 @@
                 android:layout_alignTop="@id/et_content"
                 android:layout_marginTop="-40dp"
                 android:gravity="end|center_vertical"
-                android:text="Aa"
+                android:text="@string/btn_edit_content"
+                android:textColor="@color/edit_light"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btn_edit_more"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_toStartOf="@id/btn_edit_content"
+                android:layout_alignTop="@id/et_content"
+                android:layout_marginTop="-40dp"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:text="@string/btn_edit_more"
                 android:textColor="@color/edit_light"
                 android:textSize="18sp"
                 android:textStyle="bold" />
