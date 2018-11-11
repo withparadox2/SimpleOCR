@@ -4,8 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Path
+import android.graphics.*
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -129,23 +128,45 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     private suspend fun doExport(filePath: String): Boolean {
         return GlobalScope.async(Dispatchers.IO) {
-            var bitmap: Bitmap? = null
-            var outputStream: FileOutputStream? = null
-            try {
-                val view: View = findViewById(R.id.layout_container)
-                bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-                bitmap.applyCanvas {
-                    clipPath(createRoundedPath(view.width.toFloat(), view.height.toFloat(), dp2px(8).toFloat()))
-                    view.draw(this)
-                }
+            var outOfMemoryErrorTimes = 0
+            val renderAndOutput = { antiAlias: Boolean ->
+                var bitmap: Bitmap? = null
+                var bitmap2: Bitmap? = null
+                var outputStream: FileOutputStream? = null
+                val radius = dp2px(8).toFloat()
+                try {
+                    val view: View = findViewById(R.id.layout_container)
+                    bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+                    bitmap.applyCanvas {
+                        if (!antiAlias) {
+                            clipPath(createRoundedPath(view.width.toFloat(), view.height.toFloat(), radius))
+                        }
+                        view.draw(this)
+                    }
 
-                outputStream = FileOutputStream(filePath)
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                closeQuietly(outputStream)
-                bitmap?.recycle()
+                    if (antiAlias) {
+                        val paint = Paint(Paint.ANTI_ALIAS_FLAG).also {
+                            it.shader = BitmapShader(bitmap!!, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
+                        }
+                        bitmap2 = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+                        bitmap2.applyCanvas { drawRoundRect(0f, 0f, view.width.toFloat(), view.height.toFloat(), radius, radius, paint) }
+                    }
+
+                    outputStream = FileOutputStream(filePath)
+                    (if (antiAlias) bitmap2 else bitmap)?.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } catch (e: OutOfMemoryError) {
+                    outOfMemoryErrorTimes++
+                } finally {
+                    closeQuietly(outputStream)
+                    bitmap?.recycle()
+                }
+            }
+            renderAndOutput(true)
+            if (outOfMemoryErrorTimes == 1) {
+                System.gc()
+                renderAndOutput(false)
             }
             File(filePath).exists()
         }.await()
