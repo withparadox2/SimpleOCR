@@ -23,10 +23,12 @@ import kotlinx.coroutines.GlobalScope
  * Created by withparadox2 on 2018/5/20.
  */
 private const val REQUEST_CROP = 1
+private const val REQUEST_SELECT_PICTURE = 2
 
 class CameraActivity : BaseActivity(), View.OnClickListener {
     private val mBtnShutter: ShutterButton by bind(R.id.btn_shutter)
     private val mBtnFlash: FlashSwitch by bind(R.id.btn_flash_switch)
+    private val mBtnPhoto: View by bind(R.id.btn_photo)
 
     private lateinit var mCameraView: CameraView
     /**
@@ -54,6 +56,7 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
         val container = findViewById<ViewGroup>(R.id.layout_container)
         container.addView(mCameraView, 0)
         mBtnShutter.setOnClickListener(this)
+        mBtnPhoto.setOnClickListener(this)
 
         PermissionManager.instance.requestPermission(this, object : PermissionManager.PermissionCallback {
             override fun onDenied() {
@@ -73,10 +76,15 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
                 CameraController.instance.getCamera()?.takePicture(null, null, Camera.PictureCallback { data, _ ->
                     GlobalScope.launchUI {
                         if (writeToFile(data, getTempBitmapPath())) {
-                            startActivityForResult(Intent(this@CameraActivity, CropImageActivity::class.java), REQUEST_CROP)
+                            startActivityForResult(getCropIntent(this@CameraActivity), REQUEST_CROP)
                         }
                     }
                 })
+            }
+            R.id.btn_photo -> {
+                startActivityForResult(Intent.createChooser(Intent(Intent.ACTION_GET_CONTENT).apply {
+                    type = "image/*"
+                }, "Select Picture"), REQUEST_SELECT_PICTURE)
             }
         }
     }
@@ -92,17 +100,27 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_CROP && resultCode == Activity.RESULT_OK) {
-            val text = data?.getStringExtra("data") ?: ""
-            if (mRequestOcr) {
-                setResult(Activity.RESULT_OK, Intent().putExtra("data", text))
-                finish()
-            } else {
-                startActivity(com.withparadox2.simpleocr.ui.edit.getIntent(this, text))
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                REQUEST_CROP -> {
+                    val text = data?.getStringExtra("data") ?: ""
+                    if (mRequestOcr) {
+                        setResult(Activity.RESULT_OK, Intent().putExtra("data", text))
+                        finish()
+                    } else {
+                        startActivity(com.withparadox2.simpleocr.ui.edit.getIntent(this, text))
+                    }
+                }
+                REQUEST_SELECT_PICTURE -> {
+                    data?.data?.also { it ->
+                        decodePathFromUri(this, it)?.also {
+                            startActivityForResult(getCropIntent(this, it), REQUEST_CROP)
+                        }
+                    }
+                }
             }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data)
         }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 }
 

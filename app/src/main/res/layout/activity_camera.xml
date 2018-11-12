@@ -13,9 +13,17 @@
 
     <com.withparadox2.simpleocr.support.view.FlashSwitch
         android:id="@+id/btn_flash_switch"
-        android:layout_gravity="center|bottom"
-        android:layout_marginRight="96dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom"
+        android:layout_marginRight="96dp" />
+
+    <Button
+        android:id="@+id/btn_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:layout_marginBottom="20dp"
+        android:text="Photo" />
 
 </FrameLayout>

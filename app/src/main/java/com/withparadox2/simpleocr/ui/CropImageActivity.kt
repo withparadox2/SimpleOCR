@@ -1,6 +1,7 @@
 package com.withparadox2.simpleocr.ui
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -30,8 +31,6 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
     private val progressBar: ProgressBar by bind(R.id.progressbar)
     private val btnOcr: View by bind(R.id.btn_ocr)
 
-    private var mOcrText: String? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_crop_image)
@@ -39,7 +38,8 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
         btnOcr.setOnClickListener(this)
         findViewById<View>(R.id.btn_cancel).setOnClickListener(this)
 
-        mFilePath = getTempBitmapPath()
+        val requestPath = intent.getStringExtra("path")
+        mFilePath = requestPath ?: getTempBitmapPath()
         mOcrPath = "${getBasePath()}$PHOTO_OCR_NAME"
         showPhotoIfExist()
     }
@@ -92,5 +92,11 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
                 }
             }
         })
+    }
+}
+
+fun getCropIntent(context: Context, path: String? = null): Intent {
+    return Intent(context, CropImageActivity::class.java).apply {
+        putExtra("path", path)
     }
 }
