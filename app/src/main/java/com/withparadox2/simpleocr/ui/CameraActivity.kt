@@ -16,6 +16,7 @@ import com.withparadox2.simpleocr.support.camera.CameraView
 import com.withparadox2.simpleocr.support.permission.PermissionManager
 import com.withparadox2.simpleocr.support.view.FlashSwitch
 import com.withparadox2.simpleocr.support.view.ShutterButton
+import com.withparadox2.simpleocr.ui.edit.getEditIntent
 import com.withparadox2.simpleocr.util.*
 import kotlinx.coroutines.GlobalScope
 
@@ -108,7 +109,7 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
                         setResult(Activity.RESULT_OK, Intent().putExtra("data", text))
                         finish()
                     } else {
-                        startActivity(com.withparadox2.simpleocr.ui.edit.getIntent(this, text))
+                        startActivity(getEditIntent(this, text))
                     }
                 }
                 REQUEST_SELECT_PICTURE -> {

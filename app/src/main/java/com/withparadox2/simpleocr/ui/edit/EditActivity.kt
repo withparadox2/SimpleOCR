@@ -347,6 +347,6 @@ private fun getDateStr(): String {
     }
 }
 
-fun getIntent(context: Context, content: String): Intent {
+fun getEditIntent(context: Context, content: String): Intent {
     return Intent(context, EditActivity::class.java).apply { putExtra(KEY_INTENT_CONTENT, content) }
 }
