@@ -46,6 +46,11 @@ fun dp2px(dip: Int, context: Context = App.instance): Int {
     return (dip * scale + 0.5f).toInt()
 }
 
+fun dp2px(dip: Float, context: Context = App.instance): Float {
+    val scale = context.resources.displayMetrics.density
+    return (dip * scale + 0.5f)
+}
+
 fun executeAsync(action: Runnable) {
     AsyncTask.THREAD_POOL_EXECUTOR.execute(action)
 }
