@@ -1,53 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/black">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
         <com.withparadox2.simpleocr.support.view.CropImageView
             android:id="@+id/iv_photo"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:padding="10dp"
             android:background="@color/black"
+            android:padding="10dp"
             android:scaleType="matrix" />
 
         <com.withparadox2.simpleocr.support.view.CropRotationWheel
             android:layout_width="match_parent"
-            android:layout_height="70dp" />
+            android:layout_height="45dp"
+            android:layout_marginBottom="10dp" />
+
         <FrameLayout
-            android:background="@color/black"
-            android:layout_gravity="bottom"
             android:layout_width="match_parent"
-            android:layout_height="50dp">
+            android:layout_height="50dp"
+            android:layout_gravity="bottom">
+
             <TextView
                 android:id="@+id/btn_cancel"
-                android:textColor="@color/white"
                 android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:background="@drawable/bg_btn_bar_dark"
+                android:gravity="center"
+                android:minWidth="60dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:minWidth="60dp"
-                android:gravity="center"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_btn_bar_dark"
-                android:layout_gravity="start"
-                android:text="@string/cancel" />
+                android:text="@string/cancel"
+                android:textColor="@color/white" />
+
             <TextView
                 android:id="@+id/btn_ocr"
-                android:textColor="@color/colorAccent"
                 android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/bg_btn_bar_dark"
+                android:gravity="center"
+                android:minWidth="100dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:minWidth="100dp"
-                android:gravity="center"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_btn_bar_dark"
-                android:layout_gravity="center_horizontal"
-                android:text="@string/ocr" />
+                android:text="@string/ocr"
+                android:textColor="@color/colorAccent" />
         </FrameLayout>
     </LinearLayout>
 
