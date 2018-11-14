@@ -5,11 +5,13 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.util.dp2px
+
 
 /**
  * Created by withparadox2 on 2018/5/15.
@@ -24,6 +26,17 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     private val mPaint: Paint = Paint()
     private val mCropRect = RectF()
     private var mRectTemp = RectF()
+
+    // The limitation for crop-rect calculated by view-bounds minus padding, bitmap can draw beyond
+    // this bounds while user rotating, scaling or translating the image
+    private val mDefaultRect = RectF()
+
+    // The initial image matrix that make bitmap be filled in bounds defined by mDefaultRect, and it
+    // is used to help to return back after manipulating the image
+    private val mInitMatrix = Matrix()
+
+    private val mAddMatrix = Matrix()
+
     private val mDotRadius: Float = dp2px(10, context).toFloat()
     private var mTouchIndex = BAR_UNDEFINED
     private var mLastTouchX: Float = 0f
@@ -39,6 +52,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     private val mLineAnimator = ObjectAnimator.ofFloat(this, "animateLineRatio", 1.0f, 0.0f).setDuration(500)
 
     private var mAnimateGridRatio = 0.0f
+
 
     init {
         mPaint.color = Color.WHITE
@@ -69,6 +83,8 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         matrix.setScale(scale, scale)
         matrix.postTranslate(tx, ty)
 
+        mInitMatrix.set(matrix)
+
         imageMatrix = matrix
 
         mBitmapScale = scale
@@ -97,7 +113,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
 
                 if (mTouchIndex != 0) {
                     mAnimateLineIndex = mTouchIndex
-                    if(mLineAnimator.isRunning) {
+                    if (mLineAnimator.isRunning) {
                         mLineAnimator.cancel()
                     }
                     mLineAnimator.start()
@@ -273,4 +289,36 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                 (mCropRect.height() / mBitmapScale).toInt()
         )
     }
+
+    private val mTempMatrixValues: FloatArray = FloatArray(9)
+
+    fun rotate(rotation: Float) {
+        val v = mTempMatrixValues
+        mInitMatrix.getValues(v)
+
+        val rotateX = mCropRect.centerX() - v[Matrix.MTRANS_X]
+        val rotateY = mCropRect.centerY() - v[Matrix.MTRANS_Y]
+
+        // 先旋转、缩放，然后再平移
+        imageMatrix.getValues(v)
+        val scaleX = v[Matrix.MSCALE_X]
+        val scaleY = v[Matrix.MSCALE_Y]
+        val skewY = v[Matrix.MSKEW_Y]
+        val skewX = v[Matrix.MSKEW_X]
+        val angle = (Math.atan2(skewX.toDouble(), scaleX.toDouble()) * (180 / Math.PI)).toFloat()
+
+        val scale = Math.sqrt((scaleX * scaleX + skewY * skewY).toDouble()).toFloat()
+        val tx = v[Matrix.MTRANS_X]
+        val ty = v[Matrix.MTRANS_Y]
+
+
+        Log.d("degree", "tx = $tx ty = $ty angle = $angle rotation =  $rotation")
+        imageMatrix.postRotate(rotation + angle, rotateX, rotateY)
+        invalidate()
+    }
+
+    fun testMatrix() {
+
+    }
+
 }

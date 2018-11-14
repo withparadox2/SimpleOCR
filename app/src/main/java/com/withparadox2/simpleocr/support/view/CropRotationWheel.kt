@@ -39,12 +39,18 @@ class CropRotationWheel(context: Context, attributeSet: AttributeSet) : FrameLay
 
     private val tempRect = RectF()
 
+    private var callback: Callback? = null
+
     init {
         addView(degreeLabel, LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
             gravity = Gravity.CENTER or Gravity.TOP
         })
         setWillNotDraw(false)
         setRotateDegree(0f)
+    }
+
+    fun setCallback(callback: Callback) {
+        this.callback = callback
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -132,6 +138,15 @@ class CropRotationWheel(context: Context, attributeSet: AttributeSet) : FrameLay
         if (Math.abs(value) < 0.1 - 0.001)
             value = Math.abs(value)
         degreeLabel.text = String.format("%.1fº", value)
+        callback?.onRotationChanged(degree)
         invalidate()
+    }
+
+    fun reset() {
+        setRotateDegree(0f)
+    }
+
+    interface Callback {
+        fun onRotationChanged(degree: Float)
     }
 }

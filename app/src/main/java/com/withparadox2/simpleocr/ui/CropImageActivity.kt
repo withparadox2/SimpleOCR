@@ -14,6 +14,7 @@ import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.net.OcrResult
 import com.withparadox2.simpleocr.support.net.OcrService
 import com.withparadox2.simpleocr.support.view.CropImageView
+import com.withparadox2.simpleocr.support.view.CropRotationWheel
 import com.withparadox2.simpleocr.util.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -30,6 +31,7 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
     private val ivPhoto: CropImageView by bind(R.id.iv_photo)
     private val progressBar: ProgressBar by bind(R.id.progressbar)
     private val btnOcr: View by bind(R.id.btn_ocr)
+    private val rotationWheel: CropRotationWheel by bind(R.id.layout_wheel)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,11 +39,17 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
 
         btnOcr.setOnClickListener(this)
         findViewById<View>(R.id.btn_cancel).setOnClickListener(this)
+        findViewById<View>(R.id.btn_reset).setOnClickListener(this)
 
         val requestPath = intent.getStringExtra("path")
         mFilePath = requestPath ?: getTempBitmapPath()
         mOcrPath = "${getBasePath()}$PHOTO_OCR_NAME"
         showPhotoIfExist()
+        rotationWheel.setCallback(object : CropRotationWheel.Callback {
+            override fun onRotationChanged(rotation: Float) {
+                ivPhoto.rotate(rotation)
+            }
+        })
     }
 
     override fun onClick(v: View?) {
@@ -53,6 +61,7 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
                 startOcr()
             }
             R.id.btn_cancel -> finish()
+            R.id.btn_reset -> rotationWheel.reset()
         }
     }
 
