@@ -68,7 +68,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         super.setImageBitmap(bitmap)
         mBitmap = bitmap
 
-        val padding = dp2px(140).toFloat()
+        val padding = dp2px(10).toFloat()
         val matrix = Matrix()
         val scale: Float
         var tx = padding
@@ -265,19 +265,6 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         mRectHandle.set(mCropRect)
         mRectHandle.inset(outlineWidth / 2 - handleWidth / 2, outlineWidth / 2 - handleWidth / 2)
         drawHandles(canvas, mRectHandle, handleWidth / 2)
-
-
-        mPaint.color = Color.CYAN
-        mPaint.strokeWidth = 1f
-        canvas.save()
-        canvas.rotate(mPreRotation, mTempRect.centerX(), mTempRect.centerY())
-        canvas.drawRect(mTempRect, mPaint)
-        canvas.restore()
-
-        mPaint.color = Color.RED
-        canvas.drawRect(mBitmapPoints[0], mBitmapPoints[1], mBitmapPoints[2], mBitmapPoints[3], mPaint)
-
-        mPaint.color = Color.WHITE
     }
 
     private fun drawHandles(canvas: Canvas, rect: RectF, halfWidth: Float) {
@@ -330,7 +317,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         val skewX = v[Matrix.MSKEW_X]
         val angle = -(Math.atan2(skewX.toDouble(), scaleX.toDouble()) * (180 / Math.PI)).toFloat()
 
-        Log.d("rotate", "angle = $angle rotation = $rotation")
+//        Log.d("rotate", "angle = $angle rotation = $rotation")
 
         mTempMatrix.set(imageMatrix)
         mTempMatrix.postRotate(-angle, rotateX, rotateY)
@@ -387,7 +374,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
             }
         }
 
-        Log.d("rotate", "rotate newScale = $newScale, mCropRect = $mCropRect, mTempRect = $mTempRect, mBitmapPoints = $mBitmapPoints")
+//        Log.d("rotate", "rotate newScale = $newScale, mCropRect = $mCropRect, mTempRect = $mTempRect, mBitmapPoints = $mBitmapPoints")
 
         if (newScale > 0.0f) {
             imageMatrix.postScale(newScale, newScale, rotateX, rotateY)
