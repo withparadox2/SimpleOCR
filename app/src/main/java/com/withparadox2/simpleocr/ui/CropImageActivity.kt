@@ -61,7 +61,10 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
                 startOcr()
             }
             R.id.btn_cancel -> finish()
-            R.id.btn_reset -> rotationWheel.reset()
+            R.id.btn_reset -> {
+                rotationWheel.reset()
+                ivPhoto.reset()
+            }
         }
     }
 
