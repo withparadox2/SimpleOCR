@@ -53,6 +53,8 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
 
     private var mAnimateGridRatio = 0.0f
 
+    private lateinit var mBitmap: Bitmap
+
 
     init {
         mPaint.color = Color.WHITE
@@ -64,20 +66,23 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
 
     override fun setImageBitmap(bitmap: Bitmap) {
         super.setImageBitmap(bitmap)
+        mBitmap = bitmap
 
+        val padding = dp2px(10).toFloat()
         val matrix = Matrix()
         val scale: Float
-        var tx = 0.0f
-        var ty = 0.0f
+        var tx = padding
+        var ty = padding
 
-        val width = measuredWidth - paddingLeft - paddingRight
-        val height = measuredHeight - paddingTop - paddingBottom
+
+        val width = measuredWidth - padding - padding
+        val height = measuredHeight - padding - padding
         if ((bitmap.width / bitmap.height.toFloat() > width / height.toFloat())) {
-            scale = width.toFloat() / bitmap.width
-            ty = (height - bitmap.height * scale) / 2
+            scale = width / bitmap.width
+            ty += (height - bitmap.height * scale) / 2
         } else {
-            scale = height.toFloat() / bitmap.height
-            tx = (width - bitmap.width * scale) / 2
+            scale = height / bitmap.height
+            tx += (width - bitmap.width * scale) / 2
         }
 
         matrix.setScale(scale, scale)
@@ -88,7 +93,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         imageMatrix = matrix
 
         mBitmapScale = scale
-        mBitmapRect.set(tx + paddingLeft, ty + paddingTop, tx + paddingLeft + bitmap.width * scale, ty + paddingTop + bitmap.height * scale)
+        mBitmapRect.set(tx, ty, tx + bitmap.width * scale, ty + bitmap.height * scale)
         mCropRect.set(mBitmapRect)
     }
 
@@ -260,6 +265,10 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         mRectHandle.set(mCropRect)
         mRectHandle.inset(outlineWidth / 2 - handleWidth / 2, outlineWidth / 2 - handleWidth / 2)
         drawHandles(canvas, mRectHandle, handleWidth / 2)
+
+        mPaint.color = Color.CYAN
+        canvas.drawCircle(mBitmapPoints[2], mBitmapPoints[3], 20f, mPaint)
+        canvas.drawCircle(mBitmapPoints[0], mBitmapPoints[1], 20f, mPaint)
     }
 
     private fun drawHandles(canvas: Canvas, rect: RectF, halfWidth: Float) {
@@ -291,34 +300,70 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     }
 
     private val mTempMatrixValues: FloatArray = FloatArray(9)
+    private var mPreRotation = 0.0f
 
+    private val mBitmapPoints = FloatArray(4)
+    private val mTempRect = RectF()
+
+    private val mTempMatrix = Matrix()
     fun rotate(rotation: Float) {
         val v = mTempMatrixValues
         mInitMatrix.getValues(v)
 
-        val rotateX = mCropRect.centerX() - v[Matrix.MTRANS_X]
-        val rotateY = mCropRect.centerY() - v[Matrix.MTRANS_Y]
+        val rotateX = mCropRect.centerX()
+        val rotateY = mCropRect.centerY()
 
-        // 先旋转、缩放，然后再平移
+        imageMatrix.postRotate(rotation - mPreRotation, rotateX, rotateY)
+        mPreRotation = rotation
+
         imageMatrix.getValues(v)
         val scaleX = v[Matrix.MSCALE_X]
-        val scaleY = v[Matrix.MSCALE_Y]
-        val skewY = v[Matrix.MSKEW_Y]
         val skewX = v[Matrix.MSKEW_X]
-        val angle = (Math.atan2(skewX.toDouble(), scaleX.toDouble()) * (180 / Math.PI)).toFloat()
+        val angle = -(Math.atan2(skewX.toDouble(), scaleX.toDouble()) * (180 / Math.PI)).toFloat()
 
-        val scale = Math.sqrt((scaleX * scaleX + skewY * skewY).toDouble()).toFloat()
-        val tx = v[Matrix.MTRANS_X]
-        val ty = v[Matrix.MTRANS_Y]
+        Log.d("rotate", "angle = $angle rotation = $rotation")
 
+        mTempMatrix.set(imageMatrix)
+        mTempMatrix.postRotate(-angle, rotateX, rotateY)
 
-        Log.d("degree", "tx = $tx ty = $ty angle = $angle rotation =  $rotation")
-        imageMatrix.postRotate(rotation + angle, rotateX, rotateY)
+        mBitmapPoints[0] = 0f
+        mBitmapPoints[1] = 0f
+        mBitmapPoints[2] = mBitmap.width.toFloat()
+        mBitmapPoints[3] = mBitmap.height.toFloat()
+        mTempMatrix.mapPoints(mBitmapPoints)
+
+        mTempRect.set(mCropRect)
+
+        val beta = Math.atan2(mTempRect.height().toDouble(), mTempRect.width().toDouble())
+        val alpha = Math.abs(Math.toRadians(rotation.toDouble()))
+        val length = Math.sqrt((mCropRect.width() * mCropRect.width() + mCropRect.height() * mCropRect.height()).toDouble()) / 2
+        val halfWidth = length * Math.cos(beta - alpha)
+        val halfHeight = length * Math.cos(Math.PI / 2 - beta - alpha)
+
+        mTempRect.inset((-(halfWidth - mTempRect.width() / 2)).toFloat(), (-(halfHeight - mTempRect.height() / 2)).toFloat())
+
+        var newScale = 0.0f
+
+        if (mBitmapPoints[0] - mTempRect.left > 0) {
+            newScale = mTempRect.width() * 0.5f / (mTempRect.centerX() - mBitmapPoints[0])
+        }
+
+        if (mTempRect.right - mBitmapPoints[2] > 0) {
+            newScale = Math.max(mTempRect.width() * 0.5f / (mBitmapPoints[2] - mTempRect.centerX()), newScale)
+        }
+
+        if (mBitmapPoints[1] - mTempRect.top > 0) {
+            newScale = Math.max(mTempRect.height() * 0.5f / (mTempRect.centerY() - mBitmapPoints[1]), newScale)
+        }
+
+        if (mTempRect.bottom - mBitmapPoints[3] > 0) {
+            newScale = Math.max(mTempRect.width() * 0.5f / (mBitmapPoints[3] - mTempRect.centerX()), newScale)
+        }
+
+        if (newScale != 0.0f) {
+            imageMatrix.postScale(newScale, newScale, rotateX, rotateY)
+        }
+
         invalidate()
     }
-
-    fun testMatrix() {
-
-    }
-
 }

@@ -15,7 +15,6 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:background="@color/black"
-            android:padding="10dp"
             android:scaleType="matrix" />
 
         <com.withparadox2.simpleocr.support.view.CropRotationWheel
