@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
@@ -329,52 +328,23 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
 
         val beta = Math.atan2(mTempRect.height().toDouble(), mTempRect.width().toDouble())
         val alpha = Math.abs(Math.toRadians(rotation.toDouble()))
-        val length = Math.sqrt((mCropRect.width() * mCropRect.width() + mCropRect.height() * mCropRect.height()).toDouble()) / 2
-        val halfWidth = length * Math.cos(beta - alpha)
-        val halfHeight = length * Math.cos(Math.PI / 2 - beta - alpha)
 
-        mTempRect.inset((-(halfWidth - mTempRect.width() / 2)).toFloat(), (-(halfHeight - mTempRect.height() / 2)).toFloat())
+        val halfDiagonals = Math.sqrt((mCropRect.width() * mCropRect.width() + mCropRect.height() * mCropRect.height()).toDouble()) / 2
+        var halfWidth = (halfDiagonals * Math.cos(beta - alpha)).toFloat()
+        var halfHeight = (halfDiagonals * Math.cos(Math.PI / 2 - beta - alpha)).toFloat()
 
-        var newScale = 0.0f
+        mTempRect.inset( mTempRect.width() * 0.5f - halfWidth, mTempRect.height() * 0.5f - halfHeight)
 
-        if (mBitmapPoints[0] - mTempRect.left > 0) {
-            newScale = mTempRect.width() * 0.5f / (mTempRect.centerX() - mBitmapPoints[0])
-        }
+        halfWidth = mTempRect.width() * 0.5f
+        halfHeight = mTempRect.height() * 0.5f
 
-        if (mTempRect.right - mBitmapPoints[2] > 0) {
-            newScale = Math.max(mTempRect.width() * 0.5f / (mBitmapPoints[2] - mTempRect.centerX()), newScale)
-        }
+        var addScale = halfWidth / (mTempRect.centerX() - mBitmapPoints[0])
+        addScale = Math.max(halfWidth / (mBitmapPoints[2] - mTempRect.centerX()), addScale)
+        addScale = Math.max(halfHeight / (mTempRect.centerY() - mBitmapPoints[1]), addScale)
+        addScale = Math.max(halfHeight / (mBitmapPoints[3] - mTempRect.centerY()), addScale)
 
-        if (mBitmapPoints[1] - mTempRect.top > 0) {
-            newScale = Math.max(mTempRect.height() * 0.5f / (mTempRect.centerY() - mBitmapPoints[1]), newScale)
-        }
-
-        if (mTempRect.bottom - mBitmapPoints[3] > 0) {
-            newScale = Math.max(mTempRect.height() * 0.5f / (mBitmapPoints[3] - mTempRect.centerY()), newScale)
-        }
-
-        if (newScale == 0.0f) {
-            if (mBitmapPoints[0] - mTempRect.left < 0) {
-                newScale = mTempRect.width() * 0.5f / (mTempRect.centerX() - mBitmapPoints[0])
-            }
-
-            if (mTempRect.right - mBitmapPoints[2] < 0) {
-                newScale = Math.max(mTempRect.width() * 0.5f / (mBitmapPoints[2] - mTempRect.centerX()), newScale)
-            }
-
-            if (mBitmapPoints[1] - mTempRect.top < 0) {
-                newScale = Math.max(mTempRect.height() * 0.5f / (mTempRect.centerY() - mBitmapPoints[1]), newScale)
-            }
-
-            if (mTempRect.bottom - mBitmapPoints[3] < 0) {
-                newScale = Math.max(mTempRect.height() * 0.5f / (mBitmapPoints[3] - mTempRect.centerY()), newScale)
-            }
-        }
-
-//        Log.d("rotate", "rotate newScale = $newScale, mCropRect = $mCropRect, mTempRect = $mTempRect, mBitmapPoints = $mBitmapPoints")
-
-        if (newScale > 0.0f) {
-            imageMatrix.postScale(newScale, newScale, rotateX, rotateY)
+        if (addScale > 0.0f) {
+            imageMatrix.postScale(addScale, addScale, rotateX, rotateY)
         }
 
         invalidate()
