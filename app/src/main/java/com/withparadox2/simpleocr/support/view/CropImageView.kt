@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
+import androidx.core.graphics.applyCanvas
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.util.dp2px
 
@@ -284,15 +285,11 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     }
 
     fun getCropBitmap(): Bitmap {
-        val offTop = mCropRect.top - mBitmapRect.top
-        val offLeft = mCropRect.left - mBitmapRect.left
-
-        return Bitmap.createBitmap((drawable as BitmapDrawable).bitmap,
-                (offLeft / mBitmapScale).toInt(),
-                (offTop / mBitmapScale).toInt(),
-                (mCropRect.width() / mBitmapScale).toInt(),
-                (mCropRect.height() / mBitmapScale).toInt()
-        )
+        return Bitmap.createBitmap(mCropRect.width().toInt(), mCropRect.height().toInt(), Bitmap.Config.ARGB_8888).applyCanvas {
+            val matrix = Matrix(imageMatrix)
+            matrix.postTranslate(-mCropRect.left, -mCropRect.top)
+            drawBitmap((drawable as BitmapDrawable).bitmap, matrix, null)
+        }
     }
 
     private val mTempMatrixValues: FloatArray = FloatArray(9)
