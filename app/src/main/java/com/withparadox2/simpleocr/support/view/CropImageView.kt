@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
@@ -313,8 +314,6 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         val skewX = v[Matrix.MSKEW_X]
         val angle = -(Math.atan2(skewX.toDouble(), scaleX.toDouble()) * (180 / Math.PI)).toFloat()
 
-//        Log.d("rotate", "angle = $angle rotation = $rotation")
-
         mTempMatrix.set(imageMatrix)
         mTempMatrix.postRotate(-angle, rotateX, rotateY)
 
@@ -324,19 +323,10 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         mBitmapPoints[3] = mBitmap.height.toFloat()
         mTempMatrix.mapPoints(mBitmapPoints)
 
-        mTempRect.set(mCropRect)
+        calculateBoundRect(mCropRect, mTempRect, rotation)
 
-        val beta = Math.atan2(mTempRect.height().toDouble(), mTempRect.width().toDouble())
-        val alpha = Math.abs(Math.toRadians(rotation.toDouble()))
-
-        val halfDiagonals = Math.sqrt((mCropRect.width() * mCropRect.width() + mCropRect.height() * mCropRect.height()).toDouble()) / 2
-        var halfWidth = (halfDiagonals * Math.cos(beta - alpha)).toFloat()
-        var halfHeight = (halfDiagonals * Math.cos(Math.PI / 2 - beta - alpha)).toFloat()
-
-        mTempRect.inset( mTempRect.width() * 0.5f - halfWidth, mTempRect.height() * 0.5f - halfHeight)
-
-        halfWidth = mTempRect.width() * 0.5f
-        halfHeight = mTempRect.height() * 0.5f
+        val halfWidth = mTempRect.width() * 0.5f
+        val halfHeight = mTempRect.height() * 0.5f
 
         var addScale = halfWidth / (mTempRect.centerX() - mBitmapPoints[0])
         addScale = Math.max(halfWidth / (mBitmapPoints[2] - mTempRect.centerX()), addScale)
@@ -348,6 +338,12 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         }
 
         invalidate()
+    }
+
+    private fun calculateBoundRect(src: RectF, dest: RectF, rotation: Float) {
+        val matrix = Matrix()
+        matrix.postRotate(rotation, src.centerX(), src.centerY())
+        matrix.mapRect(dest, src)
     }
 
     fun reset() {
