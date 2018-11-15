@@ -45,11 +45,7 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
         mFilePath = requestPath ?: getTempBitmapPath()
         mOcrPath = "${getBasePath()}$PHOTO_OCR_NAME"
         showPhotoIfExist()
-        rotationWheel.setCallback(object : CropRotationWheel.Callback {
-            override fun onRotationChanged(rotation: Float) {
-                ivPhoto.rotate(rotation)
-            }
-        })
+        rotationWheel.setCallback(ivPhoto)
     }
 
     override fun onClick(v: View?) {

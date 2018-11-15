@@ -112,6 +112,7 @@ class CropRotationWheel(context: Context, attributeSet: AttributeSet) : FrameLay
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 preMotionX = event.x
+                callback?.onRotationStart()
             }
             MotionEvent.ACTION_MOVE -> {
                 val deltaX = preMotionX - event.x
@@ -127,6 +128,9 @@ class CropRotationWheel(context: Context, attributeSet: AttributeSet) : FrameLay
                     preMotionX = event.x
 
                 }
+            }
+            MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
+                callback?.onRotationEnd()
             }
         }
         return true
@@ -148,5 +152,7 @@ class CropRotationWheel(context: Context, attributeSet: AttributeSet) : FrameLay
 
     interface Callback {
         fun onRotationChanged(degree: Float)
+        fun onRotationStart()
+        fun onRotationEnd()
     }
 }
