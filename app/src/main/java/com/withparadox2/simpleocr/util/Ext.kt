@@ -1,6 +1,7 @@
 package com.withparadox2.simpleocr.util
 
 import android.app.Activity
+import android.graphics.RectF
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,4 +37,12 @@ fun <T> unsafeLazy(init: () -> T): Lazy<T> {
 fun <T : View> Activity.inflate(id: Int, parent: ViewGroup? = null): T {
     @Suppress("UNCHECKED_CAST")
     return LayoutInflater.from(this).inflate(id, parent, false) as T
+}
+
+fun RectF.halfWidth(): Float {
+    return this.width() / 2f
+}
+
+fun RectF.halfHeight(): Float {
+    return this.height() / 2f
 }

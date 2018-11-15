@@ -5,13 +5,14 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 import androidx.core.graphics.applyCanvas
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.util.dp2px
+import com.withparadox2.simpleocr.util.halfHeight
+import com.withparadox2.simpleocr.util.halfWidth
 
 
 /**
@@ -292,7 +293,6 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         }
     }
 
-    private val mTempMatrixValues: FloatArray = FloatArray(9)
     private var mPreRotation = 0.0f
 
     private val mBitmapPoints = FloatArray(4)
@@ -300,22 +300,14 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
 
     private val mTempMatrix = Matrix()
     fun rotate(rotation: Float) {
-        val v = mTempMatrixValues
-        mInitMatrix.getValues(v)
+        val centerX = mCropRect.centerX()
+        val centerY = mCropRect.centerY()
 
-        val rotateX = mCropRect.centerX()
-        val rotateY = mCropRect.centerY()
-
-        imageMatrix.postRotate(rotation - mPreRotation, rotateX, rotateY)
+        imageMatrix.postRotate(rotation - mPreRotation, centerX, centerY)
         mPreRotation = rotation
 
-        imageMatrix.getValues(v)
-        val scaleX = v[Matrix.MSCALE_X]
-        val skewX = v[Matrix.MSKEW_X]
-        val angle = -(Math.atan2(skewX.toDouble(), scaleX.toDouble()) * (180 / Math.PI)).toFloat()
-
         mTempMatrix.set(imageMatrix)
-        mTempMatrix.postRotate(-angle, rotateX, rotateY)
+        mTempMatrix.postRotate(-rotation, centerX, centerY)
 
         mBitmapPoints[0] = 0f
         mBitmapPoints[1] = 0f
@@ -325,16 +317,13 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
 
         calculateBoundRect(mCropRect, mTempRect, rotation)
 
-        val halfWidth = mTempRect.width() * 0.5f
-        val halfHeight = mTempRect.height() * 0.5f
-
-        var addScale = halfWidth / (mTempRect.centerX() - mBitmapPoints[0])
-        addScale = Math.max(halfWidth / (mBitmapPoints[2] - mTempRect.centerX()), addScale)
-        addScale = Math.max(halfHeight / (mTempRect.centerY() - mBitmapPoints[1]), addScale)
-        addScale = Math.max(halfHeight / (mBitmapPoints[3] - mTempRect.centerY()), addScale)
+        var addScale = mTempRect.halfWidth() / (centerX - mBitmapPoints[0])
+        addScale = Math.max(mTempRect.halfWidth() / (mBitmapPoints[2] - centerX), addScale)
+        addScale = Math.max(mTempRect.halfHeight() / (centerY - mBitmapPoints[1]), addScale)
+        addScale = Math.max(mTempRect.halfHeight() / (mBitmapPoints[3] - centerY), addScale)
 
         if (addScale > 0.0f) {
-            imageMatrix.postScale(addScale, addScale, rotateX, rotateY)
+            imageMatrix.postScale(addScale, addScale, centerX, centerY)
         }
 
         invalidate()
