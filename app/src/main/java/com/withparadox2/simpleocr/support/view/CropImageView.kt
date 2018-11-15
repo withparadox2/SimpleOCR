@@ -11,8 +11,6 @@ import androidx.core.animation.doOnEnd
 import androidx.core.graphics.applyCanvas
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.util.dp2px
-import com.withparadox2.simpleocr.util.halfHeight
-import com.withparadox2.simpleocr.util.halfWidth
 
 
 /**
@@ -165,7 +163,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                     mCropRect.top = Math.min(mCropRect.top, mCropRect.bottom - minSize)
                 }
 
-                invalidate()
+                fitBound()
             }
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
                 mTouchIndex = BAR_UNDEFINED
@@ -295,44 +293,84 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
 
     private var mPreRotation = 0.0f
 
-    private val mBitmapPoints = FloatArray(4)
-    private val mTempRect = RectF()
+    private val mBoundRect = RectF()
+    private val mContentRect = RectF()
 
     private val mTempMatrix = Matrix()
     fun rotate(rotation: Float) {
+        imageMatrix.postRotate(rotation - mPreRotation, mCropRect.centerX(), mCropRect.centerY())
+        mPreRotation = rotation
+
+        fitBound()
+    }
+
+    private fun fitBound() {
+        val rotation = mPreRotation
         val centerX = mCropRect.centerX()
         val centerY = mCropRect.centerY()
 
-        imageMatrix.postRotate(rotation - mPreRotation, centerX, centerY)
-        mPreRotation = rotation
+        mapContentRect(mContentRect, rotation)
+        mapBoundRect(mBoundRect, rotation)
 
-        mTempMatrix.set(imageMatrix)
-        mTempMatrix.postRotate(-rotation, centerX, centerY)
+        if (!mContentRect.contains(mBoundRect)) {
+            if (mBoundRect.height() > mContentRect.height() || mBoundRect.width() > mContentRect.width()) {
+                val ratio = if (mContentRect.width() / mContentRect.height() > mBoundRect.width() / mBoundRect.height()) {
+                    mBoundRect.height() / mContentRect.height()
+                } else {
+                    mBoundRect.width() / mContentRect.width()
+                }
 
-        mBitmapPoints[0] = 0f
-        mBitmapPoints[1] = 0f
-        mBitmapPoints[2] = mBitmap.width.toFloat()
-        mBitmapPoints[3] = mBitmap.height.toFloat()
-        mTempMatrix.mapPoints(mBitmapPoints)
+                // calculate new content rect after scale of ratio
+                mTempMatrix.setScale(ratio, ratio, centerX, centerY)
+                mTempMatrix.mapRect(mContentRect)
 
-        calculateBoundRect(mCropRect, mTempRect, rotation)
+                imageMatrix.postScale(ratio, ratio, centerX, centerY)
+            }
 
-        var addScale = mTempRect.halfWidth() / (centerX - mBitmapPoints[0])
-        addScale = Math.max(mTempRect.halfWidth() / (mBitmapPoints[2] - centerX), addScale)
-        addScale = Math.max(mTempRect.halfHeight() / (centerY - mBitmapPoints[1]), addScale)
-        addScale = Math.max(mTempRect.halfHeight() / (mBitmapPoints[3] - centerY), addScale)
-
-        if (addScale > 0.0f) {
-            imageMatrix.postScale(addScale, addScale, centerX, centerY)
+            val translation = fitTranslation(mBoundRect, mContentRect, Math.toRadians(rotation.toDouble()))
+            imageMatrix.postTranslate(translation.x, translation.y)
         }
 
         invalidate()
     }
 
-    private fun calculateBoundRect(src: RectF, dest: RectF, rotation: Float) {
+    private fun fitTranslation(small: RectF, big: RectF, rotation: Double): PointF {
+        var offsetX = 0.0f
+        var offsetY = 0.0f
+        if (small.left < big.left) {
+            offsetX = small.left - big.left
+        } else if (small.right > big.right) {
+            offsetX = small.right - big.right
+        }
+        if (small.top < big.top) {
+            offsetY = small.top - big.top
+        } else if (small.bottom > big.bottom) {
+            offsetY = small.bottom - big.bottom
+        }
+
+        val deltaX = Math.cos(rotation) * offsetX - Math.sin(rotation) * offsetY
+        val deltaY = Math.sin(rotation) * offsetX + Math.cos(rotation) * offsetY
+        return PointF(deltaX.toFloat(), deltaY.toFloat())
+    }
+
+    private val mBitmapPoints = FloatArray(4)
+    private fun mapContentRect(contentRect: RectF, rotation: Float) {
+        mBitmapPoints[0] = 0f
+        mBitmapPoints[1] = 0f
+        mBitmapPoints[2] = mBitmap.width.toFloat()
+        mBitmapPoints[3] = mBitmap.height.toFloat()
+
+        mTempMatrix.set(imageMatrix)
+        mTempMatrix.postRotate(-rotation, mCropRect.centerX(), mCropRect.centerY())
+        mTempMatrix.mapPoints(mBitmapPoints)
+
+        contentRect.set(mBitmapPoints[0], mBitmapPoints[1], mBitmapPoints[2], mBitmapPoints[3])
+    }
+
+    private fun mapBoundRect(dest: RectF, rotation: Float) {
         val matrix = Matrix()
-        matrix.postRotate(rotation, src.centerX(), src.centerY())
-        matrix.mapRect(dest, src)
+        matrix.postRotate(rotation, mCropRect.centerX(), mCropRect.centerY())
+        matrix.mapRect(dest, mCropRect)
     }
 
     fun reset() {
@@ -341,4 +379,5 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         mPreRotation = 0.0f
         invalidate()
     }
+
 }
