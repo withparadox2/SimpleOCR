@@ -1,5 +1,6 @@
 package com.withparadox2.simpleocr.support.view
 
+import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.*
@@ -48,6 +49,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     private var mAnimateLineRatio = 0.0f
     private var mAnimateLineIndex = BAR_UNDEFINED
     private val mLineAnimator = ObjectAnimator.ofFloat(this, "animateLineRatio", 1.0f, 0.0f).setDuration(500)
+    private var mGridLineAnimator: ObjectAnimator? = null
 
     private var mAnimateGridRatio = 0.0f
 
@@ -165,8 +167,9 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                 fitBound(false)
             }
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                mTouchIndex = BAR_UNDEFINED
-                ObjectAnimator.ofFloat(this, "animateGridRatio", 1.0f, 0.0f).setDuration(200).start()
+                startGridLineAnimation{
+                    mTouchIndex = BAR_UNDEFINED
+                }
             }
         }
         return true
@@ -220,18 +223,19 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         mPaint.strokeWidth = outlineWidth
         canvas.drawRect(mCropRect, mPaint)
 
-        // we are moving, draw grids
-        if (mTouchIndex != BAR_UNDEFINED || mAnimateGridRatio != 0.0f) {
+        // we are moving or rotating, draw grids
+        if (mTouchIndex != BAR_UNDEFINED || mRotating) {
             mPaint.strokeWidth = dp2px(1).toFloat()
 
             // during cancel animation
-            if (mTouchIndex == BAR_UNDEFINED) {
+            if (mAnimateGridRatio != 0.0f && mAnimateGridRatio != 1.0f) {
                 mPaint.alpha = (120 * mAnimateGridRatio).toInt()
             }
 
-            val gridSizeX = mCropRect.width() / 3.0f
-            val gridSizeY = mCropRect.height() / 3.0f
-            for (i in 1..2) {
+            val gapCount = if (mRotating) 6 else 3
+            val gridSizeX = mCropRect.width() / gapCount
+            val gridSizeY = mCropRect.height() / gapCount
+            for (i in 1 until gapCount) {
                 canvas.drawLine(mCropRect.left, mCropRect.top + gridSizeY * i, mCropRect.right, mCropRect.top + gridSizeY * i, mPaint)
                 canvas.drawLine(mCropRect.left + gridSizeX * i, mCropRect.top, mCropRect.left + gridSizeX * i, mCropRect.bottom, mPaint)
             }
@@ -296,6 +300,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     private val mBoundRect = RectF()
     private val mContentRect = RectF()
     private val mTempMatrix = Matrix()
+    private var mRotating = false
 
     private fun fitBound(scaleBack: Boolean) {
         val rotation = mPreRotation
@@ -397,16 +402,18 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         if (mRotateStartScale < 0.00001f) {
             mRotateStartScale = mPreScale
         }
+        mRotating = true
     }
 
     override fun onRotationEnd() {
-
+        startGridLineAnimation {
+            mRotating = false
+        }
     }
 
     private fun resetStartRotateScale() {
         mRotateStartScale = 0.0f
     }
-
 
     fun reset() {
         mCropRect.set(mBitmapRect)
@@ -416,4 +423,16 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         invalidate()
     }
 
+    private fun startGridLineAnimation(onAnimationEnd: (Animator) -> Unit): ObjectAnimator {
+        var animator = mGridLineAnimator
+        if (animator != null && animator.isRunning) {
+            animator.end()
+            animator.cancel()
+        }
+        animator = ObjectAnimator.ofFloat(this, "animateGridRatio", 1.0f, 0.0f).setDuration(200)
+        animator.doOnEnd(onAnimationEnd)
+        mGridLineAnimator = animator
+        animator.start()
+        return animator
+    }
 }
