@@ -393,7 +393,14 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                 preX += deltaX
                 preY += deltaY
 
-                // TODO need a detailed comment
+                // Here maybe the most confused part to understand. Assume the animation needs to update
+                // n times, each time we scale up by ΔS_i and make a translation by ΔL_i, at the end we
+                // can confirm that ΔS_1*ΔS_2*...*ΔS_n = S, where S is `ratio` defined above. For translation,
+                // things get complicated for the following scale event will also apply to the earlier
+                // translation. For ΔL_i, by the end we will get an amount of ΔL_i*(ΔS_i*ΔS_i+1*...*ΔS_n), which
+                // is larger than expectation. So the answer becomes clear: eliminating the scale effect in advance
+                // by divide the following scale. For ΔL_i, the final value set is ΔL_i/(ΔS_i*ΔS_i+1*...*ΔS_n) =
+                // ΔL_i/(S/(ΔS_1*ΔS_2*...*ΔS_i-1)) = ΔL_i*(ΔS_1*ΔS_2*...*ΔS_i-1)/S = ΔL_i * preScale_i / S
                 imageMatrix.postTranslate(deltaX * preScale / ratio, deltaY * preScale / ratio)
 
                 val deltaScale = (1 + value * (ratio - 1)) / preScale
