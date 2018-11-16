@@ -130,7 +130,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         invalidate()
     }
 
-    private var mIsDraging = false
+    private var mIsDragging = false
     private var mIsAnimating = false
     private var mActivePointerId = 0
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -151,7 +151,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                     }
                     mLineAnimator.start()
                 } else {
-                    mIsDraging = true
+                    mIsDragging = true
                 }
                 mActivePointerId = event.getPointerId(0)
             }
@@ -165,24 +165,26 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                 } else {
                     // handle other gesture
                     val index = event.findPointerIndex(mActivePointerId)
-                    val newX = event.getX(index)
-                    val newY = event.getY(index)
+                    if (index != MotionEvent.INVALID_POINTER_ID) {
+                        val newX = event.getX(index)
+                        val newY = event.getY(index)
 
-                    imageMatrix.postTranslate(newX - mLastTouchX, newY - mLastTouchY)
-                    invalidate()
+                        imageMatrix.postTranslate(newX - mLastTouchX, newY - mLastTouchY)
+                        invalidate()
 
-                    mLastTouchX = newX
-                    mLastTouchY = newY
+                        mLastTouchX = newX
+                        mLastTouchY = newY
+                    }
                 }
             }
             MotionEvent.ACTION_POINTER_UP -> {
-                if (mIsDraging) {
+                if (mIsDragging) {
                     val idToUp = event.getPointerId(event.actionIndex)
                     if (idToUp == mActivePointerId) {
                         val newPointerIndex = if (event.actionIndex == 0) 1 else 0
                         mActivePointerId = event.getPointerId(newPointerIndex)
-                        mLastTouchX = event.getX(mActivePointerId)
-                        mLastTouchY = event.getY(mActivePointerId)
+                        mLastTouchX = event.getX(newPointerIndex)
+                        mLastTouchY = event.getY(newPointerIndex)
                     }
                 }
             }
@@ -192,8 +194,8 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                     startGridLineAnimation {
                         mActiveBarFlag = BAR_UNDEFINED
                     }
-                } else if (mIsDraging) {
-                    mIsDraging = false
+                } else if (mIsDragging) {
+                    mIsDragging = false
                     fitBound(false, true)
                 }
                 resetStartRotateScale()

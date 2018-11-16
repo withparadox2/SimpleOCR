@@ -38,6 +38,7 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
      * or just return data back.
      */
     private var mRequestOcr = false
+    private var mIsTakingPhoto = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,7 +75,12 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v!!.id) {
             R.id.btn_shutter -> {
+                if (mIsTakingPhoto) {
+                    return
+                }
+                mIsTakingPhoto = true
                 CameraController.instance.getCamera()?.takePicture(null, null, Camera.PictureCallback { data, _ ->
+                    mIsTakingPhoto = false
                     GlobalScope.launchUI {
                         if (writeToFile(data, getTempBitmapPath())) {
                             startActivityForResult(getCropIntent(this@CameraActivity), REQUEST_CROP)
