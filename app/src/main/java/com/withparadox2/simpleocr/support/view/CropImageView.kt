@@ -76,11 +76,6 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
             invalidate()
             return true
         }
-
-        override fun onScaleEnd(detector: ScaleGestureDetector?) {
-            fitBound(false, true)
-            super.onScaleEnd(detector)
-        }
     })
 
 
@@ -135,13 +130,14 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         invalidate()
     }
 
-    private var mIsTranslating = false
+    private var mIsDraging = false
     private var mIsAnimating = false
+    private var mActivePointerId = 0
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (mIsAnimating) {
             return true
         }
-        when (event.action) {
+        when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 mActiveBarFlag = getActiveBar(event.x, event.y)
 
@@ -154,31 +150,50 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                         mLineAnimator.cancel()
                     }
                     mLineAnimator.start()
+                } else {
+                    mIsDraging = true
                 }
+                mActivePointerId = event.getPointerId(0)
             }
             MotionEvent.ACTION_MOVE -> {
-                val deltaX = event.x - mLastTouchX
-                val deltaY = event.y - mLastTouchY
                 if (mActiveBarFlag != BAR_UNDEFINED) {
                     // change crop area
-                    consumeMoveForCrop(deltaX, deltaY)
+                    consumeMoveForCrop(event.x - mLastTouchX, event.y - mLastTouchY)
                     fitBound(false)
+                    mLastTouchX = event.x
+                    mLastTouchY = event.y
                 } else {
                     // handle other gesture
-                    mIsTranslating = true
-                    imageMatrix.postTranslate(deltaX, deltaY)
+                    val index = event.findPointerIndex(mActivePointerId)
+                    val newX = event.getX(index)
+                    val newY = event.getY(index)
+
+                    imageMatrix.postTranslate(newX - mLastTouchX, newY - mLastTouchY)
                     invalidate()
+
+                    mLastTouchX = newX
+                    mLastTouchY = newY
                 }
-                mLastTouchX = event.x
-                mLastTouchY = event.y
+            }
+            MotionEvent.ACTION_POINTER_UP -> {
+                if (mIsDraging) {
+                    val idToUp = event.getPointerId(event.actionIndex)
+                    if (idToUp == mActivePointerId) {
+                        val newPointerIndex = if (event.actionIndex == 0) 1 else 0
+                        mActivePointerId = event.getPointerId(newPointerIndex)
+                        mLastTouchX = event.getX(mActivePointerId)
+                        mLastTouchY = event.getY(mActivePointerId)
+                    }
+                }
             }
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
+                mActivePointerId = MotionEvent.INVALID_POINTER_ID
                 if (mActiveBarFlag != BAR_UNDEFINED) {
                     startGridLineAnimation {
                         mActiveBarFlag = BAR_UNDEFINED
                     }
-                } else if (mIsTranslating) {
-                    mIsTranslating = false
+                } else if (mIsDraging) {
+                    mIsDraging = false
                     fitBound(false, true)
                 }
                 resetStartRotateScale()
@@ -376,11 +391,13 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                 preX += deltaX
                 preY += deltaY
 
-                val deltaScale = (1 + value * (ratio - 1)) * preScale
+                // TODO need a detailed comment
+                imageMatrix.postTranslate(deltaX * preScale / ratio, deltaY * preScale / ratio)
+
+                val deltaScale = (1 + value * (ratio - 1)) / preScale
                 preScale *= deltaScale
 
                 imageMatrix.postScale(deltaScale, deltaScale, centerX, centerY)
-                imageMatrix.postTranslate(deltaX, deltaY)
 
                 invalidate()
             }
