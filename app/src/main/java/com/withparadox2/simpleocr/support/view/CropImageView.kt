@@ -26,7 +26,7 @@ const val BAR_LEFT = 1 shl 3
 class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(context, attributeSet), CropRotationWheel.Callback {
     private val mPaint: Paint = Paint()
     private val mCropRect = RectF()
-    private var mRectTemp = RectF()
+    private var mTempCropRect = RectF()
 
     // The initial image matrix that make bitmap be filled in bounds defined by mDefaultRect, and it
     // is used to help to return back after manipulating the image
@@ -107,12 +107,13 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 mActiveBarFlag = getActiveBar(event.x, event.y)
-                mRectTemp.set(mCropRect)
 
                 mLastTouchX = event.x
                 mLastTouchY = event.y
 
-                if (mActiveBarFlag != 0) {
+                if (mActiveBarFlag != BAR_UNDEFINED) {
+                    mTempCropRect.set(mCropRect)
+
                     mAnimateLineIndex = mActiveBarFlag
                     if (mLineAnimator.isRunning) {
                         mLineAnimator.cancel()
@@ -121,54 +122,45 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                 }
             }
             MotionEvent.ACTION_MOVE -> {
-                val moveX = event.x - mLastTouchX
-                val moveY = event.y - mLastTouchY
-                val localIndex = mActiveBarFlag
+                val deltaX = event.x - mLastTouchX
+                val deltaY = event.y - mLastTouchY
+                if (mActiveBarFlag != BAR_UNDEFINED) {
+                    // change crop area
+                    consumeMoveForCrop(deltaX, deltaY)
+                    fitBound(false)
+                } else {
+                    // handle other gesture
 
-                val minSize = 4 * mActiveBarSlop
-
-                if (localIndex and BAR_TOP != 0) {
-                    mCropRect.top = Math.min(mRectTemp.top + moveY, mCropRect.bottom - minSize)
                 }
-                if (localIndex and BAR_BOTTOM != 0) {
-                    mCropRect.bottom = Math.max(mRectTemp.bottom + moveY, mCropRect.top + minSize)
-                }
-
-                if (localIndex and BAR_LEFT != 0) {
-                    mCropRect.left = Math.min(mRectTemp.left + moveX, mCropRect.right - minSize)
-                }
-
-                if (localIndex and BAR_RIGHT != 0) {
-                    mCropRect.right = Math.max(mRectTemp.right + moveX, mCropRect.left + minSize)
-                }
-
-                if (mCropRect.left <= mInitContentRect.left) {
-                    mCropRect.left = mInitContentRect.left
-                    mCropRect.right = Math.max(mCropRect.right, mCropRect.left + minSize)
-                }
-                if (mCropRect.right >= mInitContentRect.right) {
-                    mCropRect.right = mInitContentRect.right
-                    mCropRect.left = Math.min(mCropRect.left, mCropRect.right - minSize)
-                }
-                if (mCropRect.top <= mInitContentRect.top) {
-                    mCropRect.top = mInitContentRect.top
-                    mCropRect.bottom = Math.max(mCropRect.bottom, mCropRect.top + minSize)
-                }
-                if (mCropRect.bottom >= mInitContentRect.bottom) {
-                    mCropRect.bottom = mInitContentRect.bottom
-                    mCropRect.top = Math.min(mCropRect.top, mCropRect.bottom - minSize)
-                }
-
-                resetStartRotateScale()
-                fitBound(false)
+                mLastTouchX = event.x
+                mLastTouchY = event.y
             }
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                startGridLineAnimation {
-                    mActiveBarFlag = BAR_UNDEFINED
+                if (mActiveBarFlag != BAR_UNDEFINED) {
+                    startGridLineAnimation {
+                        mActiveBarFlag = BAR_UNDEFINED
+                    }
                 }
+                resetStartRotateScale()
             }
         }
         return true
+    }
+
+    private fun consumeMoveForCrop(deltaX: Float, deltaY: Float) {
+        val minSize = 4 * mActiveBarSlop
+
+        if (mActiveBarFlag and BAR_TOP != 0) {
+            mCropRect.top = Math.min(Math.max(mCropRect.top + deltaY, mInitContentRect.top), mCropRect.bottom - minSize)
+        } else if (mActiveBarFlag and BAR_BOTTOM != 0) {
+            mCropRect.bottom = Math.max(Math.min(mCropRect.bottom + deltaY, mInitContentRect.bottom), mCropRect.top + minSize)
+        }
+
+        if (mActiveBarFlag and BAR_LEFT != 0) {
+            mCropRect.left = Math.min(Math.max(mCropRect.left + deltaX, mInitContentRect.left), mCropRect.right - minSize)
+        } else if (mActiveBarFlag and BAR_RIGHT != 0) {
+            mCropRect.right = Math.max(Math.min(mCropRect.right + deltaX, mInitContentRect.right), mCropRect.left + minSize)
+        }
     }
 
     private val mBarTempRect = RectF()
