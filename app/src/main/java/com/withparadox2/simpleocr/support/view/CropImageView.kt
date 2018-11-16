@@ -52,6 +52,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     private var mGridLineAnimator: ObjectAnimator? = null
 
     private var mAnimateGridRatio = 0.0f
+    private var mShowGridLines = false
 
     private lateinit var mBitmap: Bitmap
 
@@ -153,7 +154,9 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                 } else {
                     mIsDragging = true
                 }
+                mShowGridLines = true
                 mActivePointerId = event.getPointerId(0)
+                invalidate()
             }
             MotionEvent.ACTION_MOVE -> {
                 if (mActiveBarFlag != BAR_UNDEFINED) {
@@ -191,12 +194,14 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
                 mActivePointerId = MotionEvent.INVALID_POINTER_ID
                 if (mActiveBarFlag != BAR_UNDEFINED) {
-                    startGridLineAnimation {
-                        mActiveBarFlag = BAR_UNDEFINED
-                    }
+                    mActiveBarFlag = BAR_UNDEFINED
+                    startGridLineAnimation()
                 } else if (mIsDragging) {
                     mIsDragging = false
                     fitBound(false, true)
+                }
+                if (mShowGridLines) {
+                    startGridLineAnimation()
                 }
                 resetStartRotateScale()
             }
@@ -266,7 +271,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         canvas.drawRect(mCropRect, mPaint)
 
         // we are moving or rotating, draw grids
-        if (mActiveBarFlag != BAR_UNDEFINED || mRotating) {
+        if (mShowGridLines) {
             mPaint.strokeWidth = dp2px(1).toFloat()
 
             // during cancel animation
@@ -481,6 +486,8 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
             mRotateStartScale = mPreScale
         }
         mRotating = true
+        mShowGridLines = true
+        invalidate()
     }
 
     override fun onRotationEnd() {
@@ -502,14 +509,20 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         invalidate()
     }
 
-    private fun startGridLineAnimation(onAnimationEnd: (Animator) -> Unit): ObjectAnimator {
+    private fun startGridLineAnimation(onAnimationEnd: ((Animator) -> Unit)? = null): ObjectAnimator {
         var animator = mGridLineAnimator
         if (animator != null && animator.isRunning) {
             animator.end()
             animator.cancel()
         }
         animator = ObjectAnimator.ofFloat(this, "animateGridRatio", 1.0f, 0.0f).setDuration(200)
-        animator.doOnEnd(onAnimationEnd)
+        animator.doOnEnd {
+            mShowGridLines = false
+            if (onAnimationEnd != null) {
+                onAnimationEnd(it)
+            }
+            invalidate()
+        }
         mGridLineAnimator = animator
         animator.start()
         return animator
