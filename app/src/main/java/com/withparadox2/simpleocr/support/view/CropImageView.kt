@@ -8,11 +8,15 @@ import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.util.AttributeSet
 import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 import androidx.core.graphics.applyCanvas
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.util.dp2px
+import kotlin.Float.Companion.NEGATIVE_INFINITY
+import kotlin.Float.Companion.NaN
+import kotlin.Float.Companion.POSITIVE_INFINITY
 
 
 /**
@@ -50,6 +54,34 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     private var mAnimateGridRatio = 0.0f
 
     private lateinit var mBitmap: Bitmap
+
+    private val mScaleDetector: ScaleGestureDetector = ScaleGestureDetector(getContext(), object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+        override fun onScale(detector: ScaleGestureDetector): Boolean {
+            if (mIsAnimating) {
+                return false
+            }
+
+            var scale = detector.scaleFactor
+
+            if (scale == NaN || scale == POSITIVE_INFINITY || scale == NEGATIVE_INFINITY) {
+                return false
+            }
+
+            if (mPreScale * scale > 30f) {
+                scale = 30f / mPreScale
+            }
+
+            imageMatrix.postScale(scale, scale, detector.focusX, detector.focusY)
+            mPreScale *= scale
+            invalidate()
+            return true
+        }
+
+        override fun onScaleEnd(detector: ScaleGestureDetector?) {
+            fitBound(false, true)
+            super.onScaleEnd(detector)
+        }
+    })
 
 
     init {
@@ -152,6 +184,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                 resetStartRotateScale()
             }
         }
+        mScaleDetector.onTouchEvent(event)
         return true
     }
 
@@ -438,6 +471,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         mCropRect.set(mInitContentRect)
         imageMatrix.set(mInitMatrix)
         mPreRotation = 0.0f
+        mPreScale = 1.0f
         resetStartRotateScale()
         invalidate()
     }
