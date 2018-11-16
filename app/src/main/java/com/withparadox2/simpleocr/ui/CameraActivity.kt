@@ -20,6 +20,7 @@ import com.withparadox2.simpleocr.ui.edit.getEditIntent
 import com.withparadox2.simpleocr.util.*
 import kotlinx.coroutines.GlobalScope
 
+
 /**
  * Created by withparadox2 on 2018/5/20.
  */

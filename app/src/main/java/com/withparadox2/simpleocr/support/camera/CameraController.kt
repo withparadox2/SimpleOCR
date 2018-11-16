@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Rect
 import android.hardware.Camera
 import android.util.DisplayMetrics
+import android.view.OrientationEventListener
 import android.view.Surface
 import android.view.TextureView
 import com.withparadox2.simpleocr.App
@@ -13,6 +14,8 @@ import kotlin.concurrent.thread
 
 class CameraController private constructor() {
     private var mCamera: Camera? = null
+    private var mCameraInfo: Camera.CameraInfo? = null
+    private var mOrientationListener: OrientationEventListener? = null
 
     fun openCamera(textureView: TextureView, callback: Callback) {
         val cameraId = getCameraId()
@@ -55,11 +58,16 @@ class CameraController private constructor() {
     }
 
     private fun configCamera(camera: Camera, cameraId: Int, context: Context) {
+
+        mOrientationListener?.disable()
+        mOrientationListener = OrientationEventListenerImpl(context)
+        mOrientationListener?.enable()
+
         setCameraDisplayOrientation(context as Activity, cameraId, camera)
 
         val info = Camera.CameraInfo()
         Camera.getCameraInfo(cameraId, info)
-
+        mCameraInfo = info
         var targetRatio: Float = getScreenRatio(context as Activity)
         if (info.orientation == 90 || info.orientation == 270) {
             targetRatio = 1 / targetRatio
@@ -73,7 +81,6 @@ class CameraController private constructor() {
             parameters.setPictureSize(finalSize.width, finalSize.height)
         }
         parameters.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
-        //TODO detect the real rotation
         parameters.setRotation(90)
 
         try {
@@ -85,6 +92,18 @@ class CameraController private constructor() {
 
     fun getCamera(): Camera? {
         return mCamera
+    }
+
+    fun getCameraInfo(): Camera.CameraInfo? {
+        return mCameraInfo
+    }
+
+    fun onResume() {
+        mOrientationListener?.enable()
+    }
+
+    fun onPause() {
+        mOrientationListener?.disable()
     }
 
     @Synchronized
@@ -234,5 +253,32 @@ class CameraController private constructor() {
     interface Callback {
         fun onOpenSuccess(camera: Camera)
         fun onOpenFailed()
+    }
+
+
+    private var mLastRotation = Int.MAX_VALUE
+
+    private inner class OrientationEventListenerImpl(context: Context) : OrientationEventListener(context) {
+        override fun onOrientationChanged(orientationP: Int) {
+            if (OrientationEventListener.ORIENTATION_UNKNOWN == orientationP) {
+                return
+            }
+            val info = getCameraInfo() ?: return
+
+            var orientation = (orientationP + 45) / 90 * 90
+            val rotation = if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                (info.orientation - orientation + 360) % 360
+            } else {
+                (info.orientation + orientation) % 360
+            }
+
+            if (mLastRotation != rotation && (rotation == 0 || rotation == 90 || rotation == 180
+                            || rotation == 270)) {
+                setParameters(getCamera(), getCamera()?.parameters?.apply {
+                    this.setRotation(rotation)
+                })
+            }
+            mLastRotation = rotation
+        }
     }
 }
