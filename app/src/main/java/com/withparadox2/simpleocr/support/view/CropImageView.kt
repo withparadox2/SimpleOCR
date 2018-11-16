@@ -36,7 +36,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     // is used to help to return back after manipulating the image
     private val mInitMatrix = Matrix()
 
-    private val mActiveBarSlop: Float = dp2px(10f, context)
+    private val mActiveBarSlop: Float = dp2px(15f, context)
     private var mActiveBarFlag = BAR_UNDEFINED
     private var mLastTouchX: Float = 0f
     private var mLastTouchY: Float = 0f
