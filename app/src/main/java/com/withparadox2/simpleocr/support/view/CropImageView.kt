@@ -36,7 +36,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     // is used to help to return back after manipulating the image
     private val mInitMatrix = Matrix()
 
-    private val mActiveBarSlop: Float = dp2px(15f, context)
+    private val mActiveBarSlop: Float = dp2px(15f)
     private var mActiveBarFlag = BAR_UNDEFINED
     private var mLastTouchX: Float = 0f
     private var mLastTouchY: Float = 0f
@@ -53,6 +53,8 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
 
     private var mAnimateGridRatio = 0.0f
     private var mShowGridLines = false
+
+    private var mDragTouchSlop = dp2px(5f)
 
     private lateinit var mBitmap: Bitmap
 
@@ -151,9 +153,8 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                         mLineAnimator.cancel()
                     }
                     mLineAnimator.start()
-                } else {
-                    mIsDragging = true
                 }
+                mIsDragging = false
                 mShowGridLines = true
                 mActivePointerId = event.getPointerId(0)
                 invalidate()
@@ -171,12 +172,20 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                     if (index != MotionEvent.INVALID_POINTER_ID) {
                         val newX = event.getX(index)
                         val newY = event.getY(index)
+                        var dx = newX - mLastTouchX
+                        var dy = newY - mLastTouchY
+                        if (!mIsDragging) {
+                            mIsDragging = Math.sqrt(dx * dx + dy * dy.toDouble()) > mDragTouchSlop
+                            dx = 0f
+                            dy = 0f
+                        }
+                        if (mIsDragging) {
+                            imageMatrix.postTranslate(dx, dy)
+                            invalidate()
 
-                        imageMatrix.postTranslate(newX - mLastTouchX, newY - mLastTouchY)
-                        invalidate()
-
-                        mLastTouchX = newX
-                        mLastTouchY = newY
+                            mLastTouchX = newX
+                            mLastTouchY = newY
+                        }
                     }
                 }
             }
