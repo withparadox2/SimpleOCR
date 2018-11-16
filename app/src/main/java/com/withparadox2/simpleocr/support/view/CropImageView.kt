@@ -28,22 +28,18 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     private val mCropRect = RectF()
     private var mRectTemp = RectF()
 
-    // The limitation for crop-rect calculated by view-bounds minus padding, bitmap can draw beyond
-    // this bounds while user rotating, scaling or translating the image
-    private val mDefaultRect = RectF()
-
     // The initial image matrix that make bitmap be filled in bounds defined by mDefaultRect, and it
     // is used to help to return back after manipulating the image
     private val mInitMatrix = Matrix()
 
-    private val mDotRadius: Float = dp2px(10f, context).toFloat()
-    private var mTouchIndex = BAR_UNDEFINED
+    private val mActiveBarSlop: Float = dp2px(10f, context)
+    private var mActiveBarFlag = BAR_UNDEFINED
     private var mLastTouchX: Float = 0f
     private var mLastTouchY: Float = 0f
 
     private var mBitmapScale: Float = 1f
 
-    private var mBitmapRect = RectF()
+    private var mInitContentRect = RectF()
     private val mRectHandle = RectF()
 
     private var mAnimateLineRatio = 0.0f
@@ -77,7 +73,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
 
         val width = measuredWidth - padding - padding
         val height = measuredHeight - padding - padding
-        if ((bitmap.width / bitmap.height.toFloat() > width / height.toFloat())) {
+        if ((bitmap.width / bitmap.height.toFloat() > width / height)) {
             scale = width / bitmap.width
             ty += (height - bitmap.height * scale) / 2
         } else {
@@ -93,8 +89,8 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         imageMatrix = matrix
 
         mBitmapScale = scale
-        mBitmapRect.set(tx, ty, tx + bitmap.width * scale, ty + bitmap.height * scale)
-        mCropRect.set(mBitmapRect)
+        mInitContentRect.set(tx, ty, tx + bitmap.width * scale, ty + bitmap.height * scale)
+        mCropRect.set(mInitContentRect)
     }
 
     private fun setAnimateLineRatio(value: Float) {
@@ -110,14 +106,14 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                mTouchIndex = getTouchPointIndex(event.x, event.y)
+                mActiveBarFlag = getActiveBar(event.x, event.y)
                 mRectTemp.set(mCropRect)
 
                 mLastTouchX = event.x
                 mLastTouchY = event.y
 
-                if (mTouchIndex != 0) {
-                    mAnimateLineIndex = mTouchIndex
+                if (mActiveBarFlag != 0) {
+                    mAnimateLineIndex = mActiveBarFlag
                     if (mLineAnimator.isRunning) {
                         mLineAnimator.cancel()
                     }
@@ -127,9 +123,9 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
             MotionEvent.ACTION_MOVE -> {
                 val moveX = event.x - mLastTouchX
                 val moveY = event.y - mLastTouchY
-                val localIndex = mTouchIndex
+                val localIndex = mActiveBarFlag
 
-                val minSize = 4 * mDotRadius
+                val minSize = 4 * mActiveBarSlop
 
                 if (localIndex and BAR_TOP != 0) {
                     mCropRect.top = Math.min(mRectTemp.top + moveY, mCropRect.bottom - minSize)
@@ -146,20 +142,20 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                     mCropRect.right = Math.max(mRectTemp.right + moveX, mCropRect.left + minSize)
                 }
 
-                if (mCropRect.left <= mBitmapRect.left) {
-                    mCropRect.left = mBitmapRect.left
+                if (mCropRect.left <= mInitContentRect.left) {
+                    mCropRect.left = mInitContentRect.left
                     mCropRect.right = Math.max(mCropRect.right, mCropRect.left + minSize)
                 }
-                if (mCropRect.right >= mBitmapRect.right) {
-                    mCropRect.right = mBitmapRect.right
+                if (mCropRect.right >= mInitContentRect.right) {
+                    mCropRect.right = mInitContentRect.right
                     mCropRect.left = Math.min(mCropRect.left, mCropRect.right - minSize)
                 }
-                if (mCropRect.top <= mBitmapRect.top) {
-                    mCropRect.top = mBitmapRect.top
+                if (mCropRect.top <= mInitContentRect.top) {
+                    mCropRect.top = mInitContentRect.top
                     mCropRect.bottom = Math.max(mCropRect.bottom, mCropRect.top + minSize)
                 }
-                if (mCropRect.bottom >= mBitmapRect.bottom) {
-                    mCropRect.bottom = mBitmapRect.bottom
+                if (mCropRect.bottom >= mInitContentRect.bottom) {
+                    mCropRect.bottom = mInitContentRect.bottom
                     mCropRect.top = Math.min(mCropRect.top, mCropRect.bottom - minSize)
                 }
 
@@ -168,15 +164,15 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
             }
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
                 startGridLineAnimation{
-                    mTouchIndex = BAR_UNDEFINED
+                    mActiveBarFlag = BAR_UNDEFINED
                 }
             }
         }
         return true
     }
 
-    private fun getTouchPointIndex(x: Float, y: Float): Int {
-        val slop = 4 * mDotRadius * mDotRadius
+    private fun getActiveBar(x: Float, y: Float): Int {
+        val slop = 4 * mActiveBarSlop * mActiveBarSlop
         val distLeft = Math.abs(x - mCropRect.left)
         val distRight = Math.abs(x - mCropRect.right)
         val distTop = Math.abs(y - mCropRect.top)
@@ -224,7 +220,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         canvas.drawRect(mCropRect, mPaint)
 
         // we are moving or rotating, draw grids
-        if (mTouchIndex != BAR_UNDEFINED || mRotating) {
+        if (mActiveBarFlag != BAR_UNDEFINED || mRotating) {
             mPaint.strokeWidth = dp2px(1).toFloat()
 
             // during cancel animation
@@ -416,7 +412,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     }
 
     fun reset() {
-        mCropRect.set(mBitmapRect)
+        mCropRect.set(mInitContentRect)
         imageMatrix.set(mInitMatrix)
         mPreRotation = 0.0f
         resetStartRotateScale()
