@@ -163,7 +163,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                 fitBound(false)
             }
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                startGridLineAnimation{
+                startGridLineAnimation {
                     mActiveBarFlag = BAR_UNDEFINED
                 }
             }
@@ -171,35 +171,31 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         return true
     }
 
+    private val mBarTempRect = RectF()
     private fun getActiveBar(x: Float, y: Float): Int {
-        val slop = 4 * mActiveBarSlop * mActiveBarSlop
-        val distLeft = Math.abs(x - mCropRect.left)
-        val distRight = Math.abs(x - mCropRect.right)
-        val distTop = Math.abs(y - mCropRect.top)
-        val distBottom = Math.abs(y - mCropRect.bottom)
-        val minimum = Math.min(Math.min(distLeft, distRight), Math.min(distBottom, distTop))
+        var barFlag = BAR_UNDEFINED
 
-        val inY = mCropRect.top < y && y < mCropRect.bottom
-        val inX = mCropRect.left < x && x < mCropRect.right
-        return when {
-            distanceSquare(x, y, mCropRect.left, mCropRect.top) < slop -> BAR_TOP or BAR_LEFT
-            distanceSquare(x, y, mCropRect.right, mCropRect.top) < slop -> BAR_TOP or BAR_RIGHT
-            distanceSquare(x, y, mCropRect.left, mCropRect.bottom) < slop -> BAR_LEFT or BAR_BOTTOM
-            distanceSquare(x, y, mCropRect.right, mCropRect.bottom) < slop -> BAR_RIGHT or BAR_BOTTOM
-            x < mCropRect.left && inY -> BAR_LEFT
-            x > mCropRect.right && inY -> BAR_RIGHT
-            y < mCropRect.top && inX -> BAR_TOP
-            y > mCropRect.bottom && inX -> BAR_BOTTOM
-            minimum == distLeft -> BAR_LEFT
-            minimum == distRight -> BAR_RIGHT
-            minimum == distTop -> BAR_TOP
-            minimum == distBottom -> BAR_BOTTOM
-            else -> BAR_UNDEFINED
+        mBarTempRect.set(mCropRect)
+        mBarTempRect.inset(-mActiveBarSlop, -mActiveBarSlop)
+        if (mBarTempRect.contains(x, y)) {
+
+            mBarTempRect.set(mCropRect)
+            mBarTempRect.inset(mActiveBarSlop, mActiveBarSlop)
+            if (!mBarTempRect.contains(x, y)) {
+                if (x < mBarTempRect.left) {
+                    barFlag = barFlag or BAR_LEFT
+                } else if (x > mBarTempRect.right) {
+                    barFlag = barFlag or BAR_RIGHT
+                }
+
+                if (y < mBarTempRect.top) {
+                    barFlag = barFlag or BAR_TOP
+                } else if (y > mBarTempRect.bottom) {
+                    barFlag = barFlag or BAR_BOTTOM
+                }
+            }
         }
-    }
-
-    private fun distanceSquare(x1: Float, y1: Float, x2: Float, y2: Float): Float {
-        return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
+        return barFlag
     }
 
     override fun onDraw(canvas: Canvas) {
