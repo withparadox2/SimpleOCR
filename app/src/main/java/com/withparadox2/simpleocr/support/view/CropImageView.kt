@@ -2,6 +2,7 @@ package com.withparadox2.simpleocr.support.view
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
@@ -26,7 +27,6 @@ const val BAR_LEFT = 1 shl 3
 class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(context, attributeSet), CropRotationWheel.Callback {
     private val mPaint: Paint = Paint()
     private val mCropRect = RectF()
-    private var mTempCropRect = RectF()
 
     // The initial image matrix that make bitmap be filled in bounds defined by mDefaultRect, and it
     // is used to help to return back after manipulating the image
@@ -43,7 +43,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     private val mRectHandle = RectF()
 
     private var mAnimateLineRatio = 0.0f
-    private var mAnimateLineIndex = BAR_UNDEFINED
+    private var mAnimateActiveBarFlag = BAR_UNDEFINED
     private val mLineAnimator = ObjectAnimator.ofFloat(this, "animateLineRatio", 1.0f, 0.0f).setDuration(500)
     private var mGridLineAnimator: ObjectAnimator? = null
 
@@ -56,7 +56,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         mPaint.color = Color.WHITE
         mPaint.style = Paint.Style.STROKE
         mLineAnimator.doOnEnd {
-            mAnimateLineIndex = BAR_UNDEFINED
+            mAnimateActiveBarFlag = BAR_UNDEFINED
         }
     }
 
@@ -103,7 +103,12 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         invalidate()
     }
 
+    private var mIsTranslating = false
+    private var mIsAnimating = false
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (mIsAnimating) {
+            return true
+        }
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 mActiveBarFlag = getActiveBar(event.x, event.y)
@@ -112,9 +117,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                 mLastTouchY = event.y
 
                 if (mActiveBarFlag != BAR_UNDEFINED) {
-                    mTempCropRect.set(mCropRect)
-
-                    mAnimateLineIndex = mActiveBarFlag
+                    mAnimateActiveBarFlag = mActiveBarFlag
                     if (mLineAnimator.isRunning) {
                         mLineAnimator.cancel()
                     }
@@ -130,7 +133,9 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                     fitBound(false)
                 } else {
                     // handle other gesture
-
+                    mIsTranslating = true
+                    imageMatrix.postTranslate(deltaX, deltaY)
+                    invalidate()
                 }
                 mLastTouchX = event.x
                 mLastTouchY = event.y
@@ -140,6 +145,9 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                     startGridLineAnimation {
                         mActiveBarFlag = BAR_UNDEFINED
                     }
+                } else if (mIsTranslating) {
+                    mIsTranslating = false
+                    fitBound(false, true)
                 }
                 resetStartRotateScale()
             }
@@ -231,16 +239,16 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
             // before set alpha
             mPaint.color = resources.getColor(R.color.colorAccent)
             mPaint.alpha = (255 * mAnimateLineRatio).toInt()
-            if (BAR_BOTTOM and mAnimateLineIndex != 0) {
+            if (BAR_BOTTOM and mAnimateActiveBarFlag != 0) {
                 canvas.drawLine(mCropRect.left, mCropRect.bottom, mCropRect.right, mCropRect.bottom, mPaint)
             }
-            if (BAR_TOP and mAnimateLineIndex != 0) {
+            if (BAR_TOP and mAnimateActiveBarFlag != 0) {
                 canvas.drawLine(mCropRect.left, mCropRect.top, mCropRect.right, mCropRect.top, mPaint)
             }
-            if (BAR_LEFT and mAnimateLineIndex != 0) {
+            if (BAR_LEFT and mAnimateActiveBarFlag != 0) {
                 canvas.drawLine(mCropRect.left, mCropRect.top, mCropRect.left, mCropRect.bottom, mPaint)
             }
-            if (BAR_RIGHT and mAnimateLineIndex != 0) {
+            if (BAR_RIGHT and mAnimateActiveBarFlag != 0) {
                 canvas.drawLine(mCropRect.right, mCropRect.top, mCropRect.right, mCropRect.bottom, mPaint)
             }
             invalidate()
@@ -286,7 +294,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     private val mTempMatrix = Matrix()
     private var mRotating = false
 
-    private fun fitBound(scaleBack: Boolean) {
+    private fun fitBound(scaleBack: Boolean, animate: Boolean = false) {
         val rotation = mPreRotation
         val centerX = mCropRect.centerX()
         val centerY = mCropRect.centerY()
@@ -316,12 +324,39 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         }
 
         val ratio = targetScale / mPreScale
-        imageMatrix.postScale(ratio, ratio, centerX, centerY)
-        imageMatrix.postTranslate(translation.x, translation.y)
-
         mPreScale = targetScale
 
-        invalidate()
+        if (!animate) {
+            imageMatrix.postScale(ratio, ratio, centerX, centerY)
+            imageMatrix.postTranslate(translation.x, translation.y)
+            invalidate()
+        } else {
+            mIsAnimating = true
+            val animator = ValueAnimator.ofFloat(0f, 1f)
+            var preX = 0.0f
+            var preY = 0.0f
+            var preScale = 1.0f
+            animator.addUpdateListener {
+                val value: Float = it.animatedValue as Float
+                val deltaX = value * translation.x - preX
+                val deltaY = value * translation.y - preY
+                preX += deltaX
+                preY += deltaY
+
+                val deltaScale = (1 + value * (ratio - 1)) * preScale
+                preScale *= deltaScale
+
+                imageMatrix.postScale(deltaScale, deltaScale, centerX, centerY)
+                imageMatrix.postTranslate(deltaX, deltaY)
+
+                invalidate()
+            }
+            animator.duration = 100
+            animator.doOnEnd {
+                mIsAnimating = false
+            }
+            animator.start()
+        }
     }
 
     private fun getScaleToFitBound(): Float {
