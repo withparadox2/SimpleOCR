@@ -206,7 +206,6 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
                 mActivePointerId = MotionEvent.INVALID_POINTER_ID
                 if (mActiveBarFlag != BAR_UNDEFINED) {
                     mActiveBarFlag = BAR_UNDEFINED
-                    startGridLineAnimation()
                 } else if (mIsDragging) {
                     mIsDragging = false
                     fitBound(false, true)
