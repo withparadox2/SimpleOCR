@@ -41,4 +41,5 @@ dependencies {
     androidTestImplementation "android.arch.persistence.room:testing:$rootProject.roomVersion"
     implementation "android.arch.lifecycle:extensions:$rootProject.archLifecycleVersion"
     kapt "android.arch.lifecycle:compiler:$rootProject.archLifecycleVersion"
+    implementation project(":baselib")
 }

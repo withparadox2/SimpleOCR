@@ -1,1 +1,3 @@
-include ':app'
+include ':app', ':baselib'
+include ':templatedefault'
+project(':templatedefault').projectDir = new File('template/default')

@@ -18,6 +18,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
 import androidx.core.graphics.applyCanvas
 import com.withparadox2.simpleocr.R
+import com.withparadox2.simpleocr.baselib.template.loadFragmentFromApk
 import com.withparadox2.simpleocr.support.edit.Editor
 import com.withparadox2.simpleocr.support.store.AppDatabase
 import com.withparadox2.simpleocr.support.store.BookInfo
@@ -83,6 +84,11 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         })
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        val fragment = loadFragmentFromApk(this, getBasePath() + "templatedefault.apk", Bundle())
+        if (fragment != null) {
+            supportFragmentManager.beginTransaction().add(android.R.id.content, fragment, null).commit()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
