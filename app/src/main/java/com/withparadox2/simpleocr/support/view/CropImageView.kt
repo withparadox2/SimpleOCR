@@ -43,6 +43,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
 
     private var mBitmapScale: Float = 1f
 
+    private val mMaxCropRect = RectF()
     private var mInitContentRect = RectF()
     private val mRectHandle = RectF()
 
@@ -121,6 +122,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         mBitmapScale = scale
         mInitContentRect.set(tx, ty, tx + bitmap.width * scale, ty + bitmap.height * scale)
         mCropRect.set(mInitContentRect)
+        mMaxCropRect.set(padding, padding, measuredWidth - padding, measuredHeight - padding)
     }
 
     private fun setAnimateLineRatio(value: Float) {
@@ -162,7 +164,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
             MotionEvent.ACTION_MOVE -> {
                 if (mActiveBarFlag != BAR_UNDEFINED) {
                     // change crop area
-                    consumeMoveForCrop(event.x - mLastTouchX, event.y - mLastTouchY)
+                    changeCropArea(event.x - mLastTouchX, event.y - mLastTouchY)
                     fitBound(false)
                     mLastTouchX = event.x
                     mLastTouchY = event.y
@@ -219,19 +221,19 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         return true
     }
 
-    private fun consumeMoveForCrop(deltaX: Float, deltaY: Float) {
+    private fun changeCropArea(deltaX: Float, deltaY: Float) {
         val minSize = 4 * mActiveBarSlop
 
         if (mActiveBarFlag and BAR_TOP != 0) {
-            mCropRect.top = Math.min(Math.max(mCropRect.top + deltaY, mInitContentRect.top), mCropRect.bottom - minSize)
+            mCropRect.top = Math.min(Math.max(mCropRect.top + deltaY, mMaxCropRect.top), mCropRect.bottom - minSize)
         } else if (mActiveBarFlag and BAR_BOTTOM != 0) {
-            mCropRect.bottom = Math.max(Math.min(mCropRect.bottom + deltaY, mInitContentRect.bottom), mCropRect.top + minSize)
+            mCropRect.bottom = Math.max(Math.min(mCropRect.bottom + deltaY, mMaxCropRect.bottom), mCropRect.top + minSize)
         }
 
         if (mActiveBarFlag and BAR_LEFT != 0) {
-            mCropRect.left = Math.min(Math.max(mCropRect.left + deltaX, mInitContentRect.left), mCropRect.right - minSize)
+            mCropRect.left = Math.min(Math.max(mCropRect.left + deltaX, mMaxCropRect.left), mCropRect.right - minSize)
         } else if (mActiveBarFlag and BAR_RIGHT != 0) {
-            mCropRect.right = Math.max(Math.min(mCropRect.right + deltaX, mInitContentRect.right), mCropRect.left + minSize)
+            mCropRect.right = Math.max(Math.min(mCropRect.right + deltaX, mMaxCropRect.right), mCropRect.left + minSize)
         }
     }
 
