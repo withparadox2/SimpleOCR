@@ -12,10 +12,11 @@ import android.content.res.Resources
  * Created by withparadox2 on 2018/11/17.
  */
 const val APK_PATH = "apk_path"
+const val FRAGMENT_NAME = "com.withparadox2.template.TemplateFragment"
 
-fun loadFragmentFromApk(context: Context, apkPath: String, args: Bundle): Fragment? {
+fun loadFragmentFromApk(context: Context, apkPath: String, args: Bundle, fragmentName: String = FRAGMENT_NAME): Fragment? {
     try {
-        val fragment = createDexLoader(context, apkPath).loadClass("com.withparadox2.template.TemplateFragment").newInstance() as Fragment
+        val fragment = createDexLoader(context, apkPath).loadClass(fragmentName).newInstance() as Fragment
         fragment.arguments = args.apply {
             this.putString(APK_PATH, apkPath)
         }
@@ -34,14 +35,14 @@ fun createAssetManager(dexPath: String): AssetManager? {
     try {
         val assetManager = AssetManager::class.java.newInstance()
         assetManager::class.java.getMethod("addAssetPath", String::class.java).invoke(assetManager, dexPath)
-        return assetManager;
+        return assetManager
     } catch (e: java.lang.Exception) {
-        e.printStackTrace();
+        e.printStackTrace()
     }
     return null
 }
 
 fun createResource(context: Context?, assetManager: AssetManager?): Resources? {
     if (context == null || assetManager == null) return null
-    return Resources(assetManager, context.resources.displayMetrics, context.resources.configuration);
+    return Resources(assetManager, context.resources.displayMetrics, context.resources.configuration)
 }
