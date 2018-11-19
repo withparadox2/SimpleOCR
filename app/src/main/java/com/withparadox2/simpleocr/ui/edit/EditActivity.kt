@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.*
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -16,8 +15,9 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
-import androidx.core.graphics.applyCanvas
 import com.withparadox2.simpleocr.R
+import com.withparadox2.simpleocr.baselib.template.Callback
+import com.withparadox2.simpleocr.baselib.template.ITemplate
 import com.withparadox2.simpleocr.baselib.template.loadFragmentFromApk
 import com.withparadox2.simpleocr.support.edit.Editor
 import com.withparadox2.simpleocr.support.store.AppDatabase
@@ -26,11 +26,8 @@ import com.withparadox2.simpleocr.support.store.BookInfoDao
 import com.withparadox2.simpleocr.ui.BaseActivity
 import com.withparadox2.simpleocr.ui.getCameraIntent
 import com.withparadox2.simpleocr.util.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import java.io.File
-import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -39,56 +36,60 @@ private const val KEY_INTENT_CONTENT = "content"
 
 @SuppressLint("SetTextI18n")
 class EditActivity : BaseActivity(), View.OnClickListener {
-    private val tvTitle: TextView by bind(R.id.tv_title)
-    private val tvAuthor: TextView by bind(R.id.tv_author)
-    private val etContent: EditText by bind(R.id.et_content)
-    private val tvDate: TextView by bind(R.id.tv_date)
     private val btnEdit: View by bind(R.id.btn_edit_content)
     private val btnMore: View by bind(R.id.btn_edit_more)
 
     private lateinit var mContentEditor: Editor
     private var mBookInfo: BookInfo? = null
 
+    private lateinit var mFragment: ITemplate
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit)
         btnEdit.setOnClickListener(this)
         btnMore.setOnClickListener(this)
-        tvTitle.setOnClickListener(this)
-        tvAuthor.setOnClickListener(this)
+
+        val fragment = loadFragmentFromApk(this, getBasePath() + "templatedefault.apk", Bundle())
+                ?: return
+        supportFragmentManager.beginTransaction().add(R.id.layout_fragment, fragment, null).commit()
+
+        mFragment = fragment as ITemplate
 
         val rawContent = intent.getStringExtra(KEY_INTENT_CONTENT)
-        etContent.setText(rawContent)
+        mFragment.setCallback(object : Callback {
+            override fun onViewCreated() {
+                mFragment.setContent(rawContent)
+                mFragment.setDate(getDateStr())
+                getLastBookInfo()?.also {
+                    setBookInfoView(it)
+                }
 
-        tvDate.text = getDateStr()
+                mContentEditor = Editor(rawContent, object : Editor.Callback {
+                    override fun onContentChange(content: String) {
+                        mFragment.setContent(content)
+                    }
+                })
 
-        getLastBookInfo()?.also {
-            setBookInfoView(it)
-        }
+                mFragment.setContentTextWatcher(object : TextWatcher {
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                    }
 
-        mContentEditor = Editor(rawContent, object : Editor.Callback {
-            override fun onContentChange(content: String) {
-                etContent.setText(content)
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                        mContentEditor.updateContent(s.toString())
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {
+                    }
+                })
             }
-        })
-        etContent.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                mContentEditor.updateContent(s.toString())
-            }
-
-            override fun afterTextChanged(s: Editable?) {
+            override fun onSelectBookInfo() {
+                showBookInfoDialog()
             }
         })
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        val fragment = loadFragmentFromApk(this, getBasePath() + "templatedefault.apk", Bundle())
-        if (fragment != null) {
-            supportFragmentManager.beginTransaction().add(android.R.id.content, fragment, null).commit()
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -98,7 +99,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.share) {
-            GlobalScope.launchUI { share() }
+            share()
         } else if (item.itemId == android.R.id.home) {
             finish()
         }
@@ -110,13 +111,10 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         setLastBookInfoId(mBookInfo?.id)
     }
 
-    private suspend fun share() {
-        btnEdit.visibility = View.INVISIBLE
-        btnMore.visibility = View.INVISIBLE
-        etContent.isCursorVisible = false
+    private fun share() {
         val filePath = getBasePath() + "share_${System.currentTimeMillis()}.png"
 
-        if (doExport(filePath)) {
+        if (mFragment.renderBitmapAndSave(filePath)) {
             sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(File(filePath))))
             startActivity(Intent.createChooser(
                     Intent(Intent.ACTION_SEND).also {
@@ -126,60 +124,6 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         } else {
             toast("Export png failed")
         }
-
-        btnEdit.visibility = View.VISIBLE
-        btnMore.visibility = View.VISIBLE
-        etContent.isCursorVisible = true
-    }
-
-    private suspend fun doExport(filePath: String): Boolean {
-        return GlobalScope.async(Dispatchers.IO) {
-            var outOfMemoryErrorTimes = 0
-            val renderAndOutput = { antiAlias: Boolean ->
-                var bitmap: Bitmap? = null
-                var bitmap2: Bitmap? = null
-                var outputStream: FileOutputStream? = null
-                val radius = dp2px(8).toFloat()
-                try {
-                    val view: View = findViewById(R.id.layout_container)
-                    bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-                    bitmap.applyCanvas {
-                        if (!antiAlias) {
-                            clipPath(createRoundedPath(view.width.toFloat(), view.height.toFloat(), radius))
-                        }
-                        view.draw(this)
-                    }
-
-                    if (antiAlias) {
-                        val paint = Paint(Paint.ANTI_ALIAS_FLAG).also {
-                            it.shader = BitmapShader(bitmap!!, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
-                        }
-                        bitmap2 = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-                        bitmap2.applyCanvas { drawRoundRect(0f, 0f, view.width.toFloat(), view.height.toFloat(), radius, radius, paint) }
-                    }
-
-                    outputStream = FileOutputStream(filePath)
-                    (if (antiAlias) bitmap2 else bitmap)?.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                } catch (e: OutOfMemoryError) {
-                    outOfMemoryErrorTimes++
-                } finally {
-                    closeQuietly(outputStream)
-                    bitmap?.recycle()
-                }
-            }
-            renderAndOutput(true)
-            if (outOfMemoryErrorTimes == 1) {
-                System.gc()
-                renderAndOutput(false)
-            }
-            File(filePath).exists()
-        }.await()
-    }
-
-    private fun createRoundedPath(width: Float, height: Float, radius: Float): Path {
-        return Path().apply { addRoundRect(0f, 0f, width, height, radius, radius, Path.Direction.CCW) }
     }
 
     private fun showEditDialog() {
@@ -200,7 +144,6 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     override fun onClick(v: View) {
         when (v.id) {
             R.id.btn_edit_content -> showEditDialog()
-            R.id.tv_title, R.id.tv_author -> showBookInfoDialog()
             R.id.btn_edit_more -> {
                 startActivityForResult(getCameraIntent(this), REQUEST_MORE_TEXT)
             }
@@ -292,8 +235,8 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun setBookInfoView(info: BookInfo) {
-        tvAuthor.text = info.author
-        tvTitle.text = info.title
+        mFragment.setAuthor(info.author)
+        mFragment.setTitle(info.title)
         mBookInfo = info
     }
 
@@ -324,15 +267,15 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     private fun showInsertDialog(text: String) {
         AlertDialog.Builder(this).setTitle("Insert where?").setItems(arrayOf("Begin", "Cursor", "End")) { _, i ->
             when (i) {
-                0 -> etContent.setText(text + etContent.text)
+                0 -> mFragment.setContent(text + mFragment.getEditTextContent())
                 1 -> {
-                    val selection = etContent.selectionStart
-                    etContent.setText(etContent.text.toString().let {
+                    val selection = mFragment.getEditSelection()
+                    mFragment.setContent(mFragment.getEditTextContent().toString().let {
                         it.subSequence(0, selection).toString() + text + it.subSequence(selection, it.length - 1)
                     })
-                    etContent.setSelection(selection)
+                    mFragment.setEditSelection(selection)
                 }
-                2 -> etContent.setText(etContent.text.toString() + text)
+                2 -> mFragment.setContent(mFragment.getEditTextContent().toString() + text)
             }
         }.show()
     }
