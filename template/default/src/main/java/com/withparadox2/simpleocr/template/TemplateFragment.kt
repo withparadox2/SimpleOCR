@@ -1,4 +1,4 @@
-package com.withparadox2.template
+package com.withparadox2.simpleocr.template
 
 import com.withparadox2.simpleocr.baselib.template.BaseTemplateFragment
 import com.withparadox2.templatedefault.R

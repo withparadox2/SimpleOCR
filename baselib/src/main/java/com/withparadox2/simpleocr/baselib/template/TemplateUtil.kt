@@ -12,7 +12,7 @@ import android.content.res.Resources
  * Created by withparadox2 on 2018/11/17.
  */
 const val APK_PATH = "apk_path"
-const val FRAGMENT_NAME = "com.withparadox2.template.TemplateFragment"
+const val FRAGMENT_NAME = "com.withparadox2.simpleocr.template.TemplateFragment"
 
 fun loadFragmentFromApk(context: Context, apkPath: String, args: Bundle, fragmentName: String = FRAGMENT_NAME): Fragment? {
     try {
