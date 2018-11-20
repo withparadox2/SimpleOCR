@@ -5,7 +5,6 @@ import android.content.res.AssetManager
 import android.content.res.Resources
 import android.graphics.*
 import android.os.Bundle
-import android.os.TokenWatcher
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +13,8 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.withparadox2.simpleocr.baselib.R
+import com.withparadox2.simpleocr.template.Callback
+import com.withparadox2.simpleocr.template.ITemplate
 import java.io.Closeable
 import java.io.File
 import java.io.FileOutputStream
@@ -36,7 +37,7 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
     private var delegate: Callback? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        rootView = inflater.inflate(geResources()?.getLayout(getLayoutResourceId()), container, false)
+        rootView = inflater.inflate(getSelfResources()?.getLayout(getLayoutResourceId()), container, false)
         tvTitle = rootView.findViewById(R.id.tv_title)
         tvAuthor = rootView.findViewById(R.id.tv_author)
         etContent = rootView.findViewById(R.id.et_content)
@@ -54,7 +55,7 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
 
     abstract fun getLayoutResourceId(): Int
 
-    fun getAssetManager(): AssetManager? {
+    fun getSelfAssetManager(): AssetManager? {
         if (mAssetManager == null) {
             val apkPath = arguments?.getString(APK_PATH)
             if (apkPath != null && apkPath.isNotEmpty()) {
@@ -66,9 +67,9 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
     }
 
 
-    fun geResources(): Resources? {
+    fun getSelfResources(): Resources? {
         if (mResources == null) {
-            mResources = createResource(activity, getAssetManager())
+            mResources = createResource(activity, getSelfAssetManager())
         }
         return mResources
     }
@@ -163,24 +164,6 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
     override fun setContentTextWatcher(watcher: TextWatcher) {
         this.etContent.addTextChangedListener(watcher)
     }
-}
-
-interface ITemplate {
-    fun setTitle(title: String)
-    fun setAuthor(author: String)
-    fun setContent(content: String)
-    fun setDate(date: String)
-    fun renderBitmapAndSave(filePath: String): Boolean
-    fun getEditSelection(): Int
-    fun getEditTextContent(): CharSequence
-    fun setEditSelection(selection: Int)
-    fun setContentTextWatcher(watcher: TextWatcher)
-    fun setCallback(callback: Callback)
-}
-
-interface Callback {
-    fun onSelectBookInfo()
-    fun onViewCreated()
 }
 
 fun closeQuietly(close: Closeable?) {
