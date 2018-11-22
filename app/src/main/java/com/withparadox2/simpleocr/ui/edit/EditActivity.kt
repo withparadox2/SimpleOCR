@@ -201,7 +201,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             }
         }
         val listView = layout.findViewById<ListView>(R.id.lv_bookinfo)
-        listView.setOnItemClickListener { adapterView, view, i, l ->
+        listView.setOnItemClickListener { _, _, i, _ ->
             setBookInfoView(list[i])
             dismissDialogAction?.invoke()
         }
@@ -265,15 +265,15 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     private fun showInsertDialog(text: String) {
         AlertDialog.Builder(this).setTitle("Insert where?").setItems(arrayOf("Begin", "Cursor", "End")) { _, i ->
             when (i) {
-                0 -> mFragment.setContent(text + mFragment.getEditTextContent())
+                0 -> mFragment.setContent(text + mFragment.editTextContent)
                 1 -> {
-                    val selection = mFragment.getEditSelection()
-                    mFragment.setContent(mFragment.getEditTextContent().toString().let {
+                    val selection = mFragment.editSelection
+                    mFragment.setContent(mFragment.editTextContent.toString().let {
                         it.subSequence(0, selection).toString() + text + it.subSequence(selection, it.length - 1)
                     })
-                    mFragment.setEditSelection(selection)
+                    mFragment.editSelection = selection
                 }
-                2 -> mFragment.setContent(mFragment.getEditTextContent().toString() + text)
+                2 -> mFragment.setContent(mFragment.editTextContent.toString() + text)
             }
         }.show()
     }

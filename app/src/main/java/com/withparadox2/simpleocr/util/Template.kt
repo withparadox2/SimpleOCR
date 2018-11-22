@@ -15,7 +15,7 @@ fun loadFragmentFromApk(context: Context, apkPath: String, args: Bundle, fragmen
             this.putString(APK_PATH, apkPath)
         }
         return fragment
-    } catch (e: Exception) {
+    } catch (e : Throwable) {
         e.printStackTrace()
     }
     return null
