@@ -19,7 +19,8 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    api dep.android.x.appcompat
+//    api dep.android.x.appcompat
     compileOnly dep.kotlin.stdlib.jdk
+    compileOnly project(":stub")
     api project(":ibaselib")
 }

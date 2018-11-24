@@ -1,1 +1,21 @@
 apply from: '../build.gradle'
+//
+//android {
+//    applicationVariants.all { variant ->
+//        def varName = variant.name
+//        def varNameCap = varName.capitalize()
+//        def assembleTask = tasks.findByName("transformClassesWithDexBuilderFor$varNameCap")
+//        assembleTask.doFirst {
+//            def fileSet = it.inputs.files
+//            fileSet.each {
+//                if (it.absolutePath.contains("TemplateFragment.class")) {
+//                    fileSet.(it)
+//                }
+//            }
+//
+//            it.inputs.files.each {
+//                println ("name = " + it.absolutePath)
+//            }
+//        }
+//    }
+//}
