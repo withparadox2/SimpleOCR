@@ -15,6 +15,7 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
+import androidx.fragment.app.Fragment
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.edit.Editor
 import com.withparadox2.simpleocr.support.store.AppDatabase
@@ -48,8 +49,11 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         btnEdit.setOnClickListener(this)
         btnMore.setOnClickListener(this)
 
-        val fragment = loadFragmentFromApk(this, getBasePath() + "templatedefault.apk", Bundle())
-                ?: return
+        var fragment = loadLocalFragment()
+        if (fragment == null) {
+            fragment = loadFragmentFromApk(this, getBasePath() + "templatedefault.apk", Bundle())
+                    ?: return
+        }
         supportFragmentManager.beginTransaction().add(R.id.layout_fragment, fragment, null).commit()
 
         mFragment = fragment as ITemplate
@@ -88,6 +92,15 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         })
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    private fun loadLocalFragment(): Fragment? {
+        try {
+            return Class.forName(FRAGMENT_NAME).newInstance() as Fragment
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+        return null
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

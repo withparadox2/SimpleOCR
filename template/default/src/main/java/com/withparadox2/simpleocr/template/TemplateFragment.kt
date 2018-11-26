@@ -1,10 +1,8 @@
 package com.withparadox2.simpleocr.template
 
-import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import com.withparadox2.simpleocr.baselib.template.BaseTemplateFragment
 import com.withparadox2.simpleocr.templatedefault.R
 
@@ -12,6 +10,11 @@ import com.withparadox2.simpleocr.templatedefault.R
  * Created by withparadox2 on 2018/11/17.
  */
 class TemplateFragment : BaseTemplateFragment() {
+
+    lateinit var tvTitle: TextView
+    lateinit var tvAuthor: TextView
+    lateinit var tvDate: TextView
+
     override fun onBeforeRender() {
         etContent.isCursorVisible = false
     }
@@ -24,8 +27,18 @@ class TemplateFragment : BaseTemplateFragment() {
         return R.layout.fragment_template
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view: View? = super.onCreateView(inflater, container, savedInstanceState)
+    override fun onCreateViewInternal() {
+        tvTitle = rootView.findViewById(com.withparadox2.simpleocr.baselib.R.id.tv_title)
+        tvAuthor = rootView.findViewById(com.withparadox2.simpleocr.baselib.R.id.tv_author)
+        tvDate = rootView.findViewById(com.withparadox2.simpleocr.baselib.R.id.tv_date)
+
+        val action = View.OnClickListener {
+            delegate?.onSelectBookInfo()
+        }
+
+        tvTitle.setOnClickListener(action)
+        tvAuthor.setOnClickListener(action)
+
         val resources = getSelfResources()
         if (resources != null) {
             rootView.setBackgroundColor(resources.getColor(R.color.white))
@@ -41,6 +54,17 @@ class TemplateFragment : BaseTemplateFragment() {
             (rootView.findViewById<ImageView>(R.id.tv_left_quote)).setImageDrawable(resources.getDrawable(R.drawable.quote_begin))
             (rootView.findViewById<ImageView>(R.id.tv_right_quote)).setImageDrawable(resources.getDrawable(R.drawable.quote_end))
         }
-        return view
+    }
+
+    override fun setTitle(title: String) {
+        tvTitle.text = title
+    }
+
+    override fun setAuthor(author: String) {
+        tvAuthor.text = author
+    }
+
+    override fun setDate(date: String) {
+        tvDate.text = date
     }
 }

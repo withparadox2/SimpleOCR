@@ -10,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.withparadox2.simpleocr.baselib.R
 import com.withparadox2.simpleocr.template.Callback
@@ -27,68 +26,57 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
     private var mAssetManager: AssetManager? = null
     private var mResources: Resources? = null
 
-    lateinit var tvTitle: TextView
-    lateinit var tvAuthor: TextView
     lateinit var etContent: EditText
-    lateinit var tvDate: TextView
 
     lateinit var rootView: View
 
-    private var delegate: Callback? = null
+    private var mIsStandalone = false
+
+    var delegate: Callback? = null
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        mIsStandalone = arguments?.getString(APK_PATH)?.let { it.trim().isNotEmpty() } ?: false
+
         rootView = inflater.inflate(getSelfResources()?.getLayout(getLayoutResourceId()), container, false)
-        tvTitle = rootView.findViewById(R.id.tv_title)
-        tvAuthor = rootView.findViewById(R.id.tv_author)
         etContent = rootView.findViewById(R.id.et_content)
-        tvDate = rootView.findViewById(R.id.tv_date)
-
-        val action = View.OnClickListener {
-            delegate?.onSelectBookInfo()
-        }
-
-        tvTitle.setOnClickListener(action)
-        tvAuthor.setOnClickListener(action)
+        onCreateViewInternal()
         delegate?.onViewCreated()
         return rootView
     }
+
+    open fun onCreateViewInternal() {}
 
     abstract fun getLayoutResourceId(): Int
 
     fun getSelfAssetManager(): AssetManager? {
         if (mAssetManager == null) {
             val apkPath = arguments?.getString(APK_PATH)
-            if (apkPath != null && apkPath.isNotEmpty()) {
-                mAssetManager = createAssetManager(apkPath)
+            if (mIsStandalone) {
+                mAssetManager = createAssetManager(apkPath!!)
+            } else {
+                mAssetManager = activity.assets
             }
 
         }
         return mAssetManager
     }
 
-
     fun getSelfResources(): Resources? {
         if (mResources == null) {
-            mResources = createResource(activity, getSelfAssetManager())
+            if (mIsStandalone) {
+                mResources = createResource(activity, getSelfAssetManager())
+            } else {
+                mResources = activity.resources
+            }
         }
         return mResources
-    }
-
-    override fun setTitle(title: String) {
-        tvTitle.text = title
-    }
-
-    override fun setAuthor(author: String) {
-        tvAuthor.text = author
     }
 
     override fun setContent(content: String) {
         etContent.setText(content)
     }
 
-    override fun setDate(date: String) {
-        tvDate.text = date
-    }
 
     abstract fun onBeforeRender()
     abstract fun onAfterRender()
