@@ -27,12 +27,14 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
     private var mResources: Resources? = null
 
     lateinit var etContent: EditText
+    lateinit var layoutContainer: View
 
     lateinit var rootView: View
 
     private var mIsStandalone = false
 
     var delegate: Callback? = null
+    private var mScreenWidth = 0
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -40,6 +42,7 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
 
         rootView = inflater.inflate(getSelfResources()?.getLayout(getLayoutResourceId()), container, false)
         etContent = rootView.findViewById(R.id.et_content)
+        layoutContainer = rootView.findViewById(R.id.layout_container)
         onCreateViewInternal()
         delegate?.onViewCreated()
         return rootView
@@ -91,7 +94,7 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
             var outputStream: FileOutputStream? = null
             val radius = dp2px(8, activity!!).toFloat()
             try {
-                val view: View = rootView.findViewById(R.id.layout_container)
+                val view: View = layoutContainer
                 bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
                 var canvas = Canvas(bitmap!!)
                 if (!antiAlias) {
@@ -151,6 +154,13 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
 
     override fun setContentTextWatcher(watcher: TextWatcher) {
         this.etContent.addTextChangedListener(watcher)
+    }
+
+    fun getScaleSize(size: Int): Int {
+        if (this.mScreenWidth == 0) {
+            this.mScreenWidth = activity.resources.displayMetrics.widthPixels
+        }
+        return (this.mScreenWidth * size) / 1080
     }
 }
 
