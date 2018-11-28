@@ -1,4 +1,4 @@
-apply plugin: 'com.android.library'
+apply plugin: 'com.withparadox2.simpleocr.template'
 apply plugin: 'kotlin-android'
 
 android {
@@ -28,3 +28,4 @@ dependencies {
     implementation project(":baselib")
     compileOnly project(":stub")
 }
+
