@@ -13,8 +13,10 @@ import com.withparadox2.simpleocr.templatedefault.R
  * Created by withparadox2 on 2018/11/17.
  */
 class TemplateFragment : BaseTemplateFragment() {
-    lateinit var tvTitleAndAuthor: TextView
-    lateinit var tvDate: TextView
+    private lateinit var tvTitleAndAuthor: TextView
+    private lateinit var tvDate: TextView
+    private var mTitle: String? = null
+    private var mAuthor: String? = null
 
     override fun onBeforeRender() {
         etContent.isCursorVisible = false
@@ -70,9 +72,31 @@ class TemplateFragment : BaseTemplateFragment() {
     }
 
     override fun setTitle(title: String?) {
+        mTitle = title
+        updateTitleAndAuthor()
     }
 
     override fun setAuthor(author: String?) {
+        mAuthor = author
+        updateTitleAndAuthor()
+    }
+
+    private fun updateTitleAndAuthor() {
+        var text: String? = null
+        if (mAuthor != null) {
+            text = mAuthor
+        }
+        if (mTitle != null) {
+            if (text != null) {
+                text += "•"
+            }
+            text += mTitle
+        }
+
+        if (text != null) {
+            text = "—" + text
+        }
+        tvTitleAndAuthor.text = text
     }
 
     override fun setDate(date: String?) {
