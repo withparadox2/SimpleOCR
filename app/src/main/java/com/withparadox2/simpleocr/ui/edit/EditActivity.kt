@@ -351,17 +351,22 @@ fun copyAPkIfNot(context: Context) {
         try {
             val path = getTemplateBasePath() + it
             File(path).parentFile.mkdirs()
-            val `is` = context.assets.open(it)
-            val os = FileOutputStream(File(path))
+            val input = context.assets.open(it)
+            val output = FileOutputStream(File(path))
 
             val buffer = ByteArray(1024)
-            while (`is`.read(buffer) > 0) {
-                os.write(buffer)
+            var len: Int
+            while (true) {
+                len = input.read(buffer)
+                if (len <= 0) {
+                    break
+                }
+                output.write(buffer, 0, len)
             }
 
-            os.flush()
-            os.close()
-            `is`.close()
+            output.flush()
+            output.close()
+            input.close()
         } catch (e: Throwable) {
             e.printStackTrace()
         }
