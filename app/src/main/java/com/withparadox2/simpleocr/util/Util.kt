@@ -21,6 +21,10 @@ fun getBasePath(): String {
     return basePath
 }
 
+fun getTemplateBasePath(): String {
+    return getBasePath() + "template/"
+}
+
 fun getTempBitmapPath(): String {
     return getBasePath() + "temp.jpg"
 }
