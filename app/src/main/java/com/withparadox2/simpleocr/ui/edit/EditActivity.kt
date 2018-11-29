@@ -48,6 +48,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        copyAPkIfNot(this)
         mRawContent = intent.getStringExtra(KEY_INTENT_CONTENT)
 
         setContentView(R.layout.activity_edit)
@@ -176,7 +177,6 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun showTemplateDialog() {
-        copyAPkIfNot(this)
         var array = File(getTemplateBasePath()).listFiles()?.filter { it.name.endsWith(".apk") }
         if (array == null || array.isEmpty()) {
             return
