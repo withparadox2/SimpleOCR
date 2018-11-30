@@ -38,4 +38,11 @@ class LineEditText(context: Context, attributeSet: AttributeSet) : EditText(cont
     override fun addTextChangedListener(watcher: TextWatcher?) {
         textWatcher = watcher
     }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        if (layout != null && lineCount > 1) {
+            setMeasuredDimension(measuredWidth, (lineCount * lineHeight - (spaceMult - 1) / 2 * textSize).toInt())
+        }
+    }
 }

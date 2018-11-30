@@ -54,7 +54,6 @@ class TemplateFragment : BaseTemplateFragment() {
             var lp = etContent.layoutParams as LinearLayout.LayoutParams
             lp.topMargin = (lineHeight + (lineHeight - etContent.textSize) / 2).toInt()
             etContent.layoutParams = lp
-            etContent.setPadding(etContent.paddingLeft, etContent.paddingTop, etContent.paddingRight, ((lineHeight - etContent.textSize) / 2).toInt())
 
             tvTitleAndAuthor.typeface = font
             tvTitleAndAuthor.setLineSpacing(0f, lineHeight / tvTitleAndAuthor.textSize)
