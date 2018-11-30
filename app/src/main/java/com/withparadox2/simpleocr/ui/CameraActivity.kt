@@ -42,24 +42,14 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
      */
     private var mRequestOcr = false
     private var mIsTakingPhoto = false
+    private var mGetPermissions = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
         mRequestOcr = intent.getBooleanExtra("requestOcr", false)
         mCameraView = CameraView(this)
-        mCameraView.setCameraCallback(object : CameraController.Callback {
-            override fun onOpenSuccess(camera: Camera) {
-                mBtnFlash.setFlashModeList(CameraController.instance.getFlashModes())
-            }
 
-            override fun onOpenFailed() {
-                toast("Failed to open camera")
-            }
-        })
-
-        val container = findViewById<ViewGroup>(R.id.layout_container)
-        container.addView(mCameraView, 0)
         mBtnShutter.setOnClickListener(this)
         mBtnPhoto.setOnClickListener(this)
 
@@ -69,6 +59,20 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
             }
 
             override fun onGranted() {
+                mGetPermissions = true
+                mCameraView.setCameraCallback(object : CameraController.Callback {
+                    override fun onOpenSuccess(camera: Camera) {
+                        mBtnFlash.setFlashModeList(CameraController.instance.getFlashModes())
+                    }
+
+                    override fun onOpenFailed() {
+                        toast("Failed to open camera")
+                    }
+                })
+
+                val container = findViewById<ViewGroup>(R.id.layout_container)
+                container.addView(mCameraView, 0)
+
                 mCameraView.onPermissionGranted()
             }
 
@@ -76,6 +80,10 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
+        if (!mGetPermissions) {
+            toast("Stop working for no permissions:P")
+            return
+        }
         when (v!!.id) {
             R.id.btn_shutter -> {
                 if (mIsTakingPhoto) {
