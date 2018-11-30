@@ -1,5 +1,5 @@
 include ':app', ':baselib', ':ibaselib', ':stub'
-include ':templatedefault'
-project(':templatedefault').projectDir = new File('template/default')
-include ':templatepoetry'
-project(':templatepoetry').projectDir = new File('template/poetry')
+include ':templateDefault'
+project(':templateDefault').projectDir = new File('template/default')
+include ':templatePoetry'
+project(':templatePoetry').projectDir = new File('template/poetry')
