@@ -37,6 +37,10 @@ class TemplateFragment : BaseTemplateFragment() {
         tvTitleAndAuthor = rootView.findViewById(R.id.tv_title_author)
         tvDate = rootView.findViewById(com.withparadox2.simpleocr.baselib.R.id.tv_date)
 
+        tvTitleAndAuthor.setOnClickListener {
+            delegate?.onSelectBookInfo()
+        }
+
         val resources = getSelfResources()
         if (resources != null) {
             rootView.setBackgroundColor(resources.getColor(R.color.white))
@@ -67,7 +71,6 @@ class TemplateFragment : BaseTemplateFragment() {
             tvTitleAndAuthor.setTextColor(resources.getColor(R.color.edit_main))
             etContent.setTextColor(resources.getColor(R.color.edit_main))
             tvDate.setTextColor(resources.getColor(R.color.edit_light))
-
         }
     }
 
