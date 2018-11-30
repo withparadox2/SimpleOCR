@@ -45,15 +45,19 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
         mIsStandalone = mApkPath?.let { it.trim().isNotEmpty() } ?: false
 
         if (mIsStandalone) {
-            changeClassLoader(activity, mApkPath!!)
+            // The class loader of BaseTemplateFragment is created in loading bundle phase
+            // with a parent loader exactly same as classloader to load activity
+            changeClassLoader(activity, BaseTemplateFragment::javaClass.javaClass.classLoader)
         }
         rootView = inflater.inflate(getSelfResources()?.getLayout(getLayoutResourceId()), container, false)
-        if (mIsStandalone) {
-            restoreClassLoader(activity)
-        }
+
         etContent = rootView.findViewById(R.id.et_content)
         layoutContainer = rootView.findViewById(R.id.layout_container)
         onCreateViewInternal()
+
+        if (mIsStandalone) {
+            restoreClassLoader(activity)
+        }
         delegate?.onViewCreated()
         return rootView
     }
@@ -192,10 +196,11 @@ fun dp2px(dip: Float, context: Context): Float {
 }
 
 var sSaveClassloader: ClassLoader? = null
-fun changeClassLoader(context: Context, apkPath: String) {
-    sSaveClassloader = context.classLoader
-    val newLoader = DexClassLoader(apkPath, context.getDir("template_cache", 0).absolutePath, null, context.classLoader)
-    setClassLoader(context, newLoader)
+fun changeClassLoader(context: Context, classLoader: ClassLoader?) {
+    if (classLoader != null) {
+        sSaveClassloader = context.classLoader
+        setClassLoader(context, classLoader)
+    }
 }
 
 fun restoreClassLoader(context: Context) {

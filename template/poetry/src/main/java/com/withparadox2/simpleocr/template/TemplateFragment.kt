@@ -44,7 +44,7 @@ class TemplateFragment : BaseTemplateFragment() {
         val resources = getSelfResources()
         if (resources != null) {
             rootView.setBackgroundColor(resources.getColor(R.color.white))
-            tvTitleAndAuthor.hint = resources.getText(R.string.edit_hint_title)
+            tvTitleAndAuthor.hint = resources.getText(R.string.edit_hint_title_author)
             etContent.hint = resources.getText(R.string.edit_hint_content)
 
             val font = Typeface.createFromAsset(getSelfAssetManager(), "lyric008.ttf")

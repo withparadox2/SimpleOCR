@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="edit_hint_content">Input text</string>
-    <string name="edit_hint_author">Author</string>
-    <string name="edit_hint_title">Book Name</string>
+    <string name="edit_hint_title_author">—Title•Author</string>
 </resources>

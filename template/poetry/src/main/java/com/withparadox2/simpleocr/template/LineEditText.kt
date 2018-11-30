@@ -41,7 +41,7 @@ class LineEditText(context: Context, attributeSet: AttributeSet) : EditText(cont
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        if (layout != null && lineCount > 1) {
+        if (layout != null && lineCount > 0) {
             setMeasuredDimension(measuredWidth, (lineCount * lineHeight - (spaceMult - 1) / 2 * textSize).toInt())
         }
     }

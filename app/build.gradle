@@ -38,5 +38,6 @@ dependencies {
     implementation dep.android.lifecycle.ext
     kapt dep.android.lifecycle.compiler
     implementation project(":ibaselib")
-//    implementation project(":templatepoetry")
+//    implementation project(":templateDefault")
+//    implementation project(":templatePoetry")
 }
