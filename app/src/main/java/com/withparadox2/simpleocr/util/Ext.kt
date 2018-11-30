@@ -5,10 +5,7 @@ import android.graphics.RectF
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileInputStream
 
@@ -16,6 +13,10 @@ import java.io.FileInputStream
  * Created by withparadox2 on 2018/11/7.
  */
 fun CoroutineScope.launchUI(blockParam: suspend CoroutineScope.() -> Unit) = GlobalScope.launch(Dispatchers.Main, block = blockParam)
+
+fun <T> CoroutineScope.asyncIO(blockParam: suspend CoroutineScope.() -> T): Deferred<T> = this.async(Dispatchers.IO) {
+    blockParam()
+}
 
 fun File.readBytes(): ByteArray {
     val ifs = FileInputStream(this)

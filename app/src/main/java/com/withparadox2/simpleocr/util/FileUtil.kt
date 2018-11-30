@@ -1,25 +1,20 @@
 package com.withparadox2.simpleocr.util
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import java.io.*
 
-suspend fun writeToFile(data: ByteArray, path: String): Boolean {
-    return GlobalScope.async(Dispatchers.IO) {
-        var output: OutputStream? = null
-        try {
-            output = BufferedOutputStream(FileOutputStream(path))
-            output.write(data)
-            output.flush()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return@async false
-        } finally {
-            closeQuietly(output)
-        }
-        true
-    }.await()
+fun writeToFile(data: ByteArray, path: String): Boolean {
+    var output: OutputStream? = null
+    try {
+        output = BufferedOutputStream(FileOutputStream(path))
+        output.write(data)
+        output.flush()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        return false
+    } finally {
+        closeQuietly(output)
+    }
+    return true
 }
 
 fun closeQuietly(close: Closeable?) {

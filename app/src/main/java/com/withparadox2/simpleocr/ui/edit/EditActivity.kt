@@ -64,13 +64,13 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         GlobalScope.launchUI {
-            val fragment = async(Dispatchers.IO) {
+            val fragment = asyncIO {
                 updateTemplateBundle()
                 var fragment = loadLocalFragment()
                 if (fragment == null) {
                     fragment = loadFragmentFromApk(this@EditActivity, getTemplateBasePath() + "templatedefault.apk", Bundle())
                 }
-                return@async fragment
+                return@asyncIO fragment
             }.await()
 
             if (fragment != null) {
@@ -220,7 +220,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
         AlertDialog.Builder(this).setTitle("Choose template").setItems(nameArray.toTypedArray()) { _, i ->
             GlobalScope.launchUI {
-                async {
+                asyncIO {
                     loadFragmentFromApk(this@EditActivity, array[i].absolutePath, Bundle())
                 }.await()?.also {
                     configFragment(it)
