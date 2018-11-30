@@ -177,12 +177,14 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun showTemplateDialog() {
-        var array = File(getTemplateBasePath()).listFiles()?.filter { it.name.endsWith(".apk") }
+        val array = File(getTemplateBasePath()).listFiles()?.filter { it.name.endsWith(".apk") }
         if (array == null || array.isEmpty()) {
             return
         }
 
-        AlertDialog.Builder(this).setTitle("Choose template").setItems(array.map { it.name }.toTypedArray()) { _, i ->
+        val nameArray = array.map { it.name.substring(8, it.name.indexOf(".")) }
+
+        AlertDialog.Builder(this).setTitle("Choose template").setItems(nameArray.toTypedArray()) { _, i ->
             val fragment = loadFragmentFromApk(this, array[i].absolutePath, Bundle())
             fragment?.also { configFragment(it) }
         }.show()
