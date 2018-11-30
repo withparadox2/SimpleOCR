@@ -166,12 +166,18 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         val filePath = getBasePath() + "share_${System.currentTimeMillis()}.png"
 
         if (mFragment?.renderBitmapAndSave(filePath) == true) {
-            sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(File(filePath))))
-            startActivity(Intent.createChooser(
-                    Intent(Intent.ACTION_SEND).also {
-                        it.type = "image/*"
-                        it.putExtra(Intent.EXTRA_STREAM, buildUri(this, File(filePath), it))
-                    }, "Share"))
+            AlertDialog.Builder(this).setItems(arrayOf("Save to file", "Share")) { _, which ->
+                sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(File(filePath))))
+                if (which == 0) {
+                    toast("Picture is saved in : $filePath")
+                } else if (which == 1) {
+                    startActivity(Intent.createChooser(
+                            Intent(Intent.ACTION_SEND).also {
+                                it.type = "image/*"
+                                it.putExtra(Intent.EXTRA_STREAM, buildUri(this, File(filePath), it))
+                            }, "Share"))
+                }
+            }.show()
         } else {
             toast("Export png failed")
         }
