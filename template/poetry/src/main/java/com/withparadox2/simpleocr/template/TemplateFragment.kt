@@ -83,18 +83,18 @@ class TemplateFragment : BaseTemplateFragment() {
 
     private fun updateTitleAndAuthor() {
         var text: String? = null
-        if (mAuthor != null) {
-            text = mAuthor
-        }
         if (mTitle != null) {
+            text = mTitle
+        }
+        if (mAuthor != null) {
             if (text != null) {
                 text += "•"
             }
-            text += mTitle
+            text += mAuthor
         }
 
         if (text != null) {
-            text = "—" + text
+            text = "—$text"
         }
         tvTitleAndAuthor.text = text
     }
