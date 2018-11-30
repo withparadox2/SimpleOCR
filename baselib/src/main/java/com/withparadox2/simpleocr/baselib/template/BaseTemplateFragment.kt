@@ -1,5 +1,6 @@
 package com.withparadox2.simpleocr.baselib.template
 
+import android.app.Activity
 import android.content.Context
 import android.content.res.AssetManager
 import android.content.res.Resources
@@ -14,6 +15,7 @@ import androidx.fragment.app.Fragment
 import com.withparadox2.simpleocr.baselib.R
 import com.withparadox2.simpleocr.template.Callback
 import com.withparadox2.simpleocr.template.ITemplate
+import dalvik.system.DexClassLoader
 import java.io.Closeable
 import java.io.File
 import java.io.FileOutputStream
@@ -35,12 +37,20 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
 
     var delegate: Callback? = null
     private var mScreenWidth = 0
+    private var mApkPath: String? = null
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mIsStandalone = arguments?.getString(APK_PATH)?.let { it.trim().isNotEmpty() } ?: false
+        mApkPath =  arguments?.getString(APK_PATH)
+        mIsStandalone = mApkPath?.let { it.trim().isNotEmpty() } ?: false
 
+        if (mIsStandalone) {
+            changeClassLoader(activity, mApkPath!!)
+        }
         rootView = inflater.inflate(getSelfResources()?.getLayout(getLayoutResourceId()), container, false)
+        if (mIsStandalone) {
+            restoreClassLoader(activity)
+        }
         etContent = rootView.findViewById(R.id.et_content)
         layoutContainer = rootView.findViewById(R.id.layout_container)
         onCreateViewInternal()
@@ -179,4 +189,30 @@ fun dp2px(dip: Int, context: Context): Int {
 fun dp2px(dip: Float, context: Context): Float {
     val scale = context.resources.displayMetrics.density
     return (dip * scale + 0.5f)
+}
+
+var sSaveClassloader: ClassLoader? = null
+fun changeClassLoader(context: Context, apkPath: String) {
+    sSaveClassloader = context.classLoader
+    val newLoader = DexClassLoader(apkPath, context.getDir("template_cache", 0).absolutePath, null, context.classLoader)
+    setClassLoader(context, newLoader)
+}
+
+fun restoreClassLoader(context: Context) {
+    val loader = sSaveClassloader
+    if (loader != null) {
+        setClassLoader(context, loader)
+    }
+    sSaveClassloader = null
+}
+
+fun setClassLoader(context: Context, classLoader: ClassLoader) {
+    try {
+        val baseContext = (context as Activity).baseContext
+        val field = baseContext.javaClass.getDeclaredField("mClassLoader")
+        field.isAccessible = true
+        field.set(baseContext, classLoader)
+    } catch (e: Throwable) {
+        e.printStackTrace()
+    }
 }

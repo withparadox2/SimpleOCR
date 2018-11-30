@@ -12,7 +12,7 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp">
 
-        <EditText
+        <com.withparadox2.simpleocr.template.LineEditText
             android:id="@+id/et_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
