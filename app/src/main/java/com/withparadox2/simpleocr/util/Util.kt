@@ -70,3 +70,8 @@ fun saveSpString(key: String, value: String) {
 fun getSpString(key: String, defaultValue: String): String {
     return getSp().getString(key, defaultValue)!!
 }
+
+fun getVersionCode(): Int {
+    val pInfo = App.instance.getPackageManager().getPackageInfo(App.instance.getPackageName(), 0)
+    return pInfo.versionCode
+}

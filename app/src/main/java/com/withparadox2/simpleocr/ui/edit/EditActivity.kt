@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.res.AssetManager
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -17,6 +16,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
+import com.withparadox2.simpleocr.BuildConfig
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.edit.Editor
 import com.withparadox2.simpleocr.support.store.AppDatabase
@@ -27,13 +27,20 @@ import com.withparadox2.simpleocr.template.ITemplate
 import com.withparadox2.simpleocr.ui.BaseActivity
 import com.withparadox2.simpleocr.ui.getCameraIntent
 import com.withparadox2.simpleocr.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import java.io.File
-import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
 private const val REQUEST_MORE_TEXT = 1
 private const val KEY_INTENT_CONTENT = "content"
+
+// We store app-version-code with this key, only if local folder where
+// bundles are kept is empty or the app has been updated to a new version
+// or in debug mode, we will copy bundles from assets to local folder
+private const val KEY_CHECK_BUNDLE_CODE = "key_bundle_code"
 
 @SuppressLint("SetTextI18n")
 class EditActivity : BaseActivity(), View.OnClickListener {
@@ -43,38 +50,54 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     private var mContentEditor: Editor? = null
     private var mBookInfo: BookInfo? = null
 
-    private lateinit var mFragment: ITemplate
+    private var mFragment: ITemplate? = null
     private var mRawContent = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        copyAPkIfNot(this)
         mRawContent = intent.getStringExtra(KEY_INTENT_CONTENT)
 
         setContentView(R.layout.activity_edit)
         btnEdit.setOnClickListener(this)
         btnMore.setOnClickListener(this)
         findViewById<View>(R.id.btn_edit_template).setOnClickListener(this)
-
-        var fragment = loadLocalFragment()
-        if (fragment == null) {
-            fragment = loadFragmentFromApk(this, getTemplateBasePath() + "templatedefault.apk", Bundle())
-                    ?: return
-        }
-
-        configFragment(fragment)
-
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        GlobalScope.launchUI {
+            async(Dispatchers.IO) {
+                updateTemplateBundle()
+            }.await()
+
+            var fragment = loadLocalFragment()
+            if (fragment == null) {
+                fragment = loadFragmentFromApk(this@EditActivity, getTemplateBasePath() + "templatedefault.apk", Bundle())
+            }
+            if (fragment != null) {
+                configFragment(fragment)
+            }
+        }
+    }
+
+    private fun updateTemplateBundle() {
+        val nowCode = getVersionCode()
+        val oldCode = getSp().getInt(KEY_CHECK_BUNDLE_CODE, -1)
+        if (BuildConfig.DEBUG || File(getTemplateBasePath()).list().isEmpty() || nowCode != oldCode) {
+            copyAPkIfNot(this@EditActivity)
+            getSp().edit {
+                this.putInt(KEY_CHECK_BUNDLE_CODE, nowCode)
+            }
+        }
     }
 
     private fun configFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction().replace(R.id.layout_fragment, fragment, null).commit()
-
         mFragment = fragment as ITemplate
-        mFragment.setCallback(object : Callback {
+
+        val localFragment = fragment as ITemplate
+        localFragment.setCallback(object : Callback {
             override fun onViewCreated() {
-                mFragment.setContent(mContentEditor?.content ?: mRawContent)
-                mFragment.setDate(getDateStr())
+                localFragment.setContent(mContentEditor?.content ?: mRawContent)
+                localFragment.setDate(getDateStr())
                 getLastBookInfo()?.also {
                     setBookInfoView(it)
                 }
@@ -82,12 +105,12 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 if (mContentEditor == null) {
                     mContentEditor = Editor(mRawContent, object : Editor.Callback {
                         override fun onContentChange(content: String) {
-                            mFragment.setContent(content)
+                            localFragment.setContent(content)
                         }
                     })
                 }
 
-                mFragment.setContentTextWatcher(object : TextWatcher {
+                localFragment.setContentTextWatcher(object : TextWatcher {
                     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                     }
 
@@ -135,9 +158,13 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun share() {
+        if (mFragment == null) {
+            toast("nothing to share")
+            return
+        }
         val filePath = getBasePath() + "share_${System.currentTimeMillis()}.png"
 
-        if (mFragment.renderBitmapAndSave(filePath)) {
+        if (mFragment?.renderBitmapAndSave(filePath) == true) {
             sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(File(filePath))))
             startActivity(Intent.createChooser(
                     Intent(Intent.ACTION_SEND).also {
@@ -275,8 +302,8 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun setBookInfoView(info: BookInfo) {
-        mFragment.setAuthor(info.author)
-        mFragment.setTitle(info.title)
+        mFragment?.setAuthor(info.author)
+        mFragment?.setTitle(info.title)
         mBookInfo = info
     }
 
@@ -305,17 +332,18 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun showInsertDialog(text: String) {
+        val fragment = mFragment ?: return
         AlertDialog.Builder(this).setTitle("Insert where?").setItems(arrayOf("Begin", "Cursor", "End")) { _, i ->
             when (i) {
-                0 -> mFragment.setContent(text + mFragment.editTextContent)
+                0 -> fragment.setContent(text + fragment.editTextContent)
                 1 -> {
-                    val selection = mFragment.editSelection
-                    mFragment.setContent(mFragment.editTextContent.toString().let {
+                    val selection = fragment.editSelection
+                    fragment.setContent(fragment.editTextContent.toString().let {
                         it.subSequence(0, selection).toString() + text + it.subSequence(selection, it.length - 1)
                     })
-                    mFragment.editSelection = selection
+                    fragment.editSelection = selection
                 }
-                2 -> mFragment.setContent(mFragment.editTextContent.toString() + text)
+                2 -> fragment.setContent(fragment.editTextContent.toString() + text)
             }
         }.show()
     }
@@ -341,36 +369,14 @@ fun getEditIntent(context: Context, content: String): Intent {
 }
 
 var isCopied = false
-
 fun copyAPkIfNot(context: Context) {
     if (isCopied) {
         return
     }
     isCopied = true
-    var array = context.assets.list("")?.filter { it.endsWith(".apk") }
-
+    val array = context.assets.list("")?.filter { it.endsWith(".apk") }
     array?.forEach {
-        try {
-            val path = getTemplateBasePath() + it
-            File(path).parentFile.mkdirs()
-            val input = context.assets.open(it)
-            val output = FileOutputStream(File(path))
-
-            val buffer = ByteArray(1024)
-            var len: Int
-            while (true) {
-                len = input.read(buffer)
-                if (len <= 0) {
-                    break
-                }
-                output.write(buffer, 0, len)
-            }
-
-            output.flush()
-            output.close()
-            input.close()
-        } catch (e: Throwable) {
-            e.printStackTrace()
-        }
+        val path = getTemplateBasePath() + it
+        writeToFile(context.assets.open(it), path)
     }
 }
