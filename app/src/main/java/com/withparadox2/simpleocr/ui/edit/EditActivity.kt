@@ -346,7 +346,11 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     private fun showInsertDialog(text: String) {
         val fragment = mFragment ?: return
         AlertDialog.Builder(this).setTitle("Insert where?").setItems(arrayOf("Begin", "Cursor", "End")) { _, i ->
-            when (i) {
+            var resultIndex = i
+            if (fragment.editTextContent.isEmpty() && resultIndex == 1) {
+                resultIndex = 0
+            }
+            when (resultIndex) {
                 0 -> fragment.setContent(text + fragment.editTextContent)
                 1 -> {
                     val selection = fragment.editSelection
