@@ -12,7 +12,7 @@ both keep tiny and concise. The images rendered by these two templates are
 showed below.
 
 ### Template Default
-<img src="assets/default.png" width="550" height="559">
+<img src="assets/default_shadow.png" width="550" height="559">
 
 ### Template Poetry
-<img src="assets/poetry.png" width="550" height="704">
+<img src="assets/poetry_shadow.png" width="550" height="704">
