@@ -11,6 +11,8 @@ For now, there are only two templates available, "default" and "poetry",
 both keep tiny and concise. The images rendered by these two templates are
 showed below.
 
-![default](assets/default.png)
+### Template Default
+<img src="assets/default.png" width="550" height="559">
 
-![poetry](assets/poetry.png)
+### Template Poetry
+<img src="assets/poetry.png" width="550" height="704">
