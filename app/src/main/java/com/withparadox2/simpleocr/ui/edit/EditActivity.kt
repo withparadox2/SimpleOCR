@@ -97,7 +97,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         val localFragment = fragment as ITemplate
         localFragment.setCallback(object : Callback {
             override fun onViewCreated() {
-                localFragment.setContent(mContentEditor?.content ?: mRawContent)
+                localFragment.setContent(mContentEditor?.getLastChangeContent() ?: mRawContent)
                 localFragment.setDate(getDateStr())
                 getLastBookInfo()?.also {
                     setBookInfoView(it)
@@ -106,7 +106,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 if (mContentEditor == null) {
                     mContentEditor = Editor(mRawContent, object : Editor.Callback {
                         override fun onContentChange(content: String) {
-                            localFragment.setContent(content)
+                            mFragment?.setContent(content)
                         }
                     })
                 }

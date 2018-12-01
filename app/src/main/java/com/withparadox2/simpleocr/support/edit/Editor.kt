@@ -75,6 +75,10 @@ class Editor constructor(val content: String, var callback: Callback?) {
         callback?.onContentChange(newContent)
     }
 
+    fun getLastChangeContent(): String {
+        return newContent
+    }
+
     private fun cacheBeforeChange(alloc: Boolean) {
         var text = newContent
         if (alloc) {
