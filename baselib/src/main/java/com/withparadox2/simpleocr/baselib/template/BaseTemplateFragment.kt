@@ -1,7 +1,5 @@
 package com.withparadox2.simpleocr.baselib.template
 
-import android.app.Activity
-import android.content.Context
 import android.content.res.AssetManager
 import android.content.res.Resources
 import android.graphics.*
@@ -15,11 +13,8 @@ import androidx.fragment.app.Fragment
 import com.withparadox2.simpleocr.baselib.R
 import com.withparadox2.simpleocr.template.Callback
 import com.withparadox2.simpleocr.template.ITemplate
-import dalvik.system.DexClassLoader
-import java.io.Closeable
 import java.io.File
 import java.io.FileOutputStream
-
 
 /**
  * Created by withparadox2 on 2018/11/17.
@@ -30,23 +25,21 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
 
     lateinit var etContent: EditText
     lateinit var layoutContainer: View
-
     lateinit var rootView: View
+
+    var delegate: Callback? = null
 
     private var mIsStandalone = false
 
-    var delegate: Callback? = null
-    private var mScreenWidth = 0
-    private var mApkPath: String? = null
-
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mApkPath =  arguments?.getString(APK_PATH)
-        mIsStandalone = mApkPath?.let { it.trim().isNotEmpty() } ?: false
+        val apkPath = arguments?.getString(APK_PATH)
+        mIsStandalone = apkPath?.let { it.trim().isNotEmpty() } ?: false
 
         if (mIsStandalone) {
             // The class loader of BaseTemplateFragment is created in loading bundle phase
-            // with a parent loader exactly same as classloader to load activity
+            // with a parent loader exactly the classloader used to load activity
+            //
+            // We do this to enable the inflater to resolve custom class defined in template bundle
             changeClassLoader(activity, BaseTemplateFragment::javaClass.javaClass.classLoader)
         }
         rootView = inflater.inflate(getSelfResources()?.getLayout(getLayoutResourceId()), container, false)
@@ -56,35 +49,32 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
         onCreateViewInternal()
 
         if (mIsStandalone) {
+            // We have to restore the class loader to default state, or it may mess up while
+            // switching template
             restoreClassLoader(activity)
         }
         delegate?.onViewCreated()
         return rootView
     }
 
-    open fun onCreateViewInternal() {}
-
-    abstract fun getLayoutResourceId(): Int
-
     fun getSelfAssetManager(): AssetManager? {
         if (mAssetManager == null) {
             val apkPath = arguments?.getString(APK_PATH)
-            if (mIsStandalone) {
-                mAssetManager = createAssetManager(apkPath!!)
+            mAssetManager = if (mIsStandalone) {
+                createAssetManager(apkPath!!)
             } else {
-                mAssetManager = activity.assets
+                activity.assets
             }
-
         }
         return mAssetManager
     }
 
     fun getSelfResources(): Resources? {
         if (mResources == null) {
-            if (mIsStandalone) {
-                mResources = createResource(activity, getSelfAssetManager())
+            mResources = if (mIsStandalone) {
+                createResource(activity, getSelfAssetManager())
             } else {
-                mResources = activity.resources
+                activity.resources
             }
         }
         return mResources
@@ -94,7 +84,8 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
         etContent.setText(content)
     }
 
-
+    open fun onCreateViewInternal() {}
+    abstract fun getLayoutResourceId(): Int
     abstract fun onBeforeRender()
     abstract fun onAfterRender()
 
@@ -118,7 +109,7 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
 
                 if (antiAlias) {
                     val paint = Paint(Paint.ANTI_ALIAS_FLAG).also {
-                        it.shader = BitmapShader(bitmap!!, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
+                        it.shader = BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
                     }
                     bitmap2 = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
                     canvas = Canvas(bitmap2!!)
@@ -168,56 +159,5 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
 
     override fun setContentTextWatcher(watcher: TextWatcher) {
         this.etContent.addTextChangedListener(watcher)
-    }
-
-    fun getScaleSize(size: Int): Int {
-        if (this.mScreenWidth == 0) {
-            this.mScreenWidth = activity.resources.displayMetrics.widthPixels
-        }
-        return (this.mScreenWidth * size) / 1080
-    }
-}
-
-fun closeQuietly(close: Closeable?) {
-    try {
-        close?.close()
-    } catch (e: Exception) {
-    }
-}
-
-fun dp2px(dip: Int, context: Context): Int {
-    val scale = context.resources.displayMetrics.density
-    return (dip * scale + 0.5f).toInt()
-}
-
-fun dp2px(dip: Float, context: Context): Float {
-    val scale = context.resources.displayMetrics.density
-    return (dip * scale + 0.5f)
-}
-
-var sSaveClassloader: ClassLoader? = null
-fun changeClassLoader(context: Context, classLoader: ClassLoader?) {
-    if (classLoader != null) {
-        sSaveClassloader = context.classLoader
-        setClassLoader(context, classLoader)
-    }
-}
-
-fun restoreClassLoader(context: Context) {
-    val loader = sSaveClassloader
-    if (loader != null) {
-        setClassLoader(context, loader)
-    }
-    sSaveClassloader = null
-}
-
-fun setClassLoader(context: Context, classLoader: ClassLoader) {
-    try {
-        val baseContext = (context as Activity).baseContext
-        val field = baseContext.javaClass.getDeclaredField("mClassLoader")
-        field.isAccessible = true
-        field.set(baseContext, classLoader)
-    } catch (e: Throwable) {
-        e.printStackTrace()
     }
 }

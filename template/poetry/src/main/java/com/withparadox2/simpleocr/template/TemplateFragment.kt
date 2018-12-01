@@ -18,6 +18,8 @@ class TemplateFragment : BaseTemplateFragment() {
     private var mTitle: String? = null
     private var mAuthor: String? = null
 
+    private var mLineHeight = 0f
+
     override fun onBeforeRender() {
         etContent.isCursorVisible = false
     }
@@ -31,6 +33,7 @@ class TemplateFragment : BaseTemplateFragment() {
     }
 
     override fun onCreateViewInternal() {
+        mLineHeight = dp2px(36f, activity)
         val container = rootView.findViewById<View>(R.id.layout_container)
         container.background = BackgroundDrawable()
 
@@ -49,23 +52,23 @@ class TemplateFragment : BaseTemplateFragment() {
 
             val font = Typeface.createFromAsset(getSelfAssetManager(), "lyric008.ttf")
             etContent.typeface = font
-            val lineHeight: Float = getScaleSize(110).toFloat()
-            etContent.setLineSpacing(0f, lineHeight / etContent.textSize)
+
+            etContent.setLineSpacing(0f, mLineHeight / etContent.textSize)
             var lp = etContent.layoutParams as LinearLayout.LayoutParams
-            lp.topMargin = (lineHeight + (lineHeight - etContent.textSize) / 2).toInt()
+            lp.topMargin = (mLineHeight + (mLineHeight - etContent.textSize) / 2).toInt()
             etContent.layoutParams = lp
 
             tvTitleAndAuthor.typeface = font
-            tvTitleAndAuthor.setLineSpacing(0f, lineHeight / tvTitleAndAuthor.textSize)
+            tvTitleAndAuthor.setLineSpacing(0f, mLineHeight / tvTitleAndAuthor.textSize)
             lp = tvTitleAndAuthor.layoutParams as LinearLayout.LayoutParams
-            lp.height = lineHeight.toInt()
+            lp.height = mLineHeight.toInt()
             tvTitleAndAuthor.layoutParams
 
             lp = tvDate.layoutParams as LinearLayout.LayoutParams
-            lp.topMargin = ((lineHeight + lineHeight - tvDate.textSize).toInt())
+            lp.topMargin = ((mLineHeight + mLineHeight - tvDate.textSize).toInt())
             tvDate.layoutParams = lp
 
-            layoutContainer.setPadding(layoutContainer.paddingLeft, layoutContainer.paddingTop, layoutContainer.paddingRight, (lineHeight * 3 / 4).toInt())
+            layoutContainer.setPadding(layoutContainer.paddingLeft, layoutContainer.paddingTop, layoutContainer.paddingRight, (mLineHeight * 3 / 4).toInt())
 
             tvTitleAndAuthor.setTextColor(resources.getColor(R.color.edit_main))
             etContent.setTextColor(resources.getColor(R.color.edit_main))
@@ -106,7 +109,6 @@ class TemplateFragment : BaseTemplateFragment() {
     }
 
     inner class BackgroundDrawable : Drawable() {
-        private val lineHeight: Float = getScaleSize(110).toFloat()
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         private val padding = dp2px(20f, this@TemplateFragment.activity)
 
@@ -120,8 +122,8 @@ class TemplateFragment : BaseTemplateFragment() {
             canvas.drawColor(Color.WHITE)
             val height = bounds.height()
 
-            for (i in 0..((height / lineHeight).toInt() - 2)) {
-                val posY = (i + 1) * lineHeight
+            for (i in 0..((height / mLineHeight).toInt() - 2)) {
+                val posY = (i + 1) * mLineHeight
                 canvas.drawLine(padding, posY, (bounds.width() - padding), posY, paint)
             }
         }
