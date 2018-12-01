@@ -25,6 +25,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compileOnly dep.kotlin.stdlib.jdk
     implementation project(":baselib")
     compileOnly project(":stub")
 }

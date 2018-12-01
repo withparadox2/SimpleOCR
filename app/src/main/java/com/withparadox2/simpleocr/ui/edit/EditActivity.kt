@@ -27,9 +27,7 @@ import com.withparadox2.simpleocr.template.ITemplate
 import com.withparadox2.simpleocr.ui.BaseActivity
 import com.withparadox2.simpleocr.ui.getCameraIntent
 import com.withparadox2.simpleocr.util.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*

@@ -57,6 +57,7 @@ class TemplateFragment : BaseTemplateFragment() {
             var lp = etContent.layoutParams as LinearLayout.LayoutParams
             lp.topMargin = (mLineHeight + (mLineHeight - etContent.textSize) / 2).toInt()
             etContent.layoutParams = lp
+            (etContent as LineEditText).setCursorDrawable(resources.getColor(R.color.colorAccent), etContent.textSize.toInt())
 
             tvTitleAndAuthor.typeface = font
             tvTitleAndAuthor.setLineSpacing(0f, mLineHeight / tvTitleAndAuthor.textSize)
