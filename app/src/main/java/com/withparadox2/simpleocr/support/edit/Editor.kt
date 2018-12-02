@@ -41,7 +41,6 @@ class Editor constructor(val content: String, var callback: Callback?) {
                 .replace("?", "？")
                 .replace("!", "！")
         onContentChange()
-        joinLines()
     }
 
     fun toEnglish() {
@@ -57,7 +56,6 @@ class Editor constructor(val content: String, var callback: Callback?) {
                 .replace("！", "!")
 
         onContentChange()
-        joinLines()
     }
 
     fun copy() {

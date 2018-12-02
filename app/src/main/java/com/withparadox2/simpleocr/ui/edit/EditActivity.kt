@@ -183,15 +183,23 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     private fun showEditDialog() {
         val items: Array<String> = resources.getStringArray(R.array.items_edit_content)
-        items[4] = "${items[4]}(${mContentEditor?.getBackStepCount()})"
+        items[6] = "${items[6]}(${mContentEditor?.getBackStepCount()})"
         AlertDialog.Builder(this).setItems(items) { _, which ->
             when (which) {
                 0 -> mContentEditor?.reset()
                 1 -> mContentEditor?.joinLines()
                 2 -> mContentEditor?.toChinese()
-                3 -> mContentEditor?.toEnglish()
-                4 -> mContentEditor?.lastStep()
-                5 -> mContentEditor?.copy()
+                3 -> {
+                    mContentEditor?.toChinese()
+                    mContentEditor?.joinLines()
+                }
+                4 -> mContentEditor?.toEnglish()
+                5 -> {
+                    mContentEditor?.toEnglish()
+                    mContentEditor?.joinLines()
+                }
+                6 -> mContentEditor?.lastStep()
+                7 -> mContentEditor?.copy()
             }
         }.show()
     }
