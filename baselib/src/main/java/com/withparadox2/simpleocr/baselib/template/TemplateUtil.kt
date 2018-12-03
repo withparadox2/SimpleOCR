@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.res.AssetManager
 import android.content.res.Resources
 import java.io.Closeable
+import java.lang.reflect.Field
 
 
 /**
@@ -65,10 +66,52 @@ fun restoreClassLoader(context: Context) {
 fun setClassLoader(context: Context, classLoader: ClassLoader) {
     try {
         val baseContext = (context as Activity).baseContext
-        val field = baseContext.javaClass.getDeclaredField("mClassLoader")
-        field.isAccessible = true
-        field.set(baseContext, classLoader)
+        var targetObj: Any = baseContext
+
+        var fieldClassLoader = getField(baseContext.javaClass, "mClassLoader")
+        if (fieldClassLoader == null) {
+            var loadedApk = getFieldValue(baseContext.javaClass, baseContext, "mLoadedApk")
+            if (loadedApk == null) {
+                loadedApk = getFieldValue(baseContext.javaClass, baseContext, "mPackageInfo")
+            }
+            if (loadedApk != null) {
+                fieldClassLoader = getField(loadedApk.javaClass, "mClassLoader")
+                targetObj = loadedApk
+            }
+        }
+        if (fieldClassLoader != null) {
+            fieldClassLoader.isAccessible = true
+            fieldClassLoader.set(targetObj, classLoader)
+        }
     } catch (e: Throwable) {
         e.printStackTrace()
     }
+}
+
+fun getField(clazz: Class<*>, name: String): Field? {
+    try {
+        val field = clazz.getDeclaredField(name)
+        field.isAccessible = true
+        return field
+    } catch (e: Throwable) {
+        e.printStackTrace()
+    }
+    return null
+}
+
+fun getFieldValue(clazz: Class<*>, target: Any, name: String): Any? {
+    try {
+        val field = clazz.getDeclaredField(name)
+        field.isAccessible = true
+        return getField(clazz, name)?.get(target)
+    } catch (e: Throwable) {
+        e.printStackTrace()
+    }
+    return null
+}
+
+fun setField(clazz: Class<*>, target: Any, name: String, value: Any) {
+    val field = clazz.getDeclaredField(name)
+    field.isAccessible = true
+    field.set(target, value)
 }
