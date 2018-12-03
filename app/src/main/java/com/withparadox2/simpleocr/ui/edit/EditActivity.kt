@@ -27,7 +27,7 @@ import com.withparadox2.simpleocr.template.ITemplate
 import com.withparadox2.simpleocr.ui.BaseActivity
 import com.withparadox2.simpleocr.ui.getCameraIntent
 import com.withparadox2.simpleocr.util.*
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -61,7 +61,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         findViewById<View>(R.id.btn_edit_template).setOnClickListener(this)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        GlobalScope.launchUI {
+        launch {
             val fragment = asyncIO {
                 updateTemplateBundle()
                 var fragment = loadLocalFragment()
@@ -76,6 +76,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             }
         }
     }
+
 
     private fun updateTemplateBundle() {
         val nowCode = getVersionCode()
@@ -225,7 +226,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         val nameArray = array.map { it.name.substring(8, it.name.indexOf(".")) }
 
         AlertDialog.Builder(this).setTitle("Choose template").setItems(nameArray.toTypedArray()) { _, i ->
-            GlobalScope.launchUI {
+            launch {
                 asyncIO {
                     loadFragmentFromApk(this@EditActivity, array[i].absolutePath, Bundle())
                 }.await()?.also {

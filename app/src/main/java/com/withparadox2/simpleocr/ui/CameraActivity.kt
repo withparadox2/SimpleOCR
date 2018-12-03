@@ -18,9 +18,6 @@ import com.withparadox2.simpleocr.support.view.FlashSwitch
 import com.withparadox2.simpleocr.support.view.ShutterButton
 import com.withparadox2.simpleocr.ui.edit.getEditIntent
 import com.withparadox2.simpleocr.util.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 
 
 /**
@@ -92,7 +89,7 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
                 mIsTakingPhoto = true
                 CameraController.instance.getCamera()?.takePicture(null, null, Camera.PictureCallback { data, _ ->
                     mIsTakingPhoto = false
-                    GlobalScope.launchUI {
+                    launchUI {
                         val result = asyncIO {
                             writeToFile(data, getTempBitmapPath())
                         }.await()
