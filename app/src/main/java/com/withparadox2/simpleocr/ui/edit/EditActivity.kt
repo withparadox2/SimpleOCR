@@ -1,5 +1,7 @@
 package com.withparadox2.simpleocr.ui.edit
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -44,6 +46,9 @@ private const val KEY_CHECK_BUNDLE_CODE = "key_bundle_code"
 class EditActivity : BaseActivity(), View.OnClickListener {
     private val btnEdit: View by bind(R.id.btn_edit_content)
     private val btnMore: View by bind(R.id.btn_edit_more)
+    private val layoutTemplateContainer: View by bind(R.id.layout_template_container)
+    private val layoutTemplateWrapper: ViewGroup by bind(R.id.layout_template_wrapper)
+    private val layoutBottom: View by bind(R.id.layout_bottom)
 
     private var mContentEditor: Editor? = null
     private var mBookInfo: BookInfo? = null
@@ -76,7 +81,6 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             }
         }
     }
-
 
     private fun updateTemplateBundle() {
         val nowCode = getVersionCode()
@@ -218,22 +222,63 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun showTemplateDialog() {
-        val array = File(getTemplateBasePath()).listFiles()?.filter { it.name.endsWith(".apk") }
-        if (array == null || array.isEmpty()) {
-            return
+        val isShow = layoutTemplateContainer.visibility != View.VISIBLE
+        if (isShow) {
+            layoutTemplateContainer.visibility = View.VISIBLE
+            layoutTemplateContainer.translationY = layoutTemplateContainer.height.toFloat()
+            layoutTemplateContainer.alpha = 0f
+            layoutTemplateContainer.animate().translationY(-layoutBottom.height.toFloat())
+                    .alpha(1f)
+                    .setDuration(300)
+                    .setListener(null)
+                    .start()
+        } else {
+            layoutTemplateContainer.animate().translationY(layoutTemplateContainer.height.toFloat())
+                    .alpha(0f)
+                    .setDuration(300)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator?) {
+                            layoutTemplateContainer.visibility = View.INVISIBLE
+                        }
+                    })
+                    .start()
         }
 
-        val nameArray = array.map { it.name.substring(8, it.name.indexOf(".")) }
+        val array = File(getTemplateBasePath()).listFiles()?.filter { it.name.endsWith(".apk") }
 
-        AlertDialog.Builder(this).setTitle("Choose template").setItems(nameArray.toTypedArray()) { _, i ->
-            launch {
-                asyncIO {
-                    loadFragmentFromApk(this@EditActivity, array[i].absolutePath, Bundle())
-                }.await()?.also {
-                    configFragment(it)
-                }
+        if (layoutTemplateWrapper.childCount == 0) {
+            if ((array == null || array.isEmpty())) {
+
+                layoutTemplateWrapper.addView()
+            } else {
+
+
+
+
+
+
+
+
+
             }
-        }.show()
+        }
+
+//        val array = File(getTemplateBasePath()).listFiles()?.filter { it.name.endsWith(".apk") }
+//        if (array == null || array.isEmpty()) {
+//            return
+//        }
+//
+//        val nameArray = array.map { it.name.substring(8, it.name.indexOf(".")) }
+//
+//        AlertDialog.Builder(this).setTitle("Choose template").setItems(nameArray.toTypedArray()) { _, i ->
+//            launch {
+//                asyncIO {
+//                    loadFragmentFromApk(this@EditActivity, array[i].absolutePath, Bundle())
+//                }.await()?.also {
+//                    configFragment(it)
+//                }
+//            }
+//        }.show()
     }
 
     private fun showBookInfoDialog() {
