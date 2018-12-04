@@ -11,10 +11,8 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
-import android.widget.BaseAdapter
-import android.widget.EditText
-import android.widget.ListView
-import android.widget.TextView
+import android.view.ViewGroup.LayoutParams.*
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
@@ -246,39 +244,35 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
         val array = File(getTemplateBasePath()).listFiles()?.filter { it.name.endsWith(".apk") }
 
-        if (layoutTemplateWrapper.childCount == 0) {
+        val layout = layoutTemplateWrapper
+        if (layout.childCount == 0) {
             if ((array == null || array.isEmpty())) {
-
-                layoutTemplateWrapper.addView()
+                layout.layoutParams = layout.layoutParams.also { it.width = MATCH_PARENT }
+                layout.addView(TextView(this).apply {
+                    text = "No template"
+                    gravity = Gravity.CENTER
+                    layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                })
             } else {
-
-
-
-
-
-
-
-
-
+                array.forEach {
+                    val view = LayoutInflater.from(this).inflate(R.layout.item_edit_template, layout, false)
+                    val name = it.name.substring(8, it.name.indexOf("."))
+                    view.findViewById<TextView>(R.id.tv_template_name).apply {
+                        text = name
+                        setOnClickListener { _ ->
+                            launch {
+                                asyncIO {
+                                    loadFragmentFromApk(this@EditActivity, it.absolutePath, Bundle())
+                                }.await()?.also {
+                                    configFragment(it)
+                                }
+                            }
+                        }
+                    }
+                    layout.addView(view)
+                }
             }
         }
-
-//        val array = File(getTemplateBasePath()).listFiles()?.filter { it.name.endsWith(".apk") }
-//        if (array == null || array.isEmpty()) {
-//            return
-//        }
-//
-//        val nameArray = array.map { it.name.substring(8, it.name.indexOf(".")) }
-//
-//        AlertDialog.Builder(this).setTitle("Choose template").setItems(nameArray.toTypedArray()) { _, i ->
-//            launch {
-//                asyncIO {
-//                    loadFragmentFromApk(this@EditActivity, array[i].absolutePath, Bundle())
-//                }.await()?.also {
-//                    configFragment(it)
-//                }
-//            }
-//        }.show()
     }
 
     private fun showBookInfoDialog() {
