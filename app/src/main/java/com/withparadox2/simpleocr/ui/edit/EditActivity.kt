@@ -288,7 +288,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 updateListAction.invoke()
             }
         }
-        val listView = layout.findViewById<ListView>(R.id.lv_bookinfo)
+        val listView = layout.findViewById(R.id.lv_bookinfo) as ListView
         listView.setOnItemClickListener { _, _, i, _ ->
             setBookInfoView(list[i])
             dismissDialogAction?.invoke()
