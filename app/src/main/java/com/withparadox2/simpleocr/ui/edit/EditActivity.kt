@@ -27,6 +27,7 @@ import com.withparadox2.simpleocr.template.ITemplate
 import com.withparadox2.simpleocr.ui.BaseActivity
 import com.withparadox2.simpleocr.ui.getCameraIntent
 import com.withparadox2.simpleocr.util.*
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
@@ -54,6 +55,8 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     private var mFragment: ITemplate? = null
     private var mRawContent = ""
 
+    private var mTemplateName: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mRawContent = intent.getStringExtra(KEY_INTENT_CONTENT)
@@ -69,7 +72,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 updateTemplateBundle()
                 var fragment = loadLocalFragment()
                 if (fragment == null) {
-                    fragment = loadFragmentFromApk(this@EditActivity, getTemplateBasePath() + "templatedefault.apk", Bundle())
+                    fragment = loadFragmentByPath(getTemplateBasePath() + "templatedefault.apk")
                 }
                 fragment
             }.await()
@@ -254,17 +257,33 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                     layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                 })
             } else {
+                var preCheckedView: TextView? = null
+                val configView = { view: TextView, isActive: Boolean ->
+                    view.setTextColor(resources.getColor(if (isActive) R.color.white else R.color.colorAccent))
+                    view.setBackgroundResource(if (isActive) R.drawable.bg_btn_edit_template_item_text_active else R.drawable.bg_btn_edit_template_item_text)
+                    (view.parent as View).setBackgroundResource(if (isActive) R.drawable.bg_edit_template_item_active else R.drawable.bg_edit_template_item)
+                }
+
                 array.forEach {
                     val view = LayoutInflater.from(this).inflate(R.layout.item_edit_template, layout, false)
                     val name = it.name.substring(8, it.name.indexOf("."))
+
                     view.findViewById<TextView>(R.id.tv_template_name).apply {
+                        val fileName = File(it.absolutePath).name
+                        if (fileName == mTemplateName) {
+                            preCheckedView = this
+                            configView(preCheckedView!!, true)
+                        }
                         text = name
                         setBackgroundResource(R.drawable.bg_btn_edit_template_item_text)
-                        setOnClickListener { _ ->
+                        setOnClickListener { tv ->
                             launch {
                                 asyncIO {
-                                    loadFragmentFromApk(this@EditActivity, it.absolutePath, Bundle())
+                                    loadFragmentByPath(it.absolutePath)
                                 }.await()?.also {
+                                    preCheckedView?.apply { configView(this, false) }
+                                    configView(tv as TextView, true)
+                                    preCheckedView = tv
                                     configFragment(it)
                                 }
                             }
@@ -274,6 +293,15 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 }
             }
         }
+    }
+
+    private fun loadFragmentByPath(path: String): Fragment? {
+        val name = File(path).name
+        if (mTemplateName == name) {
+            return null
+        }
+        mTemplateName = name
+        return loadFragmentFromApk(this, path, Bundle())
     }
 
     private fun showBookInfoDialog() {
