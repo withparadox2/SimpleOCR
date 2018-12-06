@@ -3,6 +3,7 @@
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:layout_margin="5dp"
+    android:background="@drawable/bg_edit_template_item"
     android:orientation="vertical">
 
     <TextView
@@ -10,8 +11,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:textColor="@color/colorAccent"
+        android:gravity="center"
         android:paddingStart="20dp"
-        android:paddingEnd="20dp" />
-
+        android:paddingEnd="20dp"
+        android:textColor="@color/colorAccent" />
 </LinearLayout>

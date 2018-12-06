@@ -1,7 +1,6 @@
 package com.withparadox2.simpleocr.template
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
 import android.text.Editable
@@ -11,8 +10,6 @@ import android.widget.EditText
 import android.widget.Editor
 import android.widget.TextView
 import com.withparadox2.simpleocr.baselib.template.dp2px
-import com.withparadox2.simpleocr.templatedefault.R
-import java.lang.reflect.AccessibleObject.setAccessible
 
 
 class LineEditText(context: Context, attributeSet: AttributeSet) : EditText(context, attributeSet) {

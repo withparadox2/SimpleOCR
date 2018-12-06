@@ -71,7 +71,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 if (fragment == null) {
                     fragment = loadFragmentFromApk(this@EditActivity, getTemplateBasePath() + "templatedefault.apk", Bundle())
                 }
-                return@asyncIO fragment
+                fragment
             }.await()
 
             if (fragment != null) {
@@ -259,6 +259,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                     val name = it.name.substring(8, it.name.indexOf("."))
                     view.findViewById<TextView>(R.id.tv_template_name).apply {
                         text = name
+                        setBackgroundResource(R.drawable.bg_btn_edit_template_item_text)
                         setOnClickListener { _ ->
                             launch {
                                 asyncIO {

@@ -7,55 +7,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
-
+        android:orientation="vertical"
+        android:paddingBottom="40dp">
         <FrameLayout
             android:id="@+id/layout_fragment"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <LinearLayout
-            android:id="@+id/layout_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#dddddd"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/btn_edit_content"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/btn_edit_content"
-                android:textColor="@color/edit_light"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/btn_edit_more"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/btn_edit_more"
-                android:textColor="@color/edit_light"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/btn_edit_template"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/btn_edit_template"
-                android:textColor="@color/edit_light"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-        </LinearLayout>
     </LinearLayout>
 
     <HorizontalScrollView
@@ -74,4 +33,46 @@
             android:padding="5dp" />
 
     </HorizontalScrollView>
+
+    <LinearLayout
+        android:id="@+id/layout_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#dddddd"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btn_edit_content"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/btn_edit_content"
+            android:textColor="@color/edit_light"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btn_edit_more"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/btn_edit_more"
+            android:textColor="@color/edit_light"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btn_edit_template"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/btn_edit_template"
+            android:textColor="@color/edit_light"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 </FrameLayout>
