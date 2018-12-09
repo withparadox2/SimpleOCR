@@ -9,6 +9,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:paddingBottom="40dp">
+
         <FrameLayout
             android:id="@+id/layout_fragment"
             android:layout_width="match_parent"
@@ -17,21 +18,28 @@
 
     </LinearLayout>
 
-    <HorizontalScrollView
+    <com.withparadox2.simpleocr.support.view.DragLayout
         android:id="@+id/layout_template_container"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
+        android:layout_marginBottom="40dp"
         android:visibility="invisible">
 
-        <LinearLayout
-            android:id="@+id/layout_template_wrapper"
-            android:layout_width="wrap_content"
-            android:layout_height="70dp"
-            android:orientation="horizontal"
-            android:padding="5dp" />
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="80dp">
 
-    </HorizontalScrollView>
+            <LinearLayout
+                android:id="@+id/layout_template_wrapper"
+                android:layout_width="wrap_content"
+                android:layout_height="70dp"
+                android:orientation="horizontal"
+                android:padding="5dp" />
+
+        </HorizontalScrollView>
+    </com.withparadox2.simpleocr.support.view.DragLayout>
+
 
     <LinearLayout
         android:id="@+id/layout_bottom"

@@ -1,7 +1,5 @@
 package com.withparadox2.simpleocr.ui.edit
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -11,7 +9,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
-import android.view.ViewGroup.LayoutParams.*
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
@@ -27,7 +25,6 @@ import com.withparadox2.simpleocr.template.ITemplate
 import com.withparadox2.simpleocr.ui.BaseActivity
 import com.withparadox2.simpleocr.ui.getCameraIntent
 import com.withparadox2.simpleocr.util.*
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
@@ -45,7 +42,7 @@ private const val KEY_CHECK_BUNDLE_CODE = "key_bundle_code"
 class EditActivity : BaseActivity(), View.OnClickListener {
     private val btnEdit: View by bind(R.id.btn_edit_content)
     private val btnMore: View by bind(R.id.btn_edit_more)
-    private val layoutTemplateContainer: View by bind(R.id.layout_template_container)
+    private val layoutTemplateContainer: ViewGroup by bind(R.id.layout_template_container)
     private val layoutTemplateWrapper: ViewGroup by bind(R.id.layout_template_wrapper)
     private val layoutBottom: View by bind(R.id.layout_bottom)
 
@@ -223,25 +220,29 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun showTemplateDialog() {
-        val isShow = layoutTemplateContainer.visibility != View.VISIBLE
-        if (isShow) {
+        val child = layoutTemplateContainer.getChildAt(0)
+        var isShow = layoutTemplateContainer.translationY != 0f || child.top != 0
+
+        if (layoutTemplateContainer.visibility != View.VISIBLE) {
             layoutTemplateContainer.visibility = View.VISIBLE
+            isShow = true
+        }
+
+        if (isShow) {
+            // ViewDragHelper will change child's top
+            child.top = 0
             layoutTemplateContainer.translationY = layoutTemplateContainer.height.toFloat()
             layoutTemplateContainer.alpha = 0f
-            layoutTemplateContainer.animate().translationY(-layoutBottom.height.toFloat())
+            layoutTemplateContainer.animate().translationY(0f)
                     .alpha(1f)
                     .setDuration(300)
-                    .setListener(null)
                     .start()
         } else {
+            layoutTemplateContainer.translationY = 0f
+            layoutTemplateContainer.alpha = 1f
             layoutTemplateContainer.animate().translationY(layoutTemplateContainer.height.toFloat())
                     .alpha(0f)
                     .setDuration(300)
-                    .setListener(object : AnimatorListenerAdapter() {
-                        override fun onAnimationEnd(animation: Animator?) {
-                            layoutTemplateContainer.visibility = View.INVISIBLE
-                        }
-                    })
                     .start()
         }
 
