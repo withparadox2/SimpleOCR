@@ -20,6 +20,7 @@ import com.withparadox2.simpleocr.support.edit.Editor
 import com.withparadox2.simpleocr.support.store.AppDatabase
 import com.withparadox2.simpleocr.support.store.BookInfo
 import com.withparadox2.simpleocr.support.store.BookInfoDao
+import com.withparadox2.simpleocr.support.view.DragLayout
 import com.withparadox2.simpleocr.template.Callback
 import com.withparadox2.simpleocr.template.ITemplate
 import com.withparadox2.simpleocr.ui.BaseActivity
@@ -42,9 +43,7 @@ private const val KEY_CHECK_BUNDLE_CODE = "key_bundle_code"
 class EditActivity : BaseActivity(), View.OnClickListener {
     private val btnEdit: View by bind(R.id.btn_edit_content)
     private val btnMore: View by bind(R.id.btn_edit_more)
-    private val layoutTemplateContainer: ViewGroup by bind(R.id.layout_template_container)
     private val layoutTemplateWrapper: ViewGroup by bind(R.id.layout_template_wrapper)
-    private val layoutBottom: View by bind(R.id.layout_bottom)
 
     private var mContentEditor: Editor? = null
     private var mBookInfo: BookInfo? = null
@@ -220,31 +219,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun showTemplateDialog() {
-        val child = layoutTemplateContainer.getChildAt(0)
-        var isShow = layoutTemplateContainer.translationY != 0f || child.top != 0
-
-        if (layoutTemplateContainer.visibility != View.VISIBLE) {
-            layoutTemplateContainer.visibility = View.VISIBLE
-            isShow = true
-        }
-
-        if (isShow) {
-            // ViewDragHelper will change child's top
-            child.top = 0
-            layoutTemplateContainer.translationY = layoutTemplateContainer.height.toFloat()
-            layoutTemplateContainer.alpha = 0f
-            layoutTemplateContainer.animate().translationY(0f)
-                    .alpha(1f)
-                    .setDuration(300)
-                    .start()
-        } else {
-            layoutTemplateContainer.translationY = 0f
-            layoutTemplateContainer.alpha = 1f
-            layoutTemplateContainer.animate().translationY(layoutTemplateContainer.height.toFloat())
-                    .alpha(0f)
-                    .setDuration(300)
-                    .start()
-        }
+        (layoutTemplateWrapper.parent.parent as DragLayout).toggleAnimation()
 
         val array = File(getTemplateBasePath()).listFiles()?.filter { it.name.endsWith(".apk") }
 

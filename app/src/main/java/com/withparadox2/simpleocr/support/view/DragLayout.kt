@@ -61,4 +61,33 @@ class DragLayout(context: Context, attrs: AttributeSet?) : FrameLayout(context, 
         dragHelper.processTouchEvent(event!!)
         return true
     }
+
+    fun toggleAnimation(): Boolean {
+        val child = getChildAt(0)
+        var isShow = translationY != 0f || child.top != 0
+
+        if (visibility != View.VISIBLE) {
+            visibility = View.VISIBLE
+            isShow = true
+        }
+
+        if (isShow) {
+            // ViewDragHelper will change child's top
+            child.top = 0
+            translationY = height.toFloat()
+            alpha = 0f
+            animate().translationY(0f)
+                    .alpha(1f)
+                    .setDuration(300)
+                    .start()
+        } else {
+            translationY = 0f
+            alpha = 1f
+            animate().translationY(height.toFloat())
+                    .alpha(0f)
+                    .setDuration(300)
+                    .start()
+        }
+        return isShow
+    }
 }
