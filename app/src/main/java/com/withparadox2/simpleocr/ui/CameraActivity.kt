@@ -34,8 +34,8 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
     private lateinit var mCameraView: CameraView
     /**
      * We may want to request more text in edit-page, which relies on
-     * this flag to determine what will we do next, either show edit-page
-     * or just return data back.
+     * this flag to determine what we will do next, either open a new
+     * edit-page or just return data back to the last one.
      */
     private var mRequestOcr = false
     private var mIsTakingPhoto = false
