@@ -73,6 +73,7 @@ class CameraView(context: Context) : FrameLayout(context), TextureView.SurfaceTe
     }
 
     fun onPause() {
+        CameraController.instance.onPause()
         CameraController.instance.closeCamera()
     }
 
@@ -82,6 +83,7 @@ class CameraView(context: Context) : FrameLayout(context), TextureView.SurfaceTe
         } else {
             textureView.surfaceTextureListener = this
         }
+        CameraController.instance.onResume()
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
