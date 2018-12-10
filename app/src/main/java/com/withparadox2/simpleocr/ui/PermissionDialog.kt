@@ -3,9 +3,9 @@ package com.withparadox2.simpleocr.ui
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
-import android.app.DialogFragment
 import android.content.DialogInterface
 import android.os.Bundle
+import androidx.fragment.app.DialogFragment
 import com.withparadox2.simpleocr.R
 
 @SuppressLint("ValidFragment")

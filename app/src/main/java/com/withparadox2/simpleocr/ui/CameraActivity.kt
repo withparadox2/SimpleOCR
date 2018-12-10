@@ -5,6 +5,7 @@ package com.withparadox2.simpleocr.ui
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.hardware.Camera
 import android.os.Bundle
@@ -50,35 +51,49 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
         mBtnShutter.setOnClickListener(this)
         mBtnPhoto.setOnClickListener(this)
 
+        if (!PermissionManager.instance.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)) {
+            PermissionDialog(DialogInterface.OnClickListener { _, _ ->
+                requestPermission()
+            }).show(supportFragmentManager, "permission")
+        } else {
+            onGetPermission()
+        }
+    }
+
+    private fun requestPermission() {
         PermissionManager.instance.requestPermission(this, object : PermissionManager.PermissionCallback {
             override fun onDenied() {
-                toast("SimpleOCR can not work without relevant permissions")
+                toast("SimpleOCR can not work without necessary permissions")
             }
 
             override fun onGranted() {
-                mGetPermissions = true
-                mCameraView.setCameraCallback(object : CameraController.Callback {
-                    override fun onOpenSuccess(camera: Camera) {
-                        mBtnFlash.setFlashModeList(CameraController.instance.getFlashModes())
-                    }
-
-                    override fun onOpenFailed() {
-                        toast("Failed to open camera")
-                    }
-                })
-
-                val container = findViewById<ViewGroup>(R.id.layout_container)
-                container.addView(mCameraView, 0)
-
-                mCameraView.onPermissionGranted()
+                onGetPermission()
             }
 
         }, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
     }
 
+    private fun onGetPermission() {
+        mGetPermissions = true
+        mCameraView.setCameraCallback(object : CameraController.Callback {
+            override fun onOpenSuccess(camera: Camera) {
+                mBtnFlash.setFlashModeList(CameraController.instance.getFlashModes())
+            }
+
+            override fun onOpenFailed() {
+                toast("Failed to open camera")
+            }
+        })
+
+        val container = findViewById<ViewGroup>(R.id.layout_container)
+        container.addView(mCameraView, 0)
+
+        mCameraView.onPermissionGranted()
+    }
+
     override fun onClick(v: View?) {
         if (!mGetPermissions) {
-            toast("Stop working for no permissions:P")
+            toast("Stop working for no permissions")
             return
         }
         when (v!!.id) {
