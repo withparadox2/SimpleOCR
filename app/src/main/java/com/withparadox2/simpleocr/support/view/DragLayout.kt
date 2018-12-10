@@ -39,6 +39,11 @@ class DragLayout(context: Context, attrs: AttributeSet?) : FrameLayout(context, 
 
             override fun onViewDragStateChanged(state: Int) {
                 super.onViewDragStateChanged(state)
+                if (state == ViewDragHelper.STATE_IDLE) {
+                    if (!isVisibleToUser()) {
+                        visibility = View.INVISIBLE
+                    }
+                }
             }
         }
     }
@@ -62,9 +67,13 @@ class DragLayout(context: Context, attrs: AttributeSet?) : FrameLayout(context, 
         return true
     }
 
+    private fun isVisibleToUser(): Boolean {
+        return translationY == 0f && getChildAt(0).top == 0
+    }
+
     fun toggleAnimation(): Boolean {
         val child = getChildAt(0)
-        var isShow = translationY != 0f || child.top != 0
+        var isShow = !isVisibleToUser()
 
         if (visibility != View.VISIBLE) {
             visibility = View.VISIBLE
