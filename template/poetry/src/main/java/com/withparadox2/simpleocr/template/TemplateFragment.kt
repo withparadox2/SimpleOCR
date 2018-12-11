@@ -120,12 +120,19 @@ class TemplateFragment : BaseTemplateFragment() {
         }
 
         override fun draw(canvas: Canvas) {
-            canvas.drawColor(Color.WHITE)
-            val height = bounds.height()
+            val layout = etContent.layout ?: return
+            val lineCount = layout.lineCount
 
-            for (i in 0..((height / mLineHeight).toInt() - 2)) {
-                val posY = (i + 1) * mLineHeight
-                canvas.drawLine(padding, posY, (bounds.width() - padding), posY, paint)
+            canvas.drawColor(Color.WHITE)
+
+            var lastLineY = 0f
+            for (i in 0..(lineCount + 2)) {
+                if (i >= lineCount) {
+                    lastLineY += mLineHeight
+                } else {
+                    lastLineY = layout.getLineTop(i).toFloat() + mLineHeight
+                }
+                canvas.drawLine(padding, lastLineY, (bounds.width() - padding), lastLineY, paint)
             }
         }
 
