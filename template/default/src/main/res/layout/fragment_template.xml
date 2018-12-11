@@ -49,7 +49,7 @@
                 android:layout_below="@id/tv_left_quote"
                 android:layout_marginTop="15dp"
                 android:background="#00000000"
-                android:lineSpacingMultiplier="1.2"
+                android:lineSpacingMultiplier="1.5"
                 android:textSize="15sp" />
 
             <ImageView
