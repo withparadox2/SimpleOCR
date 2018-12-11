@@ -20,7 +20,7 @@ import com.withparadox2.simpleocr.support.edit.Editor
 import com.withparadox2.simpleocr.support.store.AppDatabase
 import com.withparadox2.simpleocr.support.store.BookInfo
 import com.withparadox2.simpleocr.support.store.BookInfoDao
-import com.withparadox2.simpleocr.support.view.DragLayout
+import com.withparadox2.simpleocr.support.view.TemplateLayout
 import com.withparadox2.simpleocr.template.Callback
 import com.withparadox2.simpleocr.template.ITemplate
 import com.withparadox2.simpleocr.ui.BaseActivity
@@ -220,7 +220,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun animateTemplate() {
-        (layoutTemplateWrapper.parent.parent as DragLayout).toggleAnimation()
+        (layoutTemplateWrapper.parent.parent as TemplateLayout).toggleAnimation()
     }
 
     private fun setupTemplate() {

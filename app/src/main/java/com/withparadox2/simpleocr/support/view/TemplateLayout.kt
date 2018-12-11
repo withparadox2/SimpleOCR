@@ -1,7 +1,6 @@
 package com.withparadox2.simpleocr.support.view
 
 import android.content.Context
-import android.graphics.Color
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -11,7 +10,7 @@ import androidx.core.view.children
 import androidx.customview.widget.ViewDragHelper
 import com.withparadox2.simpleocr.R
 
-class DragLayout(context: Context, attrs: AttributeSet?) : FrameLayout(context, attrs) {
+class TemplateLayout(context: Context, attrs: AttributeSet?) : FrameLayout(context, attrs) {
     private var dragCallback: ViewDragHelper.Callback
     private lateinit var targetView: View
     private var clampAnimTop = 0
