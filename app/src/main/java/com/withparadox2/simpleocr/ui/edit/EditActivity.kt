@@ -76,6 +76,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             if (fragment != null) {
                 configFragment(fragment)
             }
+            setupTemplate()
         }
     }
 
@@ -213,14 +214,16 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 startActivityForResult(getCameraIntent(this), REQUEST_MORE_TEXT)
             }
             R.id.btn_edit_template -> {
-                showTemplateDialog()
+                animateTemplate()
             }
         }
     }
 
-    private fun showTemplateDialog() {
+    private fun animateTemplate() {
         (layoutTemplateWrapper.parent.parent as DragLayout).toggleAnimation()
+    }
 
+    private fun setupTemplate() {
         val array = File(getTemplateBasePath()).listFiles()?.filter { it.name.endsWith(".apk") }
 
         val layout = layoutTemplateWrapper

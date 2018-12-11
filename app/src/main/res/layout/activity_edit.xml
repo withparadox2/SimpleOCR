@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.withparadox2.simpleocr.support.view.DragLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white">
@@ -18,28 +18,21 @@
 
     </LinearLayout>
 
-    <com.withparadox2.simpleocr.support.view.DragLayout
+    <HorizontalScrollView
         android:id="@+id/layout_template_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginBottom="40dp"
-        android:visibility="invisible">
+        android:layout_marginTop="30dp"
+        android:layout_gravity="bottom">
 
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="80dp">
+        <LinearLayout
+            android:id="@+id/layout_template_wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="70dp"
+            android:orientation="horizontal"
+            android:padding="5dp" />
 
-            <LinearLayout
-                android:id="@+id/layout_template_wrapper"
-                android:layout_width="wrap_content"
-                android:layout_height="70dp"
-                android:orientation="horizontal"
-                android:padding="5dp" />
-
-        </HorizontalScrollView>
-    </com.withparadox2.simpleocr.support.view.DragLayout>
-
+    </HorizontalScrollView>
 
     <LinearLayout
         android:id="@+id/layout_bottom"
@@ -82,4 +75,4 @@
             android:textSize="18sp"
             android:textStyle="bold" />
     </LinearLayout>
-</FrameLayout>
+</com.withparadox2.simpleocr.support.view.DragLayout>
