@@ -26,4 +26,14 @@
     <string name="btn_edit_content">格式</string>
     <string name="btn_edit_more">更多</string>
     <string name="btn_edit_template">模板</string>
+    <string name="manage_book">管理书籍</string>
+    <string name="add_book">新增书籍</string>
+    <string name="edit_book">编辑书籍</string>
+    <string name="template_empty">沒有模板</string>
+    <string name="text_insert_where">选择位置</string>
+    <string-array name="items_text_insert_place">
+        <item>开始</item>
+        <item>光标</item>
+        <item>末尾</item>
+    </string-array>
 </resources>

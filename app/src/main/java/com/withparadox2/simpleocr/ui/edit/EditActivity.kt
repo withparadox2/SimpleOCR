@@ -231,7 +231,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             if ((array == null || array.isEmpty())) {
                 layout.layoutParams = layout.layoutParams.also { it.width = MATCH_PARENT }
                 layout.addView(TextView(this).apply {
-                    text = "No template"
+                    text = getString(R.string.template_empty)
                     gravity = Gravity.CENTER
                     layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                 })
@@ -342,7 +342,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         }
         listView.adapter = adapter
 
-        val dialog = AlertDialog.Builder(this).setTitle("Manage Book").setView(layout).show()
+        val dialog = AlertDialog.Builder(this).setTitle(R.string.manage_book).setView(layout).show()
 
         dismissDialogAction = {
             if (dialog.isShowing) dialog.dismiss()
@@ -357,7 +357,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             etTitle.setText(it.title)
             etAuthor.setText(it.author)
         }
-        AlertDialog.Builder(this).setTitle("${if (info == null) "Add" else "Edit"} Book Info").setView(layout).setPositiveButton(R.string.dialog_confirm) { _, _ ->
+        AlertDialog.Builder(this).setTitle(if (info == null) R.string.add_book else R.string.edit_book).setView(layout).setPositiveButton(R.string.dialog_confirm) { _, _ ->
             val title = etTitle.text.toString()
             val author = etAuthor.text.toString()
             callback(info?.also {
@@ -399,7 +399,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     private fun showInsertDialog(text: String) {
         val fragment = mFragment ?: return
-        AlertDialog.Builder(this).setTitle("Insert where?").setItems(arrayOf("Begin", "Cursor", "End")) { _, i ->
+        AlertDialog.Builder(this).setTitle(R.string.text_insert_where).setItems(R.array.items_text_insert_place) { _, i ->
             var resultIndex = i
             if (fragment.editTextContent.isEmpty() && resultIndex == 1) {
                 resultIndex = 0

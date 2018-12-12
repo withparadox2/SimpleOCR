@@ -26,4 +26,14 @@
     <string name="btn_edit_content">Aa</string>
     <string name="btn_edit_more">More</string>
     <string name="btn_edit_template">Template</string>
+    <string name="manage_book">Manage Books</string>
+    <string name="add_book">Add Book</string>
+    <string name="edit_book">Edit Book</string>
+    <string name="template_empty">No template</string>
+    <string name="text_insert_where">Insert where?</string>
+    <string-array name="items_text_insert_place">
+        <item>Begin</item>
+        <item>Cursor</item>
+        <item>End</item>
+    </string-array>
 </resources>
