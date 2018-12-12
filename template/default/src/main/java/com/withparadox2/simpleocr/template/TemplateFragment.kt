@@ -28,9 +28,9 @@ class TemplateFragment : BaseTemplateFragment() {
     }
 
     override fun onCreateViewInternal() {
-        tvTitle = rootView.findViewById(com.withparadox2.simpleocr.baselib.R.id.tv_title)
-        tvAuthor = rootView.findViewById(com.withparadox2.simpleocr.baselib.R.id.tv_author)
-        tvDate = rootView.findViewById(com.withparadox2.simpleocr.baselib.R.id.tv_date)
+        tvTitle = rootView.findViewById(R.id.tv_title)
+        tvAuthor = rootView.findViewById(R.id.tv_author)
+        tvDate = rootView.findViewById(R.id.tv_date)
 
         val action = View.OnClickListener {
             delegate?.onSelectBookInfo()

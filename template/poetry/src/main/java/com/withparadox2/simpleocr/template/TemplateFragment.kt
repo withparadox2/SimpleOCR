@@ -7,7 +7,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.withparadox2.simpleocr.baselib.template.BaseTemplateFragment
 import com.withparadox2.simpleocr.baselib.template.dp2px
-import com.withparadox2.simpleocr.templatedefault.R
+import com.withparadox2.simpleocr.templatepoetry.R
 
 /**
  * Created by withparadox2 on 2018/11/17.
