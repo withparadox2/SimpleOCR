@@ -36,4 +36,8 @@
         <item>Cursor</item>
         <item>End</item>
     </string-array>
+    <string-array name="items_share">
+        <item>Save to file</item>
+        <item>Share</item>
+    </string-array>
 </resources>

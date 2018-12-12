@@ -167,7 +167,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         val filePath = getBasePath() + "share_${System.currentTimeMillis()}.png"
 
         if (mFragment?.renderBitmapAndSave(filePath) == true) {
-            AlertDialog.Builder(this).setItems(arrayOf("Save to file", "Share")) { _, which ->
+            AlertDialog.Builder(this).setItems(R.array.items_share) { _, which ->
                 sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(File(filePath))))
                 if (which == 0) {
                     toast("Picture is saved in : $filePath")

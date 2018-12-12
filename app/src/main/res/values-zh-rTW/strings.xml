@@ -37,4 +37,8 @@
         <item>光標</item>
         <item>末尾</item>
     </string-array>
+    <string-array name="items_share">
+        <item>保存本地</item>
+        <item>分享</item>
+    </string-array>
 </resources>
