@@ -27,12 +27,12 @@ buildscript {
             ]
         ],
         'android' : [
-            'x'       : [
+            'x'        : [
                 'core'            : "androidx.core:core-ktx:1.0.0",
                 'appcompat'       : "androidx.appcompat:appcompat:1.0.0-alpha1",
                 'constraintlayout': "androidx.constraintlayout:constraintlayout:1.1.2"
             ],
-            'room'    : [
+            'room'     : [
                 'runtime' : "android.arch.persistence.room:runtime:${versions.room}",
                 'compiler': "android.arch.persistence.room:compiler:${versions.room}"
             ],
@@ -72,3 +72,6 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+// Bundle all templates and copy them to app's assets through a single command
+task bundleAll() {}

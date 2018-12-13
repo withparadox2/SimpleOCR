@@ -8,7 +8,8 @@ public class TemplatePlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        isAlone = project.rootProject.hasProperty('alone')
+        def isBundleAll = isBundleAll(project)
+        isAlone = project.rootProject.hasProperty('alone') || isBundleAll
         if (isAlone) {
             project.apply([plugin: 'com.android.application'])
         } else {
@@ -24,6 +25,10 @@ public class TemplatePlugin implements Plugin<Project> {
                     def buildType = varNameCap.contains('Debug') ? 'debug' : 'release'
 
                     if (assembleTask) {
+                        if (buildType == 'debug') {
+                            def bundleTask = project.rootProject.tasks.findByName('bundleAll')
+                            bundleTask.dependsOn(assembleTask)
+                        }
                         assembleTask.doLast {
                             project.copy {
                                 from "build/outputs/apk/${buildType}"
@@ -37,6 +42,12 @@ public class TemplatePlugin implements Plugin<Project> {
                     }
                 }
             }
+        }
+    }
+
+    static boolean isBundleAll(Project project) {
+        return project.gradle.startParameter.taskNames.any {
+            return it.contains("bundleAll")
         }
     }
 }
