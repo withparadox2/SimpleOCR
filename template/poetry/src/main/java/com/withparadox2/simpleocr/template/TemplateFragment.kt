@@ -38,7 +38,7 @@ class TemplateFragment : BaseTemplateFragment() {
         container.background = BackgroundDrawable()
 
         tvTitleAndAuthor = rootView.findViewById(R.id.tv_title_author)
-        tvDate = rootView.findViewById(com.withparadox2.simpleocr.baselib.R.id.tv_date)
+        tvDate = rootView.findViewById(R.id.tv_date)
 
         tvTitleAndAuthor.setOnClickListener {
             delegate?.onSelectBookInfo()
