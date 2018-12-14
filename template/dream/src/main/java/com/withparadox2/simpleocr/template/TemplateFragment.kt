@@ -5,6 +5,7 @@ import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.withparadox2.simpleocr.baselib.template.BaseTemplateFragment
@@ -56,6 +57,7 @@ class TemplateFragment : BaseTemplateFragment() {
             tvDate.setTextColor(resources.getColor(R.color.black))
 
             layoutContainer.background = BackgroundDrawable()
+            rootView.findViewById<ImageView>(R.id.iv_flower).setImageDrawable(resources.getDrawable(R.drawable.flower))
         }
     }
 
