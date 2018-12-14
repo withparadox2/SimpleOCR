@@ -18,4 +18,4 @@ showed below.
 <img src="assets/poetry_shadow.png" width="550" height="704">
 
 ### Template Dream
-<img src="assets/poetry_dream.png" width="550" height="437">
+<img src="assets/dream_shadow.png" width="550" height="437">
