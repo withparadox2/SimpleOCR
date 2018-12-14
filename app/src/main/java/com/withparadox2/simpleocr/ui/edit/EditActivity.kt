@@ -421,7 +421,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
 //https://www.cbsd.org/cms/lib/PA01916442/Centricity/Domain/2295/time.pdf.pdf
 private fun getDateStr(): String {
-    val format = SimpleDateFormat("yyyy.MM.dd", Locale.CHINA)
+    val format = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA)
     return format.format(Date()) + " " + when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
         in 1..4 -> "凌晨"
         in 5..7 -> "清晨"
