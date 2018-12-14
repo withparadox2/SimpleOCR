@@ -3,3 +3,5 @@ include ':templateDefault'
 project(':templateDefault').projectDir = new File('template/default')
 include ':templatePoetry'
 project(':templatePoetry').projectDir = new File('template/poetry')
+include ':templateDream'
+project(':templateDream').projectDir = new File('template/dream')
