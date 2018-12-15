@@ -221,7 +221,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     }
 
     private fun changeCropArea(deltaX: Float, deltaY: Float) {
-        val minSize = 4 * mActiveBarSlop
+        val minSize = 2.5f * mActiveBarSlop
 
         if (mActiveBarFlag and BAR_TOP != 0) {
             mCropRect.top = Math.min(Math.max(mCropRect.top + deltaY, mMaxCropRect.top), mCropRect.bottom - minSize)
