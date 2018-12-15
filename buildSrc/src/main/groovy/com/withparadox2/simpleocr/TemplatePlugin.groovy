@@ -34,7 +34,7 @@ public class TemplatePlugin implements Plugin<Project> {
                                 from "build/outputs/apk/${buildType}"
                                 into project.rootProject.file("app/src/main/assets")
                                 rename {
-                                    project.name + ".apk"
+                                    project.name.toLowerCase() + ".apk"
                                 }
                                 include "*${buildType}*.apk"
                             }
