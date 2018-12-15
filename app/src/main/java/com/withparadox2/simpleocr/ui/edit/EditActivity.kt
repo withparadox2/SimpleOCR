@@ -101,8 +101,9 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             override fun onViewCreated() {
                 localFragment.setContent(mContentEditor?.getLastChangeContent() ?: mRawContent)
                 localFragment.setDate(getDateStr())
-                getLastBookInfo()?.also {
-                    setBookInfoView(it)
+
+                mBookInfo?.apply { setBookInfoView(this) } ?: getLastBookInfo()?.apply {
+                    setBookInfoView(this)
                 }
 
                 if (mContentEditor == null) {

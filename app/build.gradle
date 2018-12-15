@@ -40,4 +40,5 @@ dependencies {
     implementation project(":ibaselib")
 //    implementation project(":templateDefault")
 //    implementation project(":templatePoetry")
+//    implementation project(":templateDream")
 }

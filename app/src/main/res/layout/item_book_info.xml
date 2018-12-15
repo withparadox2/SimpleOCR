@@ -33,7 +33,7 @@
             android:id="@+id/tv_author_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tv_title_label"
+            android:layout_below="@id/tv_title"
             android:text="@string/edit_his_label_author"
             android:textColor="@color/edit_light"
             android:textSize="14sp" />

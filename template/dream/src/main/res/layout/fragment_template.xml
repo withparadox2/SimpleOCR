@@ -14,7 +14,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_marginTop="15dp"/>
+            android:layout_marginTop="15dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -36,14 +36,16 @@
                     android:id="@+id/tv_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="15dp"
+                    android:layout_marginEnd="7dp"
                     android:background="@null"
+                    android:maxWidth="200dp"
                     android:textSize="24sp" />
 
                 <TextView
                     android:id="@+id/tv_author"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="7dp"
                     android:background="@null"
                     android:textSize="15sp" />
             </com.withparadox2.simpleocr.template.TitleLayout>
