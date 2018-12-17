@@ -4,7 +4,7 @@
     <string name="reset">重置</string>
     <string name="cancel">取消</string>
     <string name="tip_title">提示</string>
-    <string name="permission_request_msg">为了保证程序正常工作，接下来会申请的必要的权限，请同意</string>
+    <string name="permission_request_msg">为了保证程序正常工作，接下来会申请必要的权限，请同意</string>
     <string name="share">分享</string>
     <string name="edit_his_label_title">标题</string>
     <string name="edit_his_label_author">作者</string>
