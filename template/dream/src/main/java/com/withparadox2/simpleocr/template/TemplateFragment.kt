@@ -3,6 +3,7 @@ package com.withparadox2.simpleocr.template
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
+import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
@@ -16,9 +17,9 @@ import com.withparadox2.simpleocr.templatedream.R
  */
 class TemplateFragment : BaseTemplateFragment() {
 
-    lateinit var tvTitle: TextView
-    lateinit var tvAuthor: TextView
-    lateinit var tvDate: TextView
+    private lateinit var tvTitle: TitleTextView
+    private lateinit var tvAuthor: TextView
+    private lateinit var tvDate: TextView
 
     override fun onCreateViewInternal() {
         tvTitle = rootView.findViewById(R.id.tv_title)
@@ -31,6 +32,7 @@ class TemplateFragment : BaseTemplateFragment() {
 
         tvTitle.setOnClickListener(action)
         tvAuthor.setOnClickListener(action)
+        (tvTitle.parent as View).setOnClickListener(action)
 
         val resources = getSelfResources()
         if (resources != null) {
@@ -50,7 +52,7 @@ class TemplateFragment : BaseTemplateFragment() {
     }
 
     override fun setTitle(title: String) {
-        tvTitle.text = title
+        tvTitle.setText2(title)
     }
 
     override fun setAuthor(author: String) {
@@ -82,6 +84,27 @@ class TemplateFragment : BaseTemplateFragment() {
         }
 
         override fun setColorFilter(colorFilter: ColorFilter?) {
+        }
+    }
+}
+
+class TitleTextView(context: Context, attributeSet: AttributeSet) : TextView(context, attributeSet) {
+    private var textHint: CharSequence? = null
+
+    fun setText2(text: CharSequence?) {
+        super.setText(text)
+        if (textHint == null) {
+            textHint = hint ?: ""
+        }
+        val newHint = if (TextUtils.isEmpty(text)) {
+            textHint
+        } else {
+            ""
+        }
+
+        if (hint != newHint) {
+            hint = newHint
+            requestLayout()
         }
     }
 }
