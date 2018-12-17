@@ -15,30 +15,26 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import com.withparadox2.simpleocr.App
-import com.withparadox2.simpleocr.BuildConfig
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.edit.Editor
 import com.withparadox2.simpleocr.support.store.AppDatabase
 import com.withparadox2.simpleocr.support.store.BookInfo
 import com.withparadox2.simpleocr.support.store.BookInfoDao
+import com.withparadox2.simpleocr.support.template.Template
+import com.withparadox2.simpleocr.support.template.getDefaultTemplate
+import com.withparadox2.simpleocr.support.template.getTemplateList
 import com.withparadox2.simpleocr.support.view.TemplateLayout
 import com.withparadox2.simpleocr.template.Callback
 import com.withparadox2.simpleocr.template.ITemplate
 import com.withparadox2.simpleocr.ui.BaseActivity
 import com.withparadox2.simpleocr.ui.getCameraIntent
 import com.withparadox2.simpleocr.util.*
-import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 private const val REQUEST_MORE_TEXT = 1
 private const val KEY_INTENT_CONTENT = "content"
-
-// We store app-version-code with this key, only if local folder where
-// bundles are kept is empty or the app has been updated to a new version
-// or in debug mode, we will copy bundles from assets to local folder
-private const val KEY_CHECK_BUNDLE_CODE = "key_bundle_code"
 
 @SuppressLint("SetTextI18n")
 class EditActivity : BaseActivity(), View.OnClickListener {
@@ -52,7 +48,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     private var mFragment: ITemplate? = null
     private var mRawContent = ""
 
-    private var mTemplateName: String? = null
+    private var mActiveTemplate: Template? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,32 +60,17 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         findViewById<View>(R.id.btn_edit_template).setOnClickListener(this)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        launch {
-            val fragment = asyncIO {
-                updateTemplateBundle()
-                var fragment = loadLocalFragment()
-                if (fragment == null) {
-                    fragment = loadFragmentByPath(getTemplateBasePath() + "templatedefault.apk")
-                }
-                fragment
-            }.await()
-
-            if (fragment != null) {
-                configFragment(fragment)
-            }
-            setupTemplate()
-        }
+        loadLocalFragment()?.apply { configFragment(this) }
+                ?: getDefaultTemplate()?.apply { selectTemplate(this) }
+        setupTemplate()
     }
 
-    private fun updateTemplateBundle() {
-        val nowCode = getVersionCode()
-        val oldCode = getSp().getInt(KEY_CHECK_BUNDLE_CODE, -1)
-        if (BuildConfig.DEBUG || File(getTemplateBasePath()).list().isEmpty() || nowCode != oldCode) {
-            copyAPkIfNot(this@EditActivity)
-            getSp().edit {
-                this.putInt(KEY_CHECK_BUNDLE_CODE, nowCode)
-            }
-        }
+    private fun selectTemplate(template: Template?): Boolean {
+        return template?.newFragment()?.run {
+            mActiveTemplate = template
+            configFragment(this)
+            return true
+        } ?: false
     }
 
     private fun configFragment(fragment: Fragment) {
@@ -226,11 +207,11 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun setupTemplate() {
-        val array = File(getTemplateBasePath()).listFiles()?.filter { it.name.endsWith(".apk") }
+        val array = getTemplateList()
 
         val layout = layoutTemplateWrapper
         if (layout.childCount == 0) {
-            if ((array == null || array.isEmpty())) {
+            if (array.isEmpty()) {
                 layout.layoutParams = layout.layoutParams.also { it.width = MATCH_PARENT }
                 layout.addView(TextView(this).apply {
                     text = getString(R.string.template_empty)
@@ -247,26 +228,19 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
                 array.forEach {
                     val view = LayoutInflater.from(this).inflate(R.layout.item_edit_template, layout, false)
-                    val name = it.name.substring(8, it.name.indexOf("."))
-
                     view.findViewById<TextView>(R.id.tv_template_name).apply {
-                        val fileName = File(it.absolutePath).name
-                        if (fileName == mTemplateName) {
+                        if (it == mActiveTemplate) {
                             preCheckedView = this
                             configView(preCheckedView!!, true)
                         }
-                        text = name
+
+                        text = it.name
                         setBackgroundResource(R.drawable.bg_btn_edit_template_item_text)
                         setOnClickListener { tv ->
-                            launch {
-                                asyncIO {
-                                    loadFragmentByPath(it.absolutePath)
-                                }.await()?.also {
-                                    preCheckedView?.apply { configView(this, false) }
-                                    configView(tv as TextView, true)
-                                    preCheckedView = tv
-                                    configFragment(it)
-                                }
+                            if (selectTemplate(it)) {
+                                preCheckedView?.apply { configView(this, false) }
+                                configView(tv as TextView, true)
+                                preCheckedView = tv
                             }
                         }
                     }
@@ -274,15 +248,6 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 }
             }
         }
-    }
-
-    private fun loadFragmentByPath(path: String): Fragment? {
-        val name = File(path).name
-        if (mTemplateName == name) {
-            return null
-        }
-        mTemplateName = name
-        return loadFragmentFromApk(this, path, Bundle())
     }
 
     private fun showBookInfoDialog() {
@@ -440,17 +405,4 @@ private fun getDateStr(): String {
 
 fun getEditIntent(context: Context, content: String): Intent {
     return Intent(context, EditActivity::class.java).apply { putExtra(KEY_INTENT_CONTENT, content) }
-}
-
-var isCopied = false
-fun copyAPkIfNot(context: Context) {
-    if (isCopied) {
-        return
-    }
-    isCopied = true
-    val array = context.assets.list("")?.filter { it.endsWith(".apk") }
-    array?.forEach {
-        val path = getTemplateBasePath() + it
-        writeToFile(context.assets.open(it), path)
-    }
 }
