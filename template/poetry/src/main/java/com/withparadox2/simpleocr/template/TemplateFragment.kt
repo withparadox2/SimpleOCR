@@ -20,18 +20,6 @@ class TemplateFragment : BaseTemplateFragment() {
 
     private var mLineHeight = 0f
 
-    override fun onBeforeRender() {
-        etContent.isCursorVisible = false
-    }
-
-    override fun onAfterRender() {
-        etContent.isCursorVisible = true
-    }
-
-    override fun getLayoutResourceId(): Int {
-        return R.layout.fragment_template
-    }
-
     override fun onCreateViewInternal() {
         mLineHeight = dp2px(36f, activity)
         val container = rootView.findViewById<View>(R.id.layout_container)

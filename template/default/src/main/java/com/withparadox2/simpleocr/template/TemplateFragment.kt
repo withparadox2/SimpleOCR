@@ -15,18 +15,6 @@ class TemplateFragment : BaseTemplateFragment() {
     lateinit var tvAuthor: TextView
     lateinit var tvDate: TextView
 
-    override fun onBeforeRender() {
-        etContent.isCursorVisible = false
-    }
-
-    override fun onAfterRender() {
-        etContent.isCursorVisible = true
-    }
-
-    override fun getLayoutResourceId(): Int {
-        return R.layout.fragment_template
-    }
-
     override fun onCreateViewInternal() {
         tvTitle = rootView.findViewById(R.id.tv_title)
         tvAuthor = rootView.findViewById(R.id.tv_author)

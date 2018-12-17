@@ -2,4 +2,5 @@
 <resources>
     <item name="et_content" type="id"/>
     <item name="layout_container" type="id"/>
+    <item name="fragment_template" type="layout"/>
 </resources>

@@ -85,9 +85,17 @@ abstract class BaseTemplateFragment : Fragment(), ITemplate {
     }
 
     open fun onCreateViewInternal() {}
-    abstract fun getLayoutResourceId(): Int
-    abstract fun onBeforeRender()
-    abstract fun onAfterRender()
+    open fun getLayoutResourceId(): Int {
+        return R.layout.fragment_template
+    }
+
+    open fun onBeforeRender() {
+        etContent.isCursorVisible = false
+    }
+
+    open fun onAfterRender() {
+        etContent.isCursorVisible = true
+    }
 
     override fun renderBitmapAndSave(filePath: String): Boolean {
         onBeforeRender()
