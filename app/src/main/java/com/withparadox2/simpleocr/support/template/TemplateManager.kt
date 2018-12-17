@@ -29,6 +29,10 @@ fun preloadTemplates() {
                 templateList.add(template)
             }
         }
+        getDefaultTemplate()?.apply {
+            templateList.remove(this)
+            templateList.add(0, this)
+        }
     }
 }
 
