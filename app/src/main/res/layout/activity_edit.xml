@@ -22,8 +22,9 @@
         android:id="@+id/layout_template_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
         android:layout_marginTop="30dp"
-        android:layout_gravity="bottom">
+        android:fillViewport="true">
 
         <LinearLayout
             android:id="@+id/layout_template_wrapper"
