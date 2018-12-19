@@ -12,16 +12,20 @@ import android.view.*
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import com.withparadox2.simpleocr.App
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.edit.Editor
+import com.withparadox2.simpleocr.support.pref.getLastBookInfoId
+import com.withparadox2.simpleocr.support.pref.getLastTemplateKey
+import com.withparadox2.simpleocr.support.pref.setLastBookInfoId
+import com.withparadox2.simpleocr.support.pref.setLastTemplateKey
 import com.withparadox2.simpleocr.support.store.AppDatabase
 import com.withparadox2.simpleocr.support.store.BookInfo
 import com.withparadox2.simpleocr.support.store.BookInfoDao
 import com.withparadox2.simpleocr.support.template.Template
 import com.withparadox2.simpleocr.support.template.getDefaultTemplate
+import com.withparadox2.simpleocr.support.template.getTargetTemplate
 import com.withparadox2.simpleocr.support.template.getTemplateList
 import com.withparadox2.simpleocr.support.view.TemplateLayout
 import com.withparadox2.simpleocr.template.Callback
@@ -61,8 +65,12 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         loadLocalFragment()?.apply { configFragment(this) }
-                ?: getDefaultTemplate()?.apply { selectTemplate(this) }
+                ?: getLastTemplate()?.apply { selectTemplate(this) }
         setupTemplate()
+    }
+
+    private fun getLastTemplate(): Template? {
+        return getTargetTemplate(getLastTemplateKey()) ?: getDefaultTemplate()
     }
 
     private fun selectTemplate(template: Template?): Boolean {
@@ -238,6 +246,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                         setBackgroundResource(R.drawable.bg_btn_edit_template_item_text)
                         setOnClickListener { tv ->
                             if (selectTemplate(it)) {
+                                setLastTemplateKey(it.key)
                                 preCheckedView?.apply { configView(this, false) }
                                 configView(tv as TextView, true)
                                 preCheckedView = tv
@@ -345,14 +354,6 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     private fun getLastBookInfo(): BookInfo? {
         return getBookInfoDao().getBookInfoById(getLastBookInfoId())
                 ?: getBookInfoList().elementAtOrNull(0)
-    }
-
-    private fun getLastBookInfoId(): Long {
-        return getSp().getLong("last_book_id", 0)
-    }
-
-    private fun setLastBookInfoId(id: Long?) {
-        getSp().edit { putLong("last_book_id", id ?: 0) }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

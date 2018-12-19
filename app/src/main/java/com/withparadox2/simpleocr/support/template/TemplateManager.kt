@@ -41,7 +41,11 @@ fun getTemplateList(): List<Template> {
 }
 
 fun getDefaultTemplate(): Template? {
-    return keyToTemplate[getTemplateBasePath() + "templatedefault.apk"]
+    return getTargetTemplate(getTemplateBasePath() + "templatedefault.apk")
+}
+
+fun getTargetTemplate(key: String?): Template? {
+    return if (key == null) null else keyToTemplate[key]
 }
 
 private fun copyApkIfNot(context: Context) {
