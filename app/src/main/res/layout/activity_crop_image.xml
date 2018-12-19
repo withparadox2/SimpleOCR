@@ -69,11 +69,10 @@
         </FrameLayout>
     </LinearLayout>
 
-    <ProgressBar
+    <com.withparadox2.simpleocr.support.view.LoadingView
         android:id="@+id/progressbar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_gravity="center"
         android:visibility="gone" />
 </FrameLayout>
-

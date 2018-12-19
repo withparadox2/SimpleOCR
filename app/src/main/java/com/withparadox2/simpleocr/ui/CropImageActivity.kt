@@ -7,7 +7,6 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Base64
 import android.view.View
-import android.widget.ProgressBar
 import androidx.core.view.doOnNextLayout
 import com.withparadox2.simpleocr.App
 import com.withparadox2.simpleocr.R
@@ -29,7 +28,7 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
     private var mFilePath: String? = null
     private var mOcrPath: String? = null
     private val ivPhoto: CropImageView by bind(R.id.iv_photo)
-    private val progressBar: ProgressBar by bind(R.id.progressbar)
+    private val progressBar: View by bind(R.id.progressbar)
     private val btnOcr: View by bind(R.id.btn_ocr)
     private val rotationWheel: CropRotationWheel by bind(R.id.layout_wheel)
     private var mOcrRequest: Call<*>? = null
