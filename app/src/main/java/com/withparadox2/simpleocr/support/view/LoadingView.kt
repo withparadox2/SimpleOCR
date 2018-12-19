@@ -9,6 +9,10 @@ import android.util.AttributeSet
 import android.view.View
 import com.withparadox2.simpleocr.util.dp2px
 
+private const val STATE_ANIM_SHOW = 0
+private const val STATE_ANIM_HIDE = 1
+private const val STATE_DEFAULT = -1
+
 class LoadingView(context: Context, attributeSet: AttributeSet) : View(context, attributeSet) {
 
     private val mPaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -16,9 +20,13 @@ class LoadingView(context: Context, attributeSet: AttributeSet) : View(context, 
     private val mInitRotations: Array<Float> = arrayOf(0f, 90f, 180f)
     private val mTempRectF = RectF()
     private val mGap = dp2px(2f)
+    private var mScales: Array<Float> = arrayOf(1f, 1f, 1f)
+    private var mVisibilityState = STATE_DEFAULT
+    private var mLastVisibleDrawTime = 0L
+    private var mShowAction: Runnable? = null
+    private var mHideAction: Runnable? = null
 
     init {
-        mPaint.color = Color.RED
         mPaint.style = Paint.Style.FILL
     }
 
@@ -29,11 +37,62 @@ class LoadingView(context: Context, attributeSet: AttributeSet) : View(context, 
     }
 
     override fun onDraw(canvas: Canvas) {
-        if (mLastDrawTime == 0L) {
-            mLastDrawTime = System.currentTimeMillis()
+        val currentTime = System.currentTimeMillis()
+        val itemCount = 3
+
+        if (mVisibilityState != STATE_DEFAULT) {
+            if (mLastVisibleDrawTime == 0L) {
+                mLastVisibleDrawTime = currentTime
+            }
+
+            var visibleFraction = (currentTime - mLastVisibleDrawTime) / 300f
+            val visibleRound = Math.floor(visibleFraction.toDouble()).toInt()
+            visibleFraction -= visibleRound
+
+            if (visibleRound > 0) {
+                if (mVisibilityState == STATE_ANIM_SHOW) {
+                    onShow()
+                } else {
+                    onHide()
+                }
+                visibleFraction = 1f
+            }
+
+            val delay = 0.2f
+            val weight = 1 / (1 - 2 * delay)
+            (0 until itemCount).forEach { pos ->
+                var scale = weight * (visibleFraction - delay * pos)
+                if (scale > 1f) {
+                    scale = 1f
+                } else if (scale < 0f) {
+                    scale = 0f
+                }
+
+                if (mVisibilityState == STATE_ANIM_HIDE) {
+                    scale = 1 - scale
+                }
+                mScales[pos] = scale
+            }
+
+            if (visibleRound > 0) {
+                mVisibilityState = STATE_DEFAULT
+            }
+        } else {
+            (0 until mScales.size).forEach {
+                mScales[it] = 1f
+            }
         }
 
-        var fraction = (System.currentTimeMillis() - mLastDrawTime) / 500f
+        if (mLastDrawTime == 0L) {
+            mLastDrawTime = currentTime
+        }
+
+        var fraction = (currentTime - mLastDrawTime) / 500f
+        if (mVisibilityState == STATE_ANIM_SHOW) {
+            // Keep initial state during show-animation
+            fraction = 0f
+        }
+
         val totalRound = Math.floor(fraction.toDouble()).toInt()
         val roundNum = totalRound / 3
         val activeIndex = totalRound - roundNum * 3
@@ -42,7 +101,8 @@ class LoadingView(context: Context, attributeSet: AttributeSet) : View(context, 
         val squareSize = ((measuredHeight / 2f - mGap) / Math.sqrt(2.toDouble())).toFloat()
         val cx = measuredWidth / 2f
         val cy = measuredHeight / 2f
-        (0..2).forEach { pos ->
+        val borderRadius = dp2px(2f)
+        (0 until itemCount).forEach { pos ->
             var rotation = mInitRotations[pos] - roundNum * 90
             if (pos < activeIndex) {
                 rotation -= 90
@@ -52,16 +112,48 @@ class LoadingView(context: Context, attributeSet: AttributeSet) : View(context, 
 
             canvas.save()
             canvas.rotate(rotation, cx, cy)
+
             mTempRectF.set(cx + mGap, cy - mGap - squareSize, cx + mGap + squareSize, cy - mGap)
+            val insetSize = (1 - mScales[pos]) * squareSize / 2
+            mTempRectF.inset(insetSize, insetSize)
             when (pos) {
                 0 -> mPaint.color = Color.RED
-                1 -> mPaint.color = Color.BLUE
+                1 -> mPaint.color = Color.CYAN
                 else -> mPaint.color = Color.YELLOW
             }
-            canvas.drawRoundRect(mTempRectF, 5f, 5f, mPaint)
+            canvas.drawRoundRect(mTempRectF, borderRadius, borderRadius, mPaint)
             canvas.restore()
         }
 
         invalidate()
+    }
+
+    fun show(showAction: Runnable? = null) {
+        mVisibilityState = STATE_ANIM_SHOW
+        mLastVisibleDrawTime = 0
+        visibility = VISIBLE
+        mShowAction = showAction
+        invalidate()
+    }
+
+    fun isShow(): Boolean {
+        return visibility == View.VISIBLE
+    }
+
+    private fun onShow() {
+        // Reset normal animation to a default state
+        mLastDrawTime = 0
+        mShowAction?.run()
+    }
+
+    fun hide(hideAction: Runnable? = null) {
+        mVisibilityState = STATE_ANIM_HIDE
+        mLastVisibleDrawTime = 0
+        mHideAction = hideAction
+    }
+
+    private fun onHide() {
+        visibility = GONE
+        mHideAction?.run()
     }
 }

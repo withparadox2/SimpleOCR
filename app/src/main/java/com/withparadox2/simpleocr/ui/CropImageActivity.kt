@@ -14,6 +14,7 @@ import com.withparadox2.simpleocr.support.net.OcrResult
 import com.withparadox2.simpleocr.support.net.OcrService
 import com.withparadox2.simpleocr.support.view.CropImageView
 import com.withparadox2.simpleocr.support.view.CropRotationWheel
+import com.withparadox2.simpleocr.support.view.LoadingView
 import com.withparadox2.simpleocr.util.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -28,7 +29,7 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
     private var mFilePath: String? = null
     private var mOcrPath: String? = null
     private val ivPhoto: CropImageView by bind(R.id.iv_photo)
-    private val progressBar: View by bind(R.id.progressbar)
+    private val progressBar: LoadingView by bind(R.id.progressbar)
     private val btnOcr: View by bind(R.id.btn_ocr)
     private val rotationWheel: CropRotationWheel by bind(R.id.layout_wheel)
     private var mOcrRequest: Call<*>? = null
@@ -83,30 +84,31 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
     }.run()
 
     private fun startOcr() {
-        progressBar.visibility = View.VISIBLE
-        val image = Base64.encodeToString(File(mOcrPath).readBytes(), Base64.DEFAULT)
-        mOcrRequest = OcrService.requestOcr(image, object : Callback<OcrResult> {
-            override fun onFailure(call: Call<OcrResult>?, t: Throwable?) {
-                if (progressBar.visibility == View.VISIBLE) {
-                    progressBar.visibility = View.GONE
-                    toast("Ocr error")
+        progressBar.show(Runnable {
+            val image = Base64.encodeToString(File(mOcrPath).readBytes(), Base64.DEFAULT)
+            mOcrRequest = OcrService.requestOcr(image, object : Callback<OcrResult> {
+                override fun onFailure(call: Call<OcrResult>?, t: Throwable?) {
+                    if (progressBar.isShow()) {
+                        progressBar.hide()
+                        toast("Ocr error")
+                    }
                 }
-            }
 
-            override fun onResponse(call: Call<OcrResult>?, response: Response<OcrResult>?) {
-                progressBar.visibility = View.GONE
-
-                parseText(response?.body()?.resultList).also {
-                    setResult(Activity.RESULT_OK, Intent().putExtra("data", it))
-                    finish()
+                override fun onResponse(call: Call<OcrResult>?, response: Response<OcrResult>?) {
+                    progressBar.hide(Runnable {
+                        parseText(response?.body()?.resultList).also {
+                            setResult(Activity.RESULT_OK, Intent().putExtra("data", it))
+                            finish()
+                        }
+                    })
                 }
-            }
+            })
         })
     }
 
     override fun onBackPressed() {
-        if (progressBar.visibility == View.VISIBLE) {
-            progressBar.visibility = View.GONE
+        if (progressBar.isShow()) {
+            progressBar.hide()
             mOcrRequest?.cancel()
         } else {
             super.onBackPressed()
