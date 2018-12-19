@@ -32,6 +32,7 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
     private val progressBar: ProgressBar by bind(R.id.progressbar)
     private val btnOcr: View by bind(R.id.btn_ocr)
     private val rotationWheel: CropRotationWheel by bind(R.id.layout_wheel)
+    private var mOcrRequest: Call<*>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,10 +86,12 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
     private fun startOcr() {
         progressBar.visibility = View.VISIBLE
         val image = Base64.encodeToString(File(mOcrPath).readBytes(), Base64.DEFAULT)
-        OcrService.requestOcr(image, object : Callback<OcrResult> {
+        mOcrRequest = OcrService.requestOcr(image, object : Callback<OcrResult> {
             override fun onFailure(call: Call<OcrResult>?, t: Throwable?) {
-                progressBar.visibility = View.GONE
-                toast("Ocr error")
+                if (progressBar.visibility == View.VISIBLE) {
+                    progressBar.visibility = View.GONE
+                    toast("Ocr error")
+                }
             }
 
             override fun onResponse(call: Call<OcrResult>?, response: Response<OcrResult>?) {
@@ -100,6 +103,15 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
                 }
             }
         })
+    }
+
+    override fun onBackPressed() {
+        if (progressBar.visibility == View.VISIBLE) {
+            progressBar.visibility = View.GONE
+            mOcrRequest?.cancel()
+        } else {
+            super.onBackPressed()
+        }
     }
 }
 
