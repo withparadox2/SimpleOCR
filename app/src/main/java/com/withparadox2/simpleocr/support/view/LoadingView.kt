@@ -58,8 +58,8 @@ class LoadingView(context: Context, attributeSet: AttributeSet) : View(context, 
                 visibleFraction = 1f
             }
 
-            val delay = 0.2f
-            val weight = 1 / (1 - 2 * delay)
+            val delay = 0.1f * (itemCount - 1)
+            val weight = 1 / (1 - (itemCount - 1) * delay)
             (0 until itemCount).forEach { pos ->
                 var scale = weight * (visibleFraction - delay * pos)
                 if (scale > 1f) {
