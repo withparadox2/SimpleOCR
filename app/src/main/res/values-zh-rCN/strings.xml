@@ -40,4 +40,14 @@
         <item>保存本地</item>
         <item>分享</item>
     </string-array>
+    <string-array name="items_time_section">
+        <item>凌晨</item>
+        <item>清晨</item>
+        <item>上午</item>
+        <item>中午</item>
+        <item>下午</item>
+        <item>傍晚</item>
+        <item>晚上</item>
+        <item>深夜</item>
+    </string-array>
 </resources>
