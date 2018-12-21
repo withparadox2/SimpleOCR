@@ -58,6 +58,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     private var mDragTouchSlop = dp2px(5f)
 
     private lateinit var mBitmap: Bitmap
+    private var mRotateTimes = 0
 
     private val mScaleDetector: ScaleGestureDetector = ScaleGestureDetector(getContext(), object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
@@ -94,35 +95,52 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     override fun setImageBitmap(bitmap: Bitmap) {
         super.setImageBitmap(bitmap)
         mBitmap = bitmap
+        resetCropState(bitmap)
+    }
 
+
+    private fun resetCropState(bitmap: Bitmap, preRotation: Int = 0) {
         val padding = dp2px(10).toFloat()
-        val matrix = Matrix()
         val scale: Float
         var tx = padding
         var ty = padding
 
-
         val width = measuredWidth - padding - padding
         val height = measuredHeight - padding - padding
-        if ((bitmap.width / bitmap.height.toFloat() > width / height)) {
-            scale = width / bitmap.width
-            ty += (height - bitmap.height * scale) / 2
+        var bw = bitmap.width.toFloat()
+        var bh = bitmap.height.toFloat()
+        if (preRotation == 90 || preRotation == 270) {
+            val temp = bw
+            bw = bh
+            bh = temp
+        }
+        if ((bw / bh > width / height)) {
+            scale = width / bw
+            ty += (height - bh * scale) / 2
         } else {
-            scale = height / bitmap.height
-            tx += (width - bitmap.width * scale) / 2
+            scale = height / bh
+            tx += (width - bw * scale) / 2
         }
 
-        matrix.setScale(scale, scale)
+        mBitmapScale = scale
+        mInitContentRect.set(tx, ty, tx + bw * scale, ty + bh * scale)
+        mCropRect.set(mInitContentRect)
+        mMaxCropRect.set(padding, padding, measuredWidth - padding, measuredHeight - padding)
+
+        val matrix = Matrix()
+        matrix.postRotate(preRotation.toFloat())
+        if (preRotation == 90) {
+            matrix.postTranslate(bw, 0f)
+        } else if (preRotation == 180) {
+            matrix.postTranslate(bw, bh)
+        } else if (preRotation == 270) {
+            matrix.postTranslate(0f, bh)
+        }
+        matrix.postScale(scale, scale)
         matrix.postTranslate(tx, ty)
 
         mInitMatrix.set(matrix)
-
         imageMatrix = matrix
-
-        mBitmapScale = scale
-        mInitContentRect.set(tx, ty, tx + bitmap.width * scale, ty + bitmap.height * scale)
-        mCropRect.set(mInitContentRect)
-        mMaxCropRect.set(padding, padding, measuredWidth - padding, measuredHeight - padding)
     }
 
     private fun setAnimateLineRatio(value: Float) {
@@ -388,7 +406,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
             fitTranslation(mBoundRect, mContentRect, Math.toRadians(rotation.toDouble()), translation)
         }
 
-        val ratio = targetScale / mPreScale
+        val ratio = Math.abs(targetScale / mPreScale)
         mPreScale = targetScale
 
         if (!animate) {
@@ -476,7 +494,13 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         mTempMatrix.postRotate(-rotation, mCropRect.centerX(), mCropRect.centerY())
         mTempMatrix.mapPoints(mBitmapPoints)
 
-        contentRect.set(mBitmapPoints[0], mBitmapPoints[1], mBitmapPoints[2], mBitmapPoints[3])
+        // If rotation exceeds 45 or -45 degree, the origin right will be less than left,
+        // we should find the valid rect to wrap all these two points
+        val left = Math.min(mBitmapPoints[0], mBitmapPoints[2])
+        val right = Math.max(mBitmapPoints[0], mBitmapPoints[2])
+        val top = Math.min(mBitmapPoints[1], mBitmapPoints[3])
+        val bottom = Math.max(mBitmapPoints[1], mBitmapPoints[3])
+        contentRect.set(left, top, right, bottom)
     }
 
     private fun mapBoundRect(dest: RectF, rotation: Float) {
@@ -510,13 +534,23 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
         mRotateStartScale = 0.0f
     }
 
-    fun reset() {
+    fun reset(resetRotate: Boolean = true) {
+        if (resetRotate) {
+            mRotateTimes = 0
+            resetCropState(mBitmap)
+        }
         mCropRect.set(mInitContentRect)
         imageMatrix.set(mInitMatrix)
         mPreRotation = 0.0f
         mPreScale = 1.0f
         resetStartRotateScale()
         invalidate()
+    }
+
+    fun rotate() {
+        mRotateTimes++
+        resetCropState(mBitmap, (mRotateTimes * 90) % 360)
+        reset(false)
     }
 
     private fun startGridLineAnimation(onAnimationEnd: ((Animator) -> Unit)? = null): ObjectAnimator {

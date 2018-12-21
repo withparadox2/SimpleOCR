@@ -41,6 +41,7 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
         btnOcr.setOnClickListener(this)
         findViewById<View>(R.id.btn_cancel).setOnClickListener(this)
         findViewById<View>(R.id.btn_reset).setOnClickListener(this)
+        findViewById<View>(R.id.btn_rotate).setOnClickListener(this)
 
         val requestPath = intent.getStringExtra("path")
         mFilePath = requestPath ?: getTempBitmapPath()
@@ -61,6 +62,10 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
             R.id.btn_reset -> {
                 rotationWheel.reset()
                 ivPhoto.reset()
+            }
+            R.id.btn_rotate -> {
+                rotationWheel.reset()
+                ivPhoto.rotate()
             }
         }
     }

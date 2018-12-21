@@ -17,11 +17,25 @@
             android:background="@color/black"
             android:scaleType="matrix" />
 
-        <com.withparadox2.simpleocr.support.view.CropRotationWheel
-            android:id="@+id/layout_wheel"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:layout_marginBottom="10dp" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp">
+
+            <com.withparadox2.simpleocr.support.view.CropRotationWheel
+                android:id="@+id/layout_wheel"
+                android:layout_width="match_parent"
+                android:layout_height="45dp" />
+
+            <ImageView
+                android:id="@+id/btn_rotate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|bottom"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/bg_btn_bar_dark"
+                android:src="@drawable/ic_crop_rotate" />
+        </FrameLayout>
 
         <FrameLayout
             android:layout_width="match_parent"
