@@ -93,7 +93,7 @@ class CropImageActivity : BaseActivity(), View.OnClickListener {
             val image = Base64.encodeToString(File(mOcrPath).readBytes(), Base64.DEFAULT)
             mOcrRequest = OcrService.requestOcr(image, object : Callback<OcrResult> {
                 override fun onFailure(call: Call<OcrResult>?, t: Throwable?) {
-                    if (progressBar.isShow()) {
+                    if (progressBar.isShow() && !progressBar.isAnimating()) {
                         progressBar.hide()
                         toast("Ocr error")
                     }

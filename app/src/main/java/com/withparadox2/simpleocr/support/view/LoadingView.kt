@@ -140,6 +140,10 @@ class LoadingView(context: Context, attributeSet: AttributeSet) : View(context, 
         return visibility == View.VISIBLE
     }
 
+    fun isAnimating(): Boolean {
+        return mVisibilityState == STATE_ANIM_SHOW || mVisibilityState == STATE_ANIM_HIDE
+    }
+
     private fun onShow() {
         // Reset normal animation to a default state
         mLastDrawTime = 0
