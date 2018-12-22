@@ -16,12 +16,14 @@ var isCopied = false
 private const val KEY_CHECK_BUNDLE_CODE = "key_bundle_code"
 private val keyToTemplate = HashMap<String, Template>()
 private val templateList = ArrayList<Template>()
+private var hasRetried = false
 
 fun preloadTemplates() {
     GlobalScope.asyncIO {
         updateTemplateBundle()
         val bundleArray = File(getTemplateBasePath()).listFiles()?.filter { it.name.endsWith(".apk") }
-        bundleArray?.forEach {
+                ?: ArrayList<File>(0)
+        bundleArray.forEach {
             val clazz = loadClassFromApk(App.instance, it.absolutePath)
             if (clazz != null) {
                 val template = Template(it.absolutePath, clazz)
@@ -32,6 +34,16 @@ fun preloadTemplates() {
         getDefaultTemplate()?.apply {
             templateList.remove(this)
             templateList.add(0, this)
+        }
+        if (!hasRetried && !bundleArray.isEmpty() && templateList.size == 0) {
+            hasRetried = true
+            File(getTemplateBasePath()).listFiles()?.filter {
+                it.isDirectory
+            }?.forEach {
+                it.deleteRecursively()
+            }
+            // Delete pre opt file and retry to load template
+            preloadTemplates()
         }
     }
 }
