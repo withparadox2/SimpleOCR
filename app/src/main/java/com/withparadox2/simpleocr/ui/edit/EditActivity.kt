@@ -46,17 +46,20 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     private val btnMore: View by bind(R.id.btn_edit_more)
     private val layoutTemplateWrapper: ViewGroup by bind(R.id.layout_template_wrapper)
 
-    private var mContentEditor: Editor? = null
+    private lateinit var mContentEditor: Editor
     private var mBookInfo: BookInfo? = null
 
     private var mFragment: ITemplate? = null
-    private var mRawContent = ""
-
     private var mActiveTemplate: Template? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mRawContent = intent.getStringExtra(KEY_INTENT_CONTENT)
+        val rawContent = intent.getStringExtra(KEY_INTENT_CONTENT)
+        mContentEditor = Editor(rawContent, object : Editor.Callback {
+            override fun onContentChange(content: String) {
+                mFragment?.setContent(content)
+            }
+        })
 
         setContentView(R.layout.activity_edit)
         btnEdit.setOnClickListener(this)
@@ -88,19 +91,11 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         val localFragment = fragment as ITemplate
         localFragment.setCallback(object : Callback {
             override fun onViewCreated() {
-                localFragment.setContent(mContentEditor?.getLastChangeContent() ?: mRawContent)
+                localFragment.setContent(mContentEditor.getLastChangeContent())
                 localFragment.setDate(getDateStr())
 
                 mBookInfo?.apply { setBookInfoView(this) } ?: getLastBookInfo()?.apply {
                     setBookInfoView(this)
-                }
-
-                if (mContentEditor == null) {
-                    mContentEditor = Editor(mRawContent, object : Editor.Callback {
-                        override fun onContentChange(content: String) {
-                            mFragment?.setContent(content)
-                        }
-                    })
                 }
 
                 localFragment.setContentTextWatcher(object : TextWatcher {
@@ -108,7 +103,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                     }
 
                     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                        mContentEditor?.updateContent(s.toString())
+                        mContentEditor.updateContent(s.toString())
                     }
 
                     override fun afterTextChanged(s: Editable?) {
@@ -177,23 +172,23 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     private fun showEditDialog() {
         val items: Array<String> = resources.getStringArray(R.array.items_edit_content)
-        items[6] = "${items[6]}(${mContentEditor?.getBackStepCount()})"
+        items[6] = "${items[6]}(${mContentEditor.getBackStepCount()})"
         AlertDialog.Builder(this).setItems(items) { _, which ->
             when (which) {
-                0 -> mContentEditor?.reset()
-                1 -> mContentEditor?.joinLines()
-                2 -> mContentEditor?.toChinese()
+                0 -> mContentEditor.reset()
+                1 -> mContentEditor.joinLines()
+                2 -> mContentEditor.toChinese()
                 3 -> {
-                    mContentEditor?.toChinese()
-                    mContentEditor?.joinLines()
+                    mContentEditor.toChinese()
+                    mContentEditor.joinLines()
                 }
-                4 -> mContentEditor?.toEnglish()
+                4 -> mContentEditor.toEnglish()
                 5 -> {
-                    mContentEditor?.toEnglish()
-                    mContentEditor?.joinLines()
+                    mContentEditor.toEnglish()
+                    mContentEditor.joinLines()
                 }
-                6 -> mContentEditor?.lastStep()
-                7 -> mContentEditor?.copy()
+                6 -> mContentEditor.lastStep()
+                7 -> mContentEditor.copy()
             }
         }.show()
     }
