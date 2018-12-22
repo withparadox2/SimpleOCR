@@ -284,11 +284,9 @@ class CropImageView(context: Context, attributeSet: AttributeSet) : ImageView(co
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        canvas.drawColor(0xAA000000.toInt())
-
         canvas.save()
-        canvas.clipRect(mCropRect)
-        super.onDraw(canvas)
+        canvas.clipRect(mCropRect, Region.Op.DIFFERENCE)
+        canvas.drawColor(0xAA000000.toInt())
         canvas.restore()
 
         val outlineWidth = dp2px(1).toFloat() * 2.0f
