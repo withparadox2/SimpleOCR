@@ -3,6 +3,7 @@ package com.withparadox2.simpleocr.ui.edit
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -135,7 +136,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         if (item.itemId == R.id.share) {
             share()
         } else if (item.itemId == android.R.id.home) {
-            finish()
+            onBackPressed()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -379,6 +380,20 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 2 -> fragment.setContent(fragment.editTextContent.toString() + text)
             }
         }.show()
+    }
+
+    override fun onBackPressed() {
+        if (mFragment?.editTextContent?.isNotEmpty() == true) {
+            AlertDialog.Builder(this)
+                    .setTitle(R.string.dialog_title_exit_edit)
+                    .setMessage(R.string.dialog_message_exit_edit)
+                    .setPositiveButton(R.string.dialog_confirm) { _, _ ->
+                        finish()
+                    }.setNegativeButton(R.string.dialog_cancel) { _, _ ->
+                    }
+            return
+        }
+        super.onBackPressed()
     }
 }
 

@@ -51,4 +51,6 @@
         <item>晚上</item>
         <item>深夜</item>
     </string-array>
+    <string name="dialog_title_exit_edit">退出</string>
+    <string name="dialog_message_exit_edit">確認退出？</string>
 </resources>

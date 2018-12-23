@@ -50,4 +50,6 @@
         <item>evening</item>
         <item>night</item>
     </string-array>
+    <string name="dialog_title_exit_edit">Exit</string>
+    <string name="dialog_message_exit_edit">Are you sure you want to exit?</string>
 </resources>
