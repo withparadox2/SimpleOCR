@@ -34,7 +34,7 @@ Execute `gradlew bundleAll` to generate all template bundles, which are located
 in `app/src/main/assets/`
 
 In cases where debugging of a single template is needed, one should config
-`debug.template` with specified project name in local.properties
+`debug.template` with a specified name of project in `local.properties`
 ```
 debug.template=templateDefault
 ```
