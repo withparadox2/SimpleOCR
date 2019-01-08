@@ -55,7 +55,11 @@ dependencies {
     implementation dep.android.lifecycle.ext
     kapt dep.android.lifecycle.compiler
     implementation project(":ibaselib")
-//    implementation project(":templateDefault")
-//    implementation project(":templatePoetry")
-//    implementation project(":templateDream")
+
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    def debugTemplate = properties.getProperty('debug.template')
+    if (!debugTemplate?.isEmpty()) {
+        implementation project(":${debugTemplate}")
+    }
 }
