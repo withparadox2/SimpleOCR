@@ -1,5 +1,6 @@
 # SimpleOCR
 
+## Introduction
 The project name is SimpleOCR, since it has nothing to do with ocr, the
 app's name may differ.
 
@@ -19,3 +20,21 @@ showed below.
 
 ### Template Dream
 <img src="assets/dream_shadow2.png" width="550" height="361">
+
+## Build
+Create file `keystore.properties` and fill it up with your configuration:
+```
+storePassword=
+keyPassword=
+keyAlias=
+storeFile=
+```
+
+Execute `gradlew bundleAll` to generate all template bundles, which are located
+in `app/src/main/assets/`
+
+In cases where debugging of a single template is needed, one should config
+`debug.template` with specified project name in local.properties
+```
+debug.template=templateDefault
+```
