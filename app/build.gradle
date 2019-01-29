@@ -54,6 +54,9 @@ dependencies {
     kapt dep.android.room.compiler
     implementation dep.android.lifecycle.ext
     kapt dep.android.lifecycle.compiler
+
+    implementation 'com.tencent.bugly:crashreport:2.8.6'
+
     implementation project(":ibaselib")
 
     Properties properties = new Properties()
