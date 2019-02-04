@@ -3,7 +3,6 @@ package com.withparadox2.simpleocr.ui.edit
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -40,6 +39,11 @@ import java.util.*
 
 private const val REQUEST_MORE_TEXT = 1
 private const val KEY_INTENT_CONTENT = "content"
+
+private const val INSERT_START = 0
+private const val INSERT_CURSOR = 1
+private const val INSERT_END = 2
+
 
 @SuppressLint("SetTextI18n")
 class EditActivity : BaseActivity(), View.OnClickListener {
@@ -369,15 +373,15 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 resultIndex = 0
             }
             when (resultIndex) {
-                0 -> fragment.setContent(text + fragment.editTextContent)
-                1 -> {
+                INSERT_START -> fragment.setContent(text + fragment.editTextContent)
+                INSERT_CURSOR -> {
                     val selection = fragment.editSelection
                     fragment.setContent(fragment.editTextContent.toString().let {
                         it.subSequence(0, selection).toString() + text + it.subSequence(selection, it.length - 1)
                     })
                     fragment.editSelection = selection
                 }
-                2 -> fragment.setContent(fragment.editTextContent.toString() + text)
+                INSERT_END -> fragment.setContent(fragment.editTextContent.toString() + text)
             }
         }.show()
     }
