@@ -12,6 +12,8 @@ import com.withparadox2.simpleocr.util.dp2px
 private const val STATE_ANIM_SHOW = 0
 private const val STATE_ANIM_HIDE = 1
 private const val STATE_DEFAULT = -1
+private const val DURATION_SCALE = 500
+private const val DURATION_ROTATE = 500
 
 class LoadingView(context: Context, attributeSet: AttributeSet) : View(context, attributeSet) {
 
@@ -45,7 +47,7 @@ class LoadingView(context: Context, attributeSet: AttributeSet) : View(context, 
                 mLastVisibleDrawTime = currentTime
             }
 
-            var visibleFraction = (currentTime - mLastVisibleDrawTime) / 300f
+            var visibleFraction = (currentTime - mLastVisibleDrawTime) / DURATION_SCALE.toFloat()
             val visibleRound = Math.floor(visibleFraction.toDouble()).toInt()
             visibleFraction -= visibleRound
 
@@ -87,11 +89,7 @@ class LoadingView(context: Context, attributeSet: AttributeSet) : View(context, 
             mLastDrawTime = currentTime
         }
 
-        var fraction = (currentTime - mLastDrawTime) / 500f
-        if (mVisibilityState == STATE_ANIM_SHOW) {
-            // Keep initial state during show-animation
-            fraction = 0f
-        }
+        var fraction = (currentTime - mLastDrawTime) / DURATION_ROTATE.toFloat()
 
         val totalRound = Math.floor(fraction.toDouble()).toInt()
         val roundNum = totalRound / 3
@@ -145,8 +143,6 @@ class LoadingView(context: Context, attributeSet: AttributeSet) : View(context, 
     }
 
     private fun onShow() {
-        // Reset normal animation to a default state
-        mLastDrawTime = 0
         mShowAction?.run()
     }
 
