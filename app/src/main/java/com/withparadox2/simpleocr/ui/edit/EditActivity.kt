@@ -394,7 +394,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                     .setPositiveButton(R.string.dialog_confirm) { _, _ ->
                         finish()
                     }.setNegativeButton(R.string.dialog_cancel) { _, _ ->
-                    }
+                    }.show()
             return
         }
         super.onBackPressed()
