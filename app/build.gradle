@@ -64,5 +64,9 @@ dependencies {
     def debugTemplate = properties.getProperty('debug.template')
     if (debugTemplate?.trim()) {
         implementation project(":${debugTemplate.trim()}")
+    } else {
+        if (fileTree("src/main/assets").files.find { it.name.endsWith(".apk") } == null) {
+            implementation project(":templateDefault")
+        }
     }
 }
