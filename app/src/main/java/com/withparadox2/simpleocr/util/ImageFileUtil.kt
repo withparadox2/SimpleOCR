@@ -74,30 +74,29 @@ fun getDataColumn(context: Context, uri: Uri?, selection: String?,
     val projection = arrayOf(column)
 
     try {
-        cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null)
-        if (cursor != null && cursor!!.moveToFirst()) {
-            val index = cursor!!.getColumnIndexOrThrow(column)
-            return cursor!!.getString(index)
+        cursor = context.contentResolver.query(uri!!, projection, selection, selectionArgs, null)
+        if (cursor != null && cursor.moveToFirst()) {
+            val index = cursor.getColumnIndexOrThrow(column)
+            return cursor.getString(index)
         }
     } finally {
-        if (cursor != null)
-            cursor!!.close()
+        cursor?.close()
     }
     return null
 }
 
 fun isExternalStorageDocument(uri: Uri): Boolean {
-    return "com.android.externalstorage.documents" == uri.getAuthority()
+    return "com.android.externalstorage.documents" == uri.authority
 }
 
 fun isDownloadsDocument(uri: Uri): Boolean {
-    return "com.android.providers.downloads.documents" == uri.getAuthority()
+    return "com.android.providers.downloads.documents" == uri.authority
 }
 
 fun isMediaDocument(uri: Uri): Boolean {
-    return "com.android.providers.media.documents" == uri.getAuthority()
+    return "com.android.providers.media.documents" == uri.authority
 }
 
 fun isGooglePhotosUri(uri: Uri): Boolean {
-    return "com.google.android.apps.photos.content" == uri.getAuthority()
+    return "com.google.android.apps.photos.content" == uri.authority
 }
