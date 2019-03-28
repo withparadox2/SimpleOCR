@@ -66,9 +66,9 @@ class ShutterButton(context: Context, attr : AttributeSet?) : View(context, attr
         mClickListener = l
     }
 
-    private fun animSize(value : Boolean) {
+    private fun animSize(scaleUp : Boolean) {
         val animatorSet = AnimatorSet()
-        if (value) {
+        if (scaleUp) {
             animatorSet.playTogether(
                     ObjectAnimator.ofFloat(this, "scaleX", 1.06f),
                     ObjectAnimator.ofFloat(this, "scaleY", 1.06f))
