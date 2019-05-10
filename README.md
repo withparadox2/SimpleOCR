@@ -1,12 +1,9 @@
-# SimpleOCR
+# SimpleOCR——青青书摘
 
 ## Introduction
-The project name is SimpleOCR, since it has nothing to do with ocr, the
-app's name may differ.
-
-What I want to accomplish is to save and share excerpt while reading a
-book. None of apps shipped in play store can provide a style I expect, so
-I decide to make one by my self, that's the birth of SimpleOCR.
+What I want to achieve is to save and share excerpt while reading a
+book. None of apps shipped in app store can provide a style that fulfil my 
+expectation, so I decide to make one by self, that's the birth of SimpleOCR.
 
 For now, there are three templates available, "default", "poetry" and "dream",
 both keep tiny and concise. The images rendered by these templates are
