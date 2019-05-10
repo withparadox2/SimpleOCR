@@ -59,7 +59,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val rawContent = intent.getStringExtra(KEY_INTENT_CONTENT)
+        val rawContent = intent.getStringExtra(KEY_INTENT_CONTENT) ?: ""
         mContentEditor = Editor(rawContent, object : Editor.Callback {
             override fun onContentChange(content: String) {
                 mFragment?.setContent(content)
