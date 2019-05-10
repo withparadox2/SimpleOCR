@@ -23,10 +23,7 @@ import com.withparadox2.simpleocr.support.pref.setLastTemplateKey
 import com.withparadox2.simpleocr.support.store.AppDatabase
 import com.withparadox2.simpleocr.support.store.BookInfo
 import com.withparadox2.simpleocr.support.store.BookInfoDao
-import com.withparadox2.simpleocr.support.template.Template
-import com.withparadox2.simpleocr.support.template.getDefaultTemplate
-import com.withparadox2.simpleocr.support.template.getTargetTemplate
-import com.withparadox2.simpleocr.support.template.getTemplateList
+import com.withparadox2.simpleocr.support.template.*
 import com.withparadox2.simpleocr.support.view.TemplateLayout
 import com.withparadox2.simpleocr.template.Callback
 import com.withparadox2.simpleocr.template.ITemplate
@@ -70,15 +67,25 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         btnEdit.setOnClickListener(this)
         btnMore.setOnClickListener(this)
         findViewById<View>(R.id.btn_edit_template).setOnClickListener(this)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        loadLocalFragment()?.apply { configFragment(this) }
-                ?: getLastTemplate()?.apply { selectTemplate(this) }
-        setupTemplate()
     }
 
-    private fun getLastTemplate(): Template? {
-        return getTargetTemplate(getLastTemplateKey()) ?: getDefaultTemplate()
+    override fun onGetPermission() {
+        super.onGetPermission()
+        loadLocalFragment()?.apply {
+            configFragment(this)
+            setupTemplate()
+        } ?: fromBundleTemplate()
+    }
+
+    private fun fromBundleTemplate() {
+        launchUI {
+            if (getTemplateList().isEmpty()) {
+                preloadTemplates()
+            }
+            val template = getTargetTemplate(getLastTemplateKey()) ?: getDefaultTemplate()
+            template?.apply { selectTemplate(this) }
+            setupTemplate()
+        }
     }
 
     private fun selectTemplate(template: Template?): Boolean {

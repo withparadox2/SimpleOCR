@@ -40,7 +40,6 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
      */
     private var mRequestOcr = false
     private var mIsTakingPhoto = false
-    private var mGetPermissions = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,31 +49,10 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
 
         mBtnShutter.setOnClickListener(this)
         mBtnPhoto.setOnClickListener(this)
-
-        if (!PermissionManager.instance.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)) {
-            PermissionDialog(DialogInterface.OnClickListener { _, _ ->
-                requestPermission()
-            }).show(supportFragmentManager, "permission")
-        } else {
-            onGetPermission()
-        }
     }
 
-    private fun requestPermission() {
-        PermissionManager.instance.requestPermission(this, object : PermissionManager.PermissionCallback {
-            override fun onDenied() {
-                toast("SimpleOCR can not work without necessary permissions")
-            }
-
-            override fun onGranted() {
-                onGetPermission()
-            }
-
-        }, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
-    }
-
-    private fun onGetPermission() {
-        mGetPermissions = true
+    override fun onGetPermission() {
+        super.onGetPermission()
         mCameraView.setCameraCallback(object : CameraController.Callback {
             override fun onOpenSuccess(camera: Camera) {
                 mBtnFlash.setFlashModeList(CameraController.instance.getFlashModes())

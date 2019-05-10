@@ -18,7 +18,7 @@ private val keyToTemplate = HashMap<String, Template>()
 private val templateList = ArrayList<Template>()
 private var hasRetried = false
 
-fun preloadTemplates() {
+suspend fun preloadTemplates() {
     GlobalScope.asyncIO {
         updateTemplateBundle()
         val bundleArray = File(getTemplateBasePath()).listFiles()?.filter { it.name.endsWith(".apk") }
@@ -45,7 +45,7 @@ fun preloadTemplates() {
             // Delete pre opt file and retry to load template
             preloadTemplates()
         }
-    }
+    }.await()
 }
 
 fun getTemplateList(): List<Template> {

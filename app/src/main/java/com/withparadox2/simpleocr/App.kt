@@ -3,7 +3,6 @@ package com.withparadox2.simpleocr
 import android.app.Application
 import android.os.Handler
 import com.tencent.bugly.crashreport.CrashReport
-import com.withparadox2.simpleocr.support.template.preloadTemplates
 
 /**
  * Created by withparadox2 on 2018/3/21.
@@ -12,7 +11,6 @@ import com.withparadox2.simpleocr.support.template.preloadTemplates
 class App : Application() {
     init {
         instance = this
-        preloadTemplates()
     }
 
     companion object {
