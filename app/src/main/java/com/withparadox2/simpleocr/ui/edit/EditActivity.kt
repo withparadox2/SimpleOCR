@@ -366,7 +366,14 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_MORE_TEXT && resultCode == Activity.RESULT_OK) {
             val text = data?.getStringExtra("data") ?: ""
-            showInsertDialog(text)
+            mFragment?.apply {
+                if (editTextContent.isEmpty()) {
+                    setContent(text)
+                    editSelection = text.length
+                } else {
+                    showInsertDialog(text)
+                }
+            }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }

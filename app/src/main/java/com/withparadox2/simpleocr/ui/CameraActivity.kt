@@ -2,10 +2,8 @@
 
 package com.withparadox2.simpleocr.ui
 
-import android.Manifest
 import android.app.Activity
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.hardware.Camera
 import android.os.Bundle
@@ -14,7 +12,6 @@ import android.view.ViewGroup
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.camera.CameraController
 import com.withparadox2.simpleocr.support.camera.CameraView
-import com.withparadox2.simpleocr.support.permission.PermissionManager
 import com.withparadox2.simpleocr.support.view.FlashSwitch
 import com.withparadox2.simpleocr.support.view.ShutterButton
 import com.withparadox2.simpleocr.ui.edit.getEditIntent
@@ -43,16 +40,18 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_camera)
-        mRequestOcr = intent.getBooleanExtra("requestOcr", false)
-        mCameraView = CameraView(this)
-
-        mBtnShutter.setOnClickListener(this)
-        mBtnPhoto.setOnClickListener(this)
     }
 
     override fun onGetPermission() {
         super.onGetPermission()
+        setContentView(R.layout.activity_camera)
+        mRequestOcr = intent.getBooleanExtra("requestOcr", false)
+
+        mCameraView = CameraView(this)
+
+        mBtnShutter.setOnClickListener(this)
+        mBtnPhoto.setOnClickListener(this)
+
         mCameraView.setCameraCallback(object : CameraController.Callback {
             override fun onOpenSuccess(camera: Camera) {
                 mBtnFlash.setFlashModeList(CameraController.instance.getFlashModes())
