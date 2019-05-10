@@ -13,8 +13,8 @@
     <string-array name="items_edit_content">
         <item>Reset</item>
         <item>Join Lines</item>
-        <item>→中文</item>
-        <item>→中文 &amp; Join Lines</item>
+        <item>→Chinese</item>
+        <item>→Chinese &amp; Join Lines</item>
         <item>→English</item>
         <item>→English &amp; Join Lines</item>
         <item>Last Step</item>
