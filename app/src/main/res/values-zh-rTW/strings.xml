@@ -25,7 +25,7 @@
     <string name="dialog_cancel">@string/cancel</string>
     <string name="add_new_book">新增</string>
     <string name="btn_edit_content">格式</string>
-    <string name="btn_edit_more">更多</string>
+    <string name="btn_edit_more">識別</string>
     <string name="btn_edit_template">模板</string>
     <string name="manage_book">管理書籍</string>
     <string name="add_book">新增書籍</string>
