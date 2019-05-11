@@ -1,5 +1,6 @@
 package com.withparadox2.simpleocr.util
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -7,8 +8,10 @@ import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Environment
-import androidx.core.content.FileProvider
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import com.withparadox2.simpleocr.App
 import java.io.File
 
@@ -74,4 +77,22 @@ fun getSpString(key: String, defaultValue: String): String {
 fun getVersionCode(): Int {
     val pInfo = App.instance.getPackageManager().getPackageInfo(App.instance.getPackageName(), 0)
     return pInfo.versionCode
+}
+
+fun hideKeyboard(activity: Activity, view: View?) {
+    try {
+        val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view?.windowToken ?: activity.currentFocus?.windowToken, 0)
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+fun showKeyboard(activity: Activity, view: View?) {
+    try {
+        val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(view, InputMethodManager.SHOW_FORCED)
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }

@@ -3,6 +3,7 @@ package com.withparadox2.simpleocr.ui.edit
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -340,14 +341,22 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             etTitle.setText(it.title)
             etAuthor.setText(it.author)
         }
-        AlertDialog.Builder(this).setTitle(if (info == null) R.string.add_book else R.string.edit_book).setView(layout).setPositiveButton(R.string.dialog_confirm) { _, _ ->
+        val dialog = AlertDialog.Builder(this).setTitle(if (info == null) R.string.add_book else R.string.edit_book).setView(layout).create()
+
+        dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.dialog_cancel)) { _, _ ->
+            hideKeyboard(this, dialog.window?.currentFocus)
+        }
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.dialog_confirm)) { _, _ ->
             val title = etTitle.text.toString()
             val author = etAuthor.text.toString()
             callback(info?.also {
                 it.author = author
                 it.title = title
             } ?: BookInfo(null, title, author))
-        }.setNegativeButton(R.string.dialog_cancel) { _, _ -> }.show()
+            hideKeyboard(this, dialog.window?.currentFocus)
+        }
+        dialog.show()
     }
 
     private fun setBookInfoView(info: BookInfo) {
