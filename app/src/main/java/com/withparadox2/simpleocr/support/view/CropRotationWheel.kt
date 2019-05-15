@@ -17,6 +17,9 @@ import com.withparadox2.simpleocr.util.dp2px
 /**
  * Created by withparadox2 on 2018/11/13.
  */
+private const val DELTA_ANGLE = 5
+private const val MAX_ANGLE = 45f
+
 class CropRotationWheel(context: Context, attributeSet: AttributeSet) : FrameLayout(context, attributeSet) {
     private val whitePaint = Paint().apply {
         color = Color.WHITE
@@ -31,15 +34,13 @@ class CropRotationWheel(context: Context, attributeSet: AttributeSet) : FrameLay
         setTextColor(Color.WHITE)
     }
 
-    private val DELTA_ANGLE = 5
-    private val MAX_ANGLE = 45f
     private var rotateDegree = 0.0f
     private val density = context.resources.displayMetrics.density
     private var preMotionX = 0.0f
 
     private val tempRect = RectF()
 
-    private var callback: Callback? = null
+    private lateinit var callback: Callback
 
     init {
         addView(degreeLabel, LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
@@ -112,7 +113,7 @@ class CropRotationWheel(context: Context, attributeSet: AttributeSet) : FrameLay
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 preMotionX = event.x
-                callback?.onRotationStart()
+                callback.onRotationStart()
             }
             MotionEvent.ACTION_MOVE -> {
                 val deltaX = preMotionX - event.x
@@ -130,7 +131,7 @@ class CropRotationWheel(context: Context, attributeSet: AttributeSet) : FrameLay
                 }
             }
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                callback?.onRotationEnd()
+                callback.onRotationEnd()
             }
         }
         return true
@@ -142,7 +143,7 @@ class CropRotationWheel(context: Context, attributeSet: AttributeSet) : FrameLay
         if (Math.abs(value) < 0.1 - 0.001)
             value = Math.abs(value)
         degreeLabel.text = String.format("%.1fº", value)
-        callback?.onRotationChanged(degree)
+        callback.onRotationChanged(degree)
         invalidate()
     }
 

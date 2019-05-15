@@ -75,7 +75,7 @@ fun getSpString(key: String, defaultValue: String): String {
 }
 
 fun getVersionCode(): Int {
-    val pInfo = App.instance.getPackageManager().getPackageInfo(App.instance.getPackageName(), 0)
+    val pInfo = App.instance.packageManager.getPackageInfo(App.instance.packageName, 0)
     return pInfo.versionCode
 }
 
