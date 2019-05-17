@@ -52,4 +52,5 @@
     </string-array>
     <string name="dialog_title_exit_edit">Exit</string>
     <string name="dialog_message_exit_edit">Are you sure you want to exit?</string>
+    <string name="toast_save_picture">Picture is saved in %1$s</string>
 </resources>

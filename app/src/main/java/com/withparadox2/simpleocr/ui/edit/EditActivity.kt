@@ -169,7 +169,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             AlertDialog.Builder(this).setItems(R.array.items_share) { _, which ->
                 sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(File(filePath))))
                 if (which == 0) {
-                    toast("Picture is saved in : $filePath")
+                    toast(getString(R.string.toast_save_picture, filePath))
                 } else if (which == 1) {
                     startActivity(Intent.createChooser(
                             Intent(Intent.ACTION_SEND).also {

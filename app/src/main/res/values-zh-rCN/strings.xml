@@ -52,4 +52,5 @@
     </string-array>
     <string name="dialog_title_exit_edit">退出</string>
     <string name="dialog_message_exit_edit">确认退出？</string>
+    <string name="toast_save_picture">图片保存在 %1$s</string>
 </resources>
