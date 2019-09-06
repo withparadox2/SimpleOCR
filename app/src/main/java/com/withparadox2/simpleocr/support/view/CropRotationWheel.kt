@@ -40,7 +40,7 @@ class CropRotationWheel(context: Context, attributeSet: AttributeSet) : FrameLay
 
     private val tempRect = RectF()
 
-    private lateinit var callback: Callback
+    private var callback: Callback? = null
 
     init {
         addView(degreeLabel, LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
@@ -113,7 +113,7 @@ class CropRotationWheel(context: Context, attributeSet: AttributeSet) : FrameLay
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 preMotionX = event.x
-                callback.onRotationStart()
+                callback?.onRotationStart()
             }
             MotionEvent.ACTION_MOVE -> {
                 val deltaX = preMotionX - event.x
@@ -131,7 +131,7 @@ class CropRotationWheel(context: Context, attributeSet: AttributeSet) : FrameLay
                 }
             }
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                callback.onRotationEnd()
+                callback?.onRotationEnd()
             }
         }
         return true
@@ -143,7 +143,7 @@ class CropRotationWheel(context: Context, attributeSet: AttributeSet) : FrameLay
         if (Math.abs(value) < 0.1 - 0.001)
             value = Math.abs(value)
         degreeLabel.text = String.format("%.1fº", value)
-        callback.onRotationChanged(degree)
+        callback?.onRotationChanged(degree)
         invalidate()
     }
 
