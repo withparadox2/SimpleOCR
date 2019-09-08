@@ -2,7 +2,7 @@
 
 ## Introduction
 What I want to achieve is to save and share excerpt while reading a
-book. None of apps shipped in app store can provide a style that fulfil my 
+book. None of apps shipped in app store can provide a style that fulfill my
 expectation, so I decide to make one by self, that's the birth of SimpleOCR.
 
 For now, there are three templates available, "default", "poetry" and "dream",
