@@ -1,4 +1,4 @@
-# SimpleOCR——青青书摘
+# SimpleOCR——莫名书摘
 
 ## Introduction
 What I want to achieve is to save and share excerpt while reading a
