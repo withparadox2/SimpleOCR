@@ -2,6 +2,7 @@ package com.withparadox2.simpleocr.ui.edit
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -54,6 +55,8 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     private var mFragment: ITemplate? = null
     private var mActiveTemplate: Template? = null
+
+    private var pendingText: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,6 +131,11 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 showBookInfoDialog()
             }
         })
+
+        if (pendingText != null) {
+            showInsertDialog(pendingText!!)
+            pendingText = null
+        }
     }
 
     private fun loadLocalFragment(): Fragment? {
@@ -421,6 +429,23 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             return
         }
         super.onBackPressed()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val clipboardManager: ClipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipData = clipboardManager.primaryClip
+
+        if (clipData != null && clipData.itemCount > 0) {
+            if (clipData.getItemAt(0).text != null) {
+                val text = clipData.getItemAt(0).text.toString()
+                if (mFragment != null) {
+                    showInsertDialog(text)
+                } else {
+                    pendingText = text
+                }
+            }
+        }
     }
 }
 
