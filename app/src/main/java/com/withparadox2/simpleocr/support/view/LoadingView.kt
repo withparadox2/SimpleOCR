@@ -80,7 +80,7 @@ class LoadingView(context: Context, attributeSet: AttributeSet) : View(context, 
                 mVisibilityState = STATE_DEFAULT
             }
         } else {
-            (0 until mScales.size).forEach {
+            mScales.indices.forEach {
                 mScales[it] = 1f
             }
         }

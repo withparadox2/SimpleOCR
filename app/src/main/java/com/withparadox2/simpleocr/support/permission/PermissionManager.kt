@@ -70,7 +70,7 @@ class PermissionManager private constructor() {
     }
 
     fun handlePermissionResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        val allGranted = (0 until permissions.size).none { grantResults[it] != PackageManager.PERMISSION_GRANTED }
+        val allGranted = permissions.indices.none { grantResults[it] != PackageManager.PERMISSION_GRANTED }
         getAndRemoveAction(requestCode)?.apply {
             if (allGranted) this.onGranted() else this.onDenied()
         }
