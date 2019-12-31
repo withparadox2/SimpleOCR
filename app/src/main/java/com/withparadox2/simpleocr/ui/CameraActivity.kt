@@ -38,10 +38,6 @@ class CameraActivity : BaseActivity(), View.OnClickListener {
     private var mRequestOcr = false
     private var mIsTakingPhoto = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onGetPermission() {
         super.onGetPermission()
         setContentView(R.layout.activity_camera)
