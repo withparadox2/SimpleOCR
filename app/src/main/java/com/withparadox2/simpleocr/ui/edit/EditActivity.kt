@@ -16,6 +16,7 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.withparadox2.simpleocr.App
+import com.withparadox2.simpleocr.MonitorService
 import com.withparadox2.simpleocr.R
 import com.withparadox2.simpleocr.support.edit.Editor
 import com.withparadox2.simpleocr.support.pref.getLastBookInfoId
@@ -60,6 +61,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        startService(Intent(this, MonitorService::class.java))
         val rawContent = intent.getStringExtra(KEY_INTENT_CONTENT) ?: ""
         mContentEditor = Editor(rawContent, object : Editor.Callback {
             override fun onContentChange(content: String) {
@@ -133,8 +135,10 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         })
 
         if (pendingText != null) {
-            showInsertDialog(pendingText!!)
-            pendingText = null
+            App.postDelayed(Runnable {
+                showOverrideDialog(pendingText!!)
+                pendingText = null
+            }, 500)
         }
     }
 
@@ -417,6 +421,24 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         }.show()
     }
 
+    private fun showOverrideDialog(text: String) {
+        mFragment?.also {
+            if (it.editTextContent.isEmpty()) {
+                it.setContent(text)
+            } else {
+                AlertDialog.Builder(this)
+                        .setTitle(R.string.tip_title)
+                        .setMessage(R.string.dialog_message_override_content)
+                        .setPositiveButton(R.string.dialog_confirm) { _, _ ->
+                            it.setContent(text)
+                        }
+                        .setNegativeButton(R.string.dialog_cancel) { _, _ ->
+                        }
+                        .show()
+            }
+        }
+    }
+
     override fun onBackPressed() {
         if (mFragment?.editTextContent?.isNotEmpty() == true) {
             AlertDialog.Builder(this)
@@ -440,7 +462,7 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             if (clipData.getItemAt(0).text != null) {
                 val text = clipData.getItemAt(0).text.toString()
                 if (mFragment != null) {
-                    showInsertDialog(text)
+                    showOverrideDialog(text)
                 } else {
                     pendingText = text
                 }
