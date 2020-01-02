@@ -28,7 +28,7 @@ class MonitorService : Service() {
             }
 
             for (i in text.indices) {
-                if (text[i].toInt() !in 0..254) {
+                if (text[i].toInt() !in 0..255) {
                     mLastText = clipData.getItemAt(0).text
                     startActivity(Intent(this, EditActivity::class.java).apply {
                         this.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
