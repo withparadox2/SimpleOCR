@@ -13,6 +13,7 @@ import androidx.core.app.NotificationCompat
 import com.withparadox2.simpleocr.ui.edit.EditActivity
 
 class MonitorService : Service() {
+    private var mLastText: CharSequence? = null
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
@@ -21,10 +22,19 @@ class MonitorService : Service() {
         val clipboard = this.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = clipboard.primaryClip
         if (clipData!!.itemCount > 0) {
-            if (clipData.getItemAt(0).text != null) {
-                startActivity(Intent(this, EditActivity::class.java).apply {
-                    this.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                })
+            val text = clipData.getItemAt(0).text
+            if (text == mLastText) {
+                return@OnPrimaryClipChangedListener
+            }
+
+            for (i in text.indices) {
+                if (text[i].toInt() !in 0..254) {
+                    mLastText = clipData.getItemAt(0).text
+                    startActivity(Intent(this, EditActivity::class.java).apply {
+                        this.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    })
+                    break
+                }
             }
         }
     }
