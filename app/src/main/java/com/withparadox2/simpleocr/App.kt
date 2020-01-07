@@ -3,6 +3,7 @@ package com.withparadox2.simpleocr
 import android.app.Application
 import android.os.Handler
 import com.tencent.bugly.crashreport.CrashReport
+import com.withparadox2.simpleocr.util.ForegroundDetector
 
 /**
  * Created by withparadox2 on 2018/3/21.
@@ -23,5 +24,6 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         CrashReport.initCrashReport(applicationContext, "8864f2e0c7", BuildConfig.DEBUG)
+        ForegroundDetector(this)
     }
 }

@@ -11,6 +11,8 @@ import android.os.IBinder
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.withparadox2.simpleocr.ui.edit.EditActivity
+import com.withparadox2.simpleocr.ui.edit.KEY_INTENT_CONTENT
+import com.withparadox2.simpleocr.util.ForegroundDetector
 
 class MonitorService : Service() {
     private var mLastText: CharSequence? = null
@@ -19,19 +21,24 @@ class MonitorService : Service() {
     }
 
     private val mPrimaryChangeListener = ClipboardManager.OnPrimaryClipChangedListener {
+
+        if (ForegroundDetector.instance.isForeground) {
+            return@OnPrimaryClipChangedListener
+        }
+
         val clipboard = this.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = clipboard.primaryClip
         if (clipData!!.itemCount > 0) {
-            val text = clipData.getItemAt(0).text
+            val text = clipData.getItemAt(0).text.trim()
             if (text == mLastText) {
                 return@OnPrimaryClipChangedListener
             }
 
             for (i in text.indices) {
                 if (text[i].toInt() !in 0..255) {
-                    mLastText = clipData.getItemAt(0).text
+                    mLastText = text
                     startActivity(Intent(this, EditActivity::class.java).apply {
-                        this.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        this.putExtra(KEY_INTENT_CONTENT, text)
                     })
                     break
                 }

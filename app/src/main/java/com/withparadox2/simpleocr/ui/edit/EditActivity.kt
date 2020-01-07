@@ -2,7 +2,6 @@ package com.withparadox2.simpleocr.ui.edit
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -38,7 +37,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 private const val REQUEST_MORE_TEXT = 1
-private const val KEY_INTENT_CONTENT = "content"
+const val KEY_INTENT_CONTENT = "content"
 
 private const val INSERT_START = 0
 private const val INSERT_CURSOR = 1
@@ -57,8 +56,6 @@ class EditActivity : BaseActivity(), View.OnClickListener {
     private var mFragment: ITemplate? = null
     private var mActiveTemplate: Template? = null
 
-    private var pendingText: String? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         startService(Intent(this, MonitorService::class.java))
@@ -73,6 +70,18 @@ class EditActivity : BaseActivity(), View.OnClickListener {
         btnEdit.setOnClickListener(this)
         btnMore.setOnClickListener(this)
         findViewById<View>(R.id.btn_edit_template).setOnClickListener(this)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if (intent == null) {
+            return
+        }
+
+        val content = intent.getStringExtra(KEY_INTENT_CONTENT)
+        if (content != null) {
+            showOverrideDialog(content)
+        }
     }
 
     override fun onGetPermission() {
@@ -133,13 +142,6 @@ class EditActivity : BaseActivity(), View.OnClickListener {
                 showBookInfoDialog()
             }
         })
-
-        if (pendingText != null) {
-            App.postDelayed(Runnable {
-                showOverrideDialog(pendingText!!)
-                pendingText = null
-            }, 500)
-        }
     }
 
     private fun loadLocalFragment(): Fragment? {
@@ -451,23 +453,6 @@ class EditActivity : BaseActivity(), View.OnClickListener {
             return
         }
         super.onBackPressed()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        val clipboardManager: ClipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clipData = clipboardManager.primaryClip
-
-        if (clipData != null && clipData.itemCount > 0) {
-            if (clipData.getItemAt(0).text != null) {
-                val text = clipData.getItemAt(0).text.toString()
-                if (mFragment != null) {
-                    showOverrideDialog(text)
-                } else {
-                    pendingText = text
-                }
-            }
-        }
     }
 }
 
