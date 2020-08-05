@@ -1,57 +1,57 @@
 <resources>
-    <string name="app_name">莫名书摘</string>
-    <string name="ocr">识别</string>
-    <string name="reset">重置</string>
-    <string name="cancel">取消</string>
-    <string name="tip_title">提示</string>
-    <string name="permission_request_msg">为了保证程序正常工作，接下来会申请必要的权限，请同意</string>
-    <string name="share">分享</string>
-    <string name="edit_his_label_title">标题</string>
-    <string name="edit_his_label_author">作者</string>
-    <string name="short_delete">删除</string>
-    <string name="edit">编辑</string>
-    <string-array name="items_edit_content">
-        <item>重置</item>
-        <item>合并行</item>
-        <item>→中文</item>
-        <item>→中文 &amp; 合并行</item>
-        <item>→English</item>
-        <item>→English &amp; 合并行</item>
-        <item>上一步</item>
-        <item>复制</item>
-    </string-array>
-    <string name="dialog_confirm">确认</string>
-    <string name="dialog_cancel">@string/cancel</string>
-    <string name="add_new_book">新增</string>
-    <string name="btn_edit_content">格式</string>
-    <string name="btn_edit_more">识别</string>
-    <string name="btn_edit_template">模板</string>
-    <string name="manage_book">管理书籍</string>
-    <string name="add_book">新增书籍</string>
-    <string name="edit_book">编辑书籍</string>
-    <string name="template_empty">沒有模板</string>
-    <string name="text_insert_where">选择位置</string>
-    <string-array name="items_text_insert_place">
-        <item>开始</item>
-        <item>光标</item>
-        <item>末尾</item>
-    </string-array>
-    <string-array name="items_share">
-        <item>保存本地</item>
-        <item>分享</item>
-    </string-array>
-    <string-array name="items_time_section">
-        <item>凌晨</item>
-        <item>清晨</item>
-        <item>上午</item>
-        <item>中午</item>
-        <item>下午</item>
-        <item>傍晚</item>
-        <item>晚上</item>
-        <item>深夜</item>
-    </string-array>
-    <string name="dialog_title_exit_edit">退出</string>
-    <string name="dialog_message_exit_edit">确认退出？</string>
-    <string name="toast_save_picture">图片保存在 %1$s</string>
-    <string name="dialog_message_override_content">确认覆盖当前内容？</string>
+  <string name="app_name">莫名书摘</string>
+  <string name="ocr">识别</string>
+  <string name="reset">重置</string>
+  <string name="cancel">取消</string>
+  <string name="tip_title">提示</string>
+  <string name="permission_request_msg">为了保证程序正常工作，接下来会申请必要的权限，请同意</string>
+  <string name="share">分享</string>
+  <string name="edit_his_label_title">标题</string>
+  <string name="edit_his_label_author">作者</string>
+  <string name="short_delete">删除</string>
+  <string name="edit">编辑</string>
+  <string-array name="items_edit_content">
+    <item>重置</item>
+    <item>合并行</item>
+    <item>→中文</item>
+    <item>→中文 &amp; 合并行</item>
+    <item>→English</item>
+    <item>→English &amp; 合并行</item>
+    <item>上一步</item>
+    <item>复制</item>
+  </string-array>
+  <string name="dialog_confirm">确认</string>
+  <string name="dialog_cancel">@string/cancel</string>
+  <string name="add_new_book">新增</string>
+  <string name="btn_edit_content">格式</string>
+  <string name="btn_edit_more">识别</string>
+  <string name="btn_edit_template">模板</string>
+  <string name="manage_book">管理书籍</string>
+  <string name="add_book">新增书籍</string>
+  <string name="edit_book">编辑书籍</string>
+  <string name="template_empty">沒有模板</string>
+  <string name="text_insert_where">选择位置</string>
+  <string-array name="items_text_insert_place">
+    <item>开始</item>
+    <item>光标</item>
+    <item>末尾</item>
+  </string-array>
+  <string-array name="items_share">
+    <item>保存本地</item>
+    <item>分享</item>
+  </string-array>
+  <string-array name="items_time_section">
+    <item>凌晨</item>
+    <item>清晨</item>
+    <item>上午</item>
+    <item>中午</item>
+    <item>下午</item>
+    <item>傍晚</item>
+    <item>晚上</item>
+    <item>深夜</item>
+  </string-array>
+  <string name="dialog_title_exit_edit">退出</string>
+  <string name="dialog_message_exit_edit">确认退出？</string>
+  <string name="toast_save_picture">图片保存在 %1$s</string>
+  <string name="dialog_message_override_content">确认覆盖当前内容？</string>
 </resources>

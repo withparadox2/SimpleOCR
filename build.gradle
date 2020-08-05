@@ -1,80 +1,80 @@
 buildscript {
-    ext.buildConfig = [
-        'compileSdk': 28,
-        'minSdk': 21,
-        'targetSdk': 27,
-        'buildTool': '28.0.3',
-        'version': [
-            'name': '1.0.2',
-            'code': 3
-        ]
+  ext.buildConfig = [
+    'compileSdk': 28,
+    'minSdk'    : 21,
+    'targetSdk' : 27,
+    'buildTool' : '28.0.3',
+    'version'   : [
+      'name': '1.0.2',
+      'code': 3
     ]
-    ext.versions = [
-        'kotlin': '1.3.31',
-        'kotlinCoroutines': '1.0.0',
-        'room': '1.1.1',
-        'archLifecy': '1.1.1'
-    ]
+  ]
+  ext.versions = [
+    'kotlin'          : '1.3.31',
+    'kotlinCoroutines': '1.0.0',
+    'room'            : '1.1.1',
+    'archLifecy'      : '1.1.1'
+  ]
 
-    ext.dep = [
-        'kotlin': [
-            'stdlib': [
-                'jdk': "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}"
-            ],
-            'coroutines': [
-                'jdk': "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlinCoroutines}",
-                'android': "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.kotlinCoroutines}"
-            ]
-        ],
-        'android': [
-            'x': [
-                'core': "androidx.core:core-ktx:1.0.0",
-                'appcompat': "androidx.appcompat:appcompat:1.0.0-alpha1",
-                'constraintlayout': "androidx.constraintlayout:constraintlayout:1.1.2"
-            ],
-            'room': [
-                'runtime': "android.arch.persistence.room:runtime:${versions.room}",
-                'compiler': "android.arch.persistence.room:compiler:${versions.room}"
-            ],
-            'lifecycle': [
-                'ext': "android.arch.lifecycle:extensions:${versions.archLifecy}",
-                'compiler': "android.arch.lifecycle:compiler:${versions.archLifecy}"
-            ]
-        ],
-        'retrofit': [
-            'core': "com.squareup.retrofit2:retrofit:2.4.0",
-            'converter': [
-                "gson": "com.squareup.retrofit2:converter-gson:2.3.0",
-                "scalar": "com.squareup.retrofit2:converter-scalars:2.3.0"
-            ]
-        ]
+  ext.dep = [
+    'kotlin'  : [
+      'stdlib'    : [
+        'jdk': "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}"
+      ],
+      'coroutines': [
+        'jdk'    : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlinCoroutines}",
+        'android': "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.kotlinCoroutines}"
+      ]
+    ],
+    'android' : [
+      'x'        : [
+        'core'            : "androidx.core:core-ktx:1.0.0",
+        'appcompat'       : "androidx.appcompat:appcompat:1.0.0-alpha1",
+        'constraintlayout': "androidx.constraintlayout:constraintlayout:1.1.2"
+      ],
+      'room'     : [
+        'runtime' : "android.arch.persistence.room:runtime:${versions.room}",
+        'compiler': "android.arch.persistence.room:compiler:${versions.room}"
+      ],
+      'lifecycle': [
+        'ext'     : "android.arch.lifecycle:extensions:${versions.archLifecy}",
+        'compiler': "android.arch.lifecycle:compiler:${versions.archLifecy}"
+      ]
+    ],
+    'retrofit': [
+      'core'     : "com.squareup.retrofit2:retrofit:2.4.0",
+      'converter': [
+        "gson"  : "com.squareup.retrofit2:converter-gson:2.3.0",
+        "scalar": "com.squareup.retrofit2:converter-scalars:2.3.0"
+      ]
     ]
+  ]
 
-    repositories {
-        maven {
-            url "http://maven.aliyun.com/nexus/content/groups/public/"
-        }
-        jcenter()
-        google()
+  repositories {
+    maven {
+      url "http://maven.aliyun.com/nexus/content/groups/public/"
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
-    }
+    jcenter()
+    google()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:3.4.0'
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
+  }
 }
 
 allprojects {
-    repositories {
-        maven {
-            url "http://maven.aliyun.com/nexus/content/groups/public/"
-        }
-        jcenter()
-        google()
+  repositories {
+    maven {
+      url "http://maven.aliyun.com/nexus/content/groups/public/"
     }
+    jcenter()
+    google()
+  }
 }
 
 task clean(type: Delete) {
-    delete rootProject.buildDir
+  delete rootProject.buildDir
 }
 
 // Bundle all templates and copy them to app's assets through a single command

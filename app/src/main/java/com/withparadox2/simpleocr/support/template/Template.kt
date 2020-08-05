@@ -6,23 +6,23 @@ import com.withparadox2.simpleocr.util.APK_PATH
 import java.io.File
 
 class Template(private val apkPath: String, private val clazz: Class<Fragment>) {
-    var name: String = File(apkPath).run {
-        name.substring(8, name.indexOf("."))
-    }
+  var name: String = File(apkPath).run {
+    name.substring(8, name.indexOf("."))
+  }
 
-    val key: String
-        get() = apkPath
+  val key: String
+    get() = apkPath
 
-    fun newFragment(args: Bundle? = null): Fragment? {
-        try {
-            val fragment = clazz.newInstance()
-            fragment.arguments = (args ?: Bundle()).apply {
-                this.putString(APK_PATH, apkPath)
-            }
-            return fragment
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return null
+  fun newFragment(args: Bundle? = null): Fragment? {
+    try {
+      val fragment = clazz.newInstance()
+      fragment.arguments = (args ?: Bundle()).apply {
+        this.putString(APK_PATH, apkPath)
+      }
+      return fragment
+    } catch (e: Exception) {
+      e.printStackTrace()
     }
+    return null
+  }
 }

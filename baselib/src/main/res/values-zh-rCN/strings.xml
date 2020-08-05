@@ -1,6 +1,6 @@
 <resources>
-    <string name="edit_hint_content">输入内容</string>
-    <string name="edit_hint_author">作者</string>
-    <string name="edit_hint_title">标题</string>
-    <string name="edit_hint_title_author">—标题•作者</string>
+  <string name="edit_hint_content">输入内容</string>
+  <string name="edit_hint_author">作者</string>
+  <string name="edit_hint_title">标题</string>
+  <string name="edit_hint_title_author">—标题•作者</string>
 </resources>

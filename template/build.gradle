@@ -2,31 +2,31 @@ apply plugin: 'com.withparadox2.simpleocr.template'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion buildConfig.compileSdk
+  compileSdkVersion buildConfig.compileSdk
 
-    defaultConfig {
-        minSdkVersion buildConfig.minSdk
-        targetSdkVersion buildConfig.targetSdk
-        versionCode 1
-        versionName "1.0"
+  defaultConfig {
+    minSdkVersion buildConfig.minSdk
+    targetSdkVersion buildConfig.targetSdk
+    versionCode 1
+    versionName "1.0"
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+      shrinkResources false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
+  }
 
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly dep.kotlin.stdlib.jdk
-    implementation project(":baselib")
-    compileOnly project(":stub")
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
+  compileOnly dep.kotlin.stdlib.jdk
+  implementation project(":baselib")
+  compileOnly project(":stub")
 }
 

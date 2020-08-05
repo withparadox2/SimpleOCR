@@ -11,5 +11,5 @@ import androidx.room.PrimaryKey
 class BookInfo(@PrimaryKey(autoGenerate = true) var id: Long?,
                @ColumnInfo(name = "title") var title: String,
                @ColumnInfo(name = "author") var author: String) {
-    constructor() : this(null, "", "") {}
+  constructor() : this(null, "", "") {}
 }

@@ -1,57 +1,57 @@
 <resources>
-    <string name="app_name">SimpleOCR</string>
-    <string name="ocr">Text</string>
-    <string name="reset">Reset</string>
-    <string name="cancel">Cancel</string>
-    <string name="tip_title">Tip</string>
-    <string name="permission_request_msg">To make app work normally, please agree following necessary permissions</string>
-    <string name="share">Share</string>
-    <string name="edit_his_label_title">Title</string>
-    <string name="edit_his_label_author">Author</string>
-    <string name="short_delete">Del</string>
-    <string name="edit">Edit</string>
-    <string-array name="items_edit_content">
-        <item>Reset</item>
-        <item>Join Lines</item>
-        <item>→Chinese</item>
-        <item>→Chinese &amp; Join Lines</item>
-        <item>→English</item>
-        <item>→English &amp; Join Lines</item>
-        <item>Last Step</item>
-        <item>Copy</item>
-    </string-array>
-    <string name="dialog_confirm">OK</string>
-    <string name="dialog_cancel">Cancel</string>
-    <string name="add_new_book">Add new book</string>
-    <string name="btn_edit_content">Aa</string>
-    <string name="btn_edit_more">More</string>
-    <string name="btn_edit_template">Template</string>
-    <string name="manage_book">Manage Books</string>
-    <string name="add_book">Add Book</string>
-    <string name="edit_book">Edit Book</string>
-    <string name="template_empty">No template</string>
-    <string name="text_insert_where">Insert where?</string>
-    <string-array name="items_text_insert_place">
-        <item>Begin</item>
-        <item>Cursor</item>
-        <item>End</item>
-    </string-array>
-    <string-array name="items_share">
-        <item>Save to file</item>
-        <item>Share</item>
-    </string-array>
-    <string-array name="items_time_section">
-        <item>before dawn</item>
-        <item>dawn</item>
-        <item>morning</item>
-        <item>noon</item>
-        <item>afternoon</item>
-        <item>dusk</item>
-        <item>evening</item>
-        <item>night</item>
-    </string-array>
-    <string name="dialog_title_exit_edit">Exit</string>
-    <string name="dialog_message_exit_edit">Are you sure you want to exit?</string>
-    <string name="toast_save_picture">Picture is saved in %1$s</string>
-    <string name="dialog_message_override_content">Are you sure you want to override content?</string>
+  <string name="app_name">SimpleOCR</string>
+  <string name="ocr">Text</string>
+  <string name="reset">Reset</string>
+  <string name="cancel">Cancel</string>
+  <string name="tip_title">Tip</string>
+  <string name="permission_request_msg">To make app work normally, please agree following necessary permissions</string>
+  <string name="share">Share</string>
+  <string name="edit_his_label_title">Title</string>
+  <string name="edit_his_label_author">Author</string>
+  <string name="short_delete">Del</string>
+  <string name="edit">Edit</string>
+  <string-array name="items_edit_content">
+    <item>Reset</item>
+    <item>Join Lines</item>
+    <item>→Chinese</item>
+    <item>→Chinese &amp; Join Lines</item>
+    <item>→English</item>
+    <item>→English &amp; Join Lines</item>
+    <item>Last Step</item>
+    <item>Copy</item>
+  </string-array>
+  <string name="dialog_confirm">OK</string>
+  <string name="dialog_cancel">Cancel</string>
+  <string name="add_new_book">Add new book</string>
+  <string name="btn_edit_content">Aa</string>
+  <string name="btn_edit_more">More</string>
+  <string name="btn_edit_template">Template</string>
+  <string name="manage_book">Manage Books</string>
+  <string name="add_book">Add Book</string>
+  <string name="edit_book">Edit Book</string>
+  <string name="template_empty">No template</string>
+  <string name="text_insert_where">Insert where?</string>
+  <string-array name="items_text_insert_place">
+    <item>Begin</item>
+    <item>Cursor</item>
+    <item>End</item>
+  </string-array>
+  <string-array name="items_share">
+    <item>Save to file</item>
+    <item>Share</item>
+  </string-array>
+  <string-array name="items_time_section">
+    <item>before dawn</item>
+    <item>dawn</item>
+    <item>morning</item>
+    <item>noon</item>
+    <item>afternoon</item>
+    <item>dusk</item>
+    <item>evening</item>
+    <item>night</item>
+  </string-array>
+  <string name="dialog_title_exit_edit">Exit</string>
+  <string name="dialog_message_exit_edit">Are you sure you want to exit?</string>
+  <string name="toast_save_picture">Picture is saved in %1$s</string>
+  <string name="dialog_message_override_content">Are you sure you want to override content?</string>
 </resources>

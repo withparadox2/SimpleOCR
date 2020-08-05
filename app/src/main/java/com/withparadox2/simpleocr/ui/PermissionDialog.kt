@@ -13,11 +13,11 @@ import com.withparadox2.simpleocr.R
  * Created by withparadox2 on 2018/4/29.
  */
 class PermissionDialog constructor(private val confirmListener: DialogInterface.OnClickListener?) : DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return AlertDialog.Builder(activity)
-                .setTitle(R.string.tip_title)
-                .setMessage(R.string.permission_request_msg)
-                .setPositiveButton("确定", confirmListener)
-                .create()
-    }
+  override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    return AlertDialog.Builder(activity)
+        .setTitle(R.string.tip_title)
+        .setMessage(R.string.permission_request_msg)
+        .setPositiveButton("确定", confirmListener)
+        .create()
+  }
 }

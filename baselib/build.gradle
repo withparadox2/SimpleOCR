@@ -2,25 +2,25 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion buildConfig.compileSdk
+  compileSdkVersion buildConfig.compileSdk
 
-    defaultConfig {
-        minSdkVersion buildConfig.minSdk
-        targetSdkVersion buildConfig.targetSdk
-    }
+  defaultConfig {
+    minSdkVersion buildConfig.minSdk
+    targetSdkVersion buildConfig.targetSdk
+  }
 
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
+  }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
 //    api dep.android.x.appcompat
-    compileOnly dep.kotlin.stdlib.jdk
-    compileOnly project(":stub")
-    api project(":ibaselib")
+  compileOnly dep.kotlin.stdlib.jdk
+  compileOnly project(":stub")
+  api project(":ibaselib")
 }

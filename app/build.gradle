@@ -3,76 +3,76 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion buildConfig.compileSdk
-    buildToolsVersion buildConfig.buildTool
-    defaultConfig {
-        applicationId "com.withparadox2.simpleocr"
-        minSdkVersion buildConfig.minSdk
-        targetSdkVersion buildConfig.targetSdk
-        versionCode buildConfig.version.code
-        versionName buildConfig.version.name
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
+  compileSdkVersion buildConfig.compileSdk
+  buildToolsVersion buildConfig.buildTool
+  defaultConfig {
+    applicationId "com.withparadox2.simpleocr"
+    minSdkVersion buildConfig.minSdk
+    targetSdkVersion buildConfig.targetSdk
+    versionCode buildConfig.version.code
+    versionName buildConfig.version.name
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+  }
 
-    File propsFile = rootProject.file('keystore.properties')
-    if (propsFile.exists()) {
-        def props = new Properties()
-        props.load(new FileInputStream(propsFile))
+  File propsFile = rootProject.file('keystore.properties')
+  if (propsFile.exists()) {
+    def props = new Properties()
+    props.load(new FileInputStream(propsFile))
 
-        signingConfigs {
-            releaseKey {
-                storeFile file(props['storeFile'])
-                storePassword props['storePassword']
-                keyAlias props['keyAlias']
-                keyPassword props['keyPassword']
-            }
-        }
-        buildTypes {
-            release {
-                minifyEnabled false
-                proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-                signingConfig signingConfigs.releaseKey
-            }
-            debug {
-                signingConfig signingConfigs.releaseKey
-            }
-        }
+    signingConfigs {
+      releaseKey {
+        storeFile file(props['storeFile'])
+        storePassword props['storePassword']
+        keyAlias props['keyAlias']
+        keyPassword props['keyPassword']
+      }
     }
+    buildTypes {
+      release {
+        minifyEnabled false
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        signingConfig signingConfigs.releaseKey
+      }
+      debug {
+        signingConfig signingConfigs.releaseKey
+      }
+    }
+  }
 
-    lintOptions {
-        abortOnError false
-    }
+  lintOptions {
+    abortOnError false
+  }
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+  implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation dep.kotlin.stdlib.jdk
-    implementation dep.kotlin.coroutines.jdk
-    implementation dep.kotlin.coroutines.android
-    implementation dep.android.x.core
-    implementation dep.android.x.appcompat
-    implementation dep.android.x.constraintlayout
-    implementation dep.retrofit.core
-    implementation dep.retrofit.converter.gson
-    implementation dep.retrofit.converter.scalar
-    implementation dep.android.room.runtime
-    kapt dep.android.room.compiler
-    implementation dep.android.lifecycle.ext
-    kapt dep.android.lifecycle.compiler
+  implementation dep.kotlin.stdlib.jdk
+  implementation dep.kotlin.coroutines.jdk
+  implementation dep.kotlin.coroutines.android
+  implementation dep.android.x.core
+  implementation dep.android.x.appcompat
+  implementation dep.android.x.constraintlayout
+  implementation dep.retrofit.core
+  implementation dep.retrofit.converter.gson
+  implementation dep.retrofit.converter.scalar
+  implementation dep.android.room.runtime
+  kapt dep.android.room.compiler
+  implementation dep.android.lifecycle.ext
+  kapt dep.android.lifecycle.compiler
 
-    implementation 'com.tencent.bugly:crashreport:2.8.6'
+  implementation 'com.tencent.bugly:crashreport:2.8.6'
 
-    implementation project(":ibaselib")
+  implementation project(":ibaselib")
 
-    Properties properties = new Properties()
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
-    def debugTemplate = properties.getProperty('debug.template')
-    if (debugTemplate?.trim()) {
-        implementation project(":${debugTemplate.trim()}")
-    } else {
-        if (fileTree("src/main/assets").files.find { it.name.endsWith(".apk") } == null) {
-            implementation project(":templateDefault")
-        }
+  Properties properties = new Properties()
+  properties.load(project.rootProject.file('local.properties').newDataInputStream())
+  def debugTemplate = properties.getProperty('debug.template')
+  if (debugTemplate?.trim()) {
+    implementation project(":${debugTemplate.trim()}")
+  } else {
+    if (fileTree("src/main/assets").files.find { it.name.endsWith(".apk") } == null) {
+      implementation project(":templateDefault")
     }
+  }
 }

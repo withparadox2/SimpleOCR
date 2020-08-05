@@ -21,139 +21,139 @@ private const val DELTA_ANGLE = 5
 private const val MAX_ANGLE = 45f
 
 class CropRotationWheel(context: Context, attributeSet: AttributeSet) : FrameLayout(context, attributeSet) {
-    private val whitePaint = Paint().apply {
-        color = Color.WHITE
-        style = Paint.Style.FILL
+  private val whitePaint = Paint().apply {
+    color = Color.WHITE
+    style = Paint.Style.FILL
+  }
+  private val colorPaint = Paint().apply {
+    color = resources.getColor(R.color.colorAccent)
+    style = Paint.Style.FILL
+  }
+
+  private var degreeLabel: TextView = TextView(getContext()).apply {
+    setTextColor(Color.WHITE)
+  }
+
+  private var rotateDegree = 0.0f
+  private val density = context.resources.displayMetrics.density
+  private var preMotionX = 0.0f
+
+  private val tempRect = RectF()
+
+  private var callback: Callback? = null
+
+  init {
+    addView(degreeLabel, LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+      gravity = Gravity.CENTER or Gravity.TOP
+    })
+    setWillNotDraw(false)
+    setRotateDegree(0f)
+  }
+
+  fun setCallback(callback: Callback) {
+    this.callback = callback
+  }
+
+  override fun onDraw(canvas: Canvas) {
+    super.onDraw(canvas)
+
+    val angle = -2 * rotateDegree
+    val delta = angle % DELTA_ANGLE
+    val segments = Math.floor(angle / DELTA_ANGLE.toDouble()).toInt()
+
+    val centerY = height - dp2px(11)
+    val centerX = width / 2
+    (0..15).forEach { i ->
+      var paint = whitePaint
+      var a = i
+      if (a < segments || a == 0 && delta < 0)
+        paint = colorPaint
+
+      drawLine(canvas, a, delta, centerX, centerY, a == segments || a == 0 && segments == -1, paint)
+
+      if (i != 0) {
+        a = -i
+        paint = if (a > segments) colorPaint else whitePaint
+        drawLine(canvas, a, delta, centerX, centerY, a == segments + 1, paint)
+      }
     }
-    private val colorPaint = Paint().apply {
-        color = resources.getColor(R.color.colorAccent)
-        style = Paint.Style.FILL
-    }
 
-    private var degreeLabel: TextView = TextView(getContext()).apply {
-        setTextColor(Color.WHITE)
-    }
+    colorPaint.alpha = 255
 
-    private var rotateDegree = 0.0f
-    private val density = context.resources.displayMetrics.density
-    private var preMotionX = 0.0f
+    tempRect.left = (width - dp2px(2.5f)) / 2f
+    tempRect.top = centerY - dp2px(11f)
+    tempRect.right = (width + dp2px(2.5f)) / 2f
+    tempRect.bottom = centerY + dp2px(11f)
+    canvas.drawRoundRect(tempRect, dp2px(2f), dp2px(2f), colorPaint)
+  }
 
-    private val tempRect = RectF()
+  private fun drawLine(canvas: Canvas, i: Int, delta: Float, centerX: Int, centerY: Int, center: Boolean, paint: Paint) {
+    var drawPaint = paint
+    val radius = (centerX - dp2px(80))
 
-    private var callback: Callback? = null
+    val angle = 90 - (i * DELTA_ANGLE + delta)
+    val offset = (radius * Math.cos(Math.toRadians(angle.toDouble()))).toInt()
+    val x = centerX + offset
 
-    init {
-        addView(degreeLabel, LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
-            gravity = Gravity.CENTER or Gravity.TOP
-        })
-        setWillNotDraw(false)
-        setRotateDegree(0f)
-    }
+    val f = Math.abs(offset) / radius.toFloat()
+    val alpha = Math.min(255, Math.max(0, ((1.0f - f * f) * 255).toInt()))
 
-    fun setCallback(callback: Callback) {
-        this.callback = callback
-    }
+    if (center)
+      drawPaint = colorPaint
 
-    override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
+    drawPaint.alpha = alpha
 
-        val angle = -2 * rotateDegree
-        val delta = angle % DELTA_ANGLE
-        val segments = Math.floor(angle / DELTA_ANGLE.toDouble()).toInt()
+    val w = if (center) 4 else 2
+    val h = if (center) dp2px(16) else dp2px(12)
 
-        val centerY = height - dp2px(11)
-        val centerX = width / 2
-        (0..15).forEach { i ->
-            var paint = whitePaint
-            var a = i
-            if (a < segments || a == 0 && delta < 0)
-                paint = colorPaint
+    canvas.drawRect((x - w / 2).toFloat(), (centerY - h / 2).toFloat(), (x + w / 2).toFloat(), (centerY + h / 2).toFloat(), drawPaint)
+  }
 
-            drawLine(canvas, a, delta, centerX, centerY, a == segments || a == 0 && segments == -1, paint)
+  override fun onTouchEvent(event: MotionEvent): Boolean {
+    when (event.action) {
+      MotionEvent.ACTION_DOWN -> {
+        preMotionX = event.x
+        callback?.onRotationStart()
+      }
+      MotionEvent.ACTION_MOVE -> {
+        val deltaX = preMotionX - event.x
 
-            if (i != 0) {
-                a = -i
-                paint = if (a > segments) colorPaint else whitePaint
-                drawLine(canvas, a, delta, centerX, centerY, a == segments + 1, paint)
-            }
+        var newDegree = rotateDegree + (deltaX / density / Math.PI / 1.65f).toFloat()
+        newDegree = Math.max(-MAX_ANGLE, Math.min(newDegree, MAX_ANGLE))
+
+        if (Math.abs(newDegree - rotateDegree) > 0.001) {
+          if (Math.abs(newDegree) < 0.05) {
+            newDegree = 0f
+          }
+          setRotateDegree(newDegree)
+          preMotionX = event.x
+
         }
-
-        colorPaint.alpha = 255
-
-        tempRect.left = (width - dp2px(2.5f)) / 2f
-        tempRect.top = centerY - dp2px(11f)
-        tempRect.right = (width + dp2px(2.5f)) / 2f
-        tempRect.bottom = centerY + dp2px(11f)
-        canvas.drawRoundRect(tempRect, dp2px(2f), dp2px(2f), colorPaint)
+      }
+      MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
+        callback?.onRotationEnd()
+      }
     }
+    return true
+  }
 
-    private fun drawLine(canvas: Canvas, i: Int, delta: Float, centerX: Int, centerY: Int, center: Boolean, paint: Paint) {
-        var drawPaint = paint
-        val radius = (centerX - dp2px(80))
+  private fun setRotateDegree(degree: Float) {
+    this.rotateDegree = degree
+    var value = this.rotateDegree
+    if (Math.abs(value) < 0.1 - 0.001)
+      value = Math.abs(value)
+    degreeLabel.text = String.format("%.1fº", value)
+    callback?.onRotationChanged(degree)
+    invalidate()
+  }
 
-        val angle = 90 - (i * DELTA_ANGLE + delta)
-        val offset = (radius * Math.cos(Math.toRadians(angle.toDouble()))).toInt()
-        val x = centerX + offset
+  fun reset() {
+    setRotateDegree(0f)
+  }
 
-        val f = Math.abs(offset) / radius.toFloat()
-        val alpha = Math.min(255, Math.max(0, ((1.0f - f * f) * 255).toInt()))
-
-        if (center)
-            drawPaint = colorPaint
-
-        drawPaint.alpha = alpha
-
-        val w = if (center) 4 else 2
-        val h = if (center) dp2px(16) else dp2px(12)
-
-        canvas.drawRect((x - w / 2).toFloat(), (centerY - h / 2).toFloat(), (x + w / 2).toFloat(), (centerY + h / 2).toFloat(), drawPaint)
-    }
-
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        when (event.action) {
-            MotionEvent.ACTION_DOWN -> {
-                preMotionX = event.x
-                callback?.onRotationStart()
-            }
-            MotionEvent.ACTION_MOVE -> {
-                val deltaX = preMotionX - event.x
-
-                var newDegree = rotateDegree + (deltaX / density / Math.PI / 1.65f).toFloat()
-                newDegree = Math.max(-MAX_ANGLE, Math.min(newDegree, MAX_ANGLE))
-
-                if (Math.abs(newDegree - rotateDegree) > 0.001) {
-                    if (Math.abs(newDegree) < 0.05) {
-                        newDegree = 0f
-                    }
-                    setRotateDegree(newDegree)
-                    preMotionX = event.x
-
-                }
-            }
-            MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                callback?.onRotationEnd()
-            }
-        }
-        return true
-    }
-
-    private fun setRotateDegree(degree: Float) {
-        this.rotateDegree = degree
-        var value = this.rotateDegree
-        if (Math.abs(value) < 0.1 - 0.001)
-            value = Math.abs(value)
-        degreeLabel.text = String.format("%.1fº", value)
-        callback?.onRotationChanged(degree)
-        invalidate()
-    }
-
-    fun reset() {
-        setRotateDegree(0f)
-    }
-
-    interface Callback {
-        fun onRotationChanged(degree: Float)
-        fun onRotationStart()
-        fun onRotationEnd()
-    }
+  interface Callback {
+    fun onRotationChanged(degree: Float)
+    fun onRotationStart()
+    fun onRotationEnd()
+  }
 }

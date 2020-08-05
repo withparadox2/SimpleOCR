@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="et_content" type="id"/>
-    <item name="layout_container" type="id"/>
-    <item name="fragment_template" type="layout"/>
+  <item name="et_content" type="id" />
+  <item name="layout_container" type="id" />
+  <item name="fragment_template" type="layout" />
 </resources>

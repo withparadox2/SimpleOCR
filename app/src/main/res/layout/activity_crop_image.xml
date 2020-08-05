@@ -1,92 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@color/black">
+
+  <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <com.withparadox2.simpleocr.support.view.CropImageView
+      android:id="@+id/iv_photo"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="1"
+      android:background="@color/black"
+      android:scaleType="matrix" />
+
+    <FrameLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="10dp">
+
+      <com.withparadox2.simpleocr.support.view.CropRotationWheel
+        android:id="@+id/layout_wheel"
         android:layout_width="match_parent"
+        android:layout_height="45dp" />
+
+      <ImageView
+        android:id="@+id/btn_rotate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/bg_btn_bar_dark"
+        android:src="@drawable/ic_crop_rotate" />
+    </FrameLayout>
+
+    <FrameLayout
+      android:layout_width="match_parent"
+      android:layout_height="50dp"
+      android:layout_gravity="bottom">
+
+      <TextView
+        android:id="@+id/btn_cancel"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_gravity="start"
+        android:background="@drawable/bg_btn_bar_dark"
+        android:gravity="center"
+        android:minWidth="60dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="@string/cancel"
+        android:textColor="@color/white" />
 
-        <com.withparadox2.simpleocr.support.view.CropImageView
-            android:id="@+id/iv_photo"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@color/black"
-            android:scaleType="matrix" />
+      <TextView
+        android:id="@+id/btn_reset"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_btn_bar_dark"
+        android:gravity="center"
+        android:minWidth="100dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="@string/reset"
+        android:textColor="@color/white" />
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp">
+      <TextView
+        android:id="@+id/btn_ocr"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:background="@drawable/bg_btn_bar_dark"
+        android:gravity="center"
+        android:minWidth="60dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="@string/ocr"
+        android:textColor="@color/colorAccent" />
+    </FrameLayout>
+  </LinearLayout>
 
-            <com.withparadox2.simpleocr.support.view.CropRotationWheel
-                android:id="@+id/layout_wheel"
-                android:layout_width="match_parent"
-                android:layout_height="45dp" />
-
-            <ImageView
-                android:id="@+id/btn_rotate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|bottom"
-                android:layout_marginEnd="20dp"
-                android:background="@drawable/bg_btn_bar_dark"
-                android:src="@drawable/ic_crop_rotate" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_gravity="bottom">
-
-            <TextView
-                android:id="@+id/btn_cancel"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="start"
-                android:background="@drawable/bg_btn_bar_dark"
-                android:gravity="center"
-                android:minWidth="60dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text="@string/cancel"
-                android:textColor="@color/white" />
-
-            <TextView
-                android:id="@+id/btn_reset"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:background="@drawable/bg_btn_bar_dark"
-                android:gravity="center"
-                android:minWidth="100dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text="@string/reset"
-                android:textColor="@color/white" />
-
-            <TextView
-                android:id="@+id/btn_ocr"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="end"
-                android:background="@drawable/bg_btn_bar_dark"
-                android:gravity="center"
-                android:minWidth="60dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text="@string/ocr"
-                android:textColor="@color/colorAccent" />
-        </FrameLayout>
-    </LinearLayout>
-
-    <com.withparadox2.simpleocr.support.view.LoadingView
-        android:id="@+id/progressbar"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_gravity="center"
-        android:visibility="gone" />
+  <com.withparadox2.simpleocr.support.view.LoadingView
+    android:id="@+id/progressbar"
+    android:layout_width="50dp"
+    android:layout_height="50dp"
+    android:layout_gravity="center"
+    android:visibility="gone" />
 </FrameLayout>

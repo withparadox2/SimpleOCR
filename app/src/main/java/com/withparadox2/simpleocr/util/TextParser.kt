@@ -5,5 +5,5 @@ package com.withparadox2.simpleocr.util
  */
 
 fun parseText(textList: List<Map<String, String>>?): String {
-    return textList?.map { it["words"] }?.joinToString("\n") ?: ""
+  return textList?.map { it["words"] }?.joinToString("\n") ?: ""
 }

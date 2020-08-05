@@ -1,58 +1,57 @@
-
 <resources>
-    <string name="app_name">莫名書摘</string>
-    <string name="ocr">識別</string>
-    <string name="reset">重置</string>
-    <string name="cancel">取消</string>
-    <string name="tip_title">提示</string>
-    <string name="permission_request_msg">為了保證程式正常工作，接下來會申請必要的權限，請同意</string>
-    <string name="share">分享</string>
-    <string name="edit_his_label_title">標題</string>
-    <string name="edit_his_label_author">作者</string>
-    <string name="short_delete">刪除</string>
-    <string name="edit">編輯</string>
-    <string-array name="items_edit_content">
-        <item>重置</item>
-        <item>合併行</item>
-        <item>→中文</item>
-        <item>→中文 &amp; 合併行</item>
-        <item>→English</item>
-        <item>→English &amp; 合併行</item>
-        <item>上一步</item>
-        <item>複製</item>
-    </string-array>
-    <string name="dialog_confirm">確認</string>
-    <string name="dialog_cancel">@string/cancel</string>
-    <string name="add_new_book">新增</string>
-    <string name="btn_edit_content">格式</string>
-    <string name="btn_edit_more">識別</string>
-    <string name="btn_edit_template">模板</string>
-    <string name="manage_book">管理書籍</string>
-    <string name="add_book">新增書籍</string>
-    <string name="edit_book">編輯書籍</string>
-    <string name="template_empty">沒有模板</string>
-    <string name="text_insert_where">選擇位置</string>
-    <string-array name="items_text_insert_place">
-        <item>開始</item>
-        <item>光標</item>
-        <item>末尾</item>
-    </string-array>
-    <string-array name="items_share">
-        <item>保存本地</item>
-        <item>分享</item>
-    </string-array>
-    <string-array name="items_time_section">
-        <item>凌晨</item>
-        <item>清晨</item>
-        <item>上午</item>
-        <item>中午</item>
-        <item>下午</item>
-        <item>傍晚</item>
-        <item>晚上</item>
-        <item>深夜</item>
-    </string-array>
-    <string name="dialog_title_exit_edit">退出</string>
-    <string name="dialog_message_exit_edit">確認退出？</string>
-    <string name="toast_save_picture">圖片保存在 %1$s</string>
-    <string name="dialog_message_override_content">確認覆蓋當前内容？</string>
+  <string name="app_name">莫名書摘</string>
+  <string name="ocr">識別</string>
+  <string name="reset">重置</string>
+  <string name="cancel">取消</string>
+  <string name="tip_title">提示</string>
+  <string name="permission_request_msg">為了保證程式正常工作，接下來會申請必要的權限，請同意</string>
+  <string name="share">分享</string>
+  <string name="edit_his_label_title">標題</string>
+  <string name="edit_his_label_author">作者</string>
+  <string name="short_delete">刪除</string>
+  <string name="edit">編輯</string>
+  <string-array name="items_edit_content">
+    <item>重置</item>
+    <item>合併行</item>
+    <item>→中文</item>
+    <item>→中文 &amp; 合併行</item>
+    <item>→English</item>
+    <item>→English &amp; 合併行</item>
+    <item>上一步</item>
+    <item>複製</item>
+  </string-array>
+  <string name="dialog_confirm">確認</string>
+  <string name="dialog_cancel">@string/cancel</string>
+  <string name="add_new_book">新增</string>
+  <string name="btn_edit_content">格式</string>
+  <string name="btn_edit_more">識別</string>
+  <string name="btn_edit_template">模板</string>
+  <string name="manage_book">管理書籍</string>
+  <string name="add_book">新增書籍</string>
+  <string name="edit_book">編輯書籍</string>
+  <string name="template_empty">沒有模板</string>
+  <string name="text_insert_where">選擇位置</string>
+  <string-array name="items_text_insert_place">
+    <item>開始</item>
+    <item>光標</item>
+    <item>末尾</item>
+  </string-array>
+  <string-array name="items_share">
+    <item>保存本地</item>
+    <item>分享</item>
+  </string-array>
+  <string-array name="items_time_section">
+    <item>凌晨</item>
+    <item>清晨</item>
+    <item>上午</item>
+    <item>中午</item>
+    <item>下午</item>
+    <item>傍晚</item>
+    <item>晚上</item>
+    <item>深夜</item>
+  </string-array>
+  <string name="dialog_title_exit_edit">退出</string>
+  <string name="dialog_message_exit_edit">確認退出？</string>
+  <string name="toast_save_picture">圖片保存在 %1$s</string>
+  <string name="dialog_message_override_content">確認覆蓋當前内容？</string>
 </resources>

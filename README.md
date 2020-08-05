@@ -36,7 +36,7 @@ In cases where debugging of a single template is needed, one should config
 debug.template=templateDefault
 ```
 
-## Licence
+## License
 
 ```
 Copyright 2020 withparadox2
